@@ -19,10 +19,18 @@ class MyWindow(Gtk.Window):
         self.grid.set_column_homogeneous(True)
         self.grid.set_row_spacing(5)
 
-        welcome_label = Gtk.Label()
-        welcome_label.set_label ('''WELCOME TO YOUR OFFILINE ERP ''')
+        welcome_label = Gtk.Label('WELCOME TO YOUR OFFLINE ERP')
+        Name_label = Gtk.Label("Name :")
+        ID_label = Gtk.Label("ID Number :")
+        Pdf_label = Gtk.Label("Add path to your file")
         self.grid.attach(welcome_label, 0, 0, 2, 2)
 
+        Name_entry = Gtk.Entry()
+        Name_entry.set_editable(True)
+        ID_entry = Gtk.Entry()
+        ID_entry.set_editable(True)
+        Pdf_entry = Gtk.Entry()
+        Pdf_entry.set_editable(True)
 
         pb = GdkPixbuf.Pixbuf.new_from_file_at_size('BITs.jpg',200,200)
         img = Gtk.Image()
@@ -30,28 +38,12 @@ class MyWindow(Gtk.Window):
         self.grid.attach (img, 3, 1, 2, 4)
 
 
-        Name_label = Gtk.Label()
-        Name_label.set_label("Name :")
+
         Name_label.set_xalign(0)
-
-        Name_entry = Gtk.Entry()
-        Name_entry.set_editable(True)
-
-
-
-        ID_label = Gtk.Label()
-        ID_label.set_label("ID Number :")
         ID_label.set_xalign(0)
-
-        ID_entry = Gtk.Entry()
-        ID_entry.set_editable(True)
-
-        Pdf_label = Gtk.Label()
-        Pdf_label.set_label("Add path to your file")
         Pdf_label.set_xalign(0)
 
-        Pdf_entry = Gtk.Entry()
-        Pdf_entry.set_editable(True)
+
 
         self.grid.attach(Name_label, 1, 2, 1, 1)
         self.grid.attach_next_to(Name_entry, Name_label, Gtk.PositionType.RIGHT, 1, 1)
@@ -72,7 +64,6 @@ class MyWindow(Gtk.Window):
 
 
         Exit_button.connect('clicked', Gtk.main_quit)
-
 
 
 window = MyWindow()
