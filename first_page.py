@@ -10,14 +10,15 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self, title = "Offline ERP")
         #self.set_size_request(400,400)
         self.connect('delete-event', Gtk.main_quit)
-
+        self.set_border_width(10)
 
         self.grid = Gtk.Grid()
         self.add(self.grid)
 
         self.grid.set_row_homogeneous(True)
         self.grid.set_column_homogeneous(True)
-        self.grid.set_row_spacing(5)
+        self.grid.set_row_spacing(10)
+        self.grid.set_column_spacing(10)
 
         welcome_label = Gtk.Label('WELCOME TO YOUR OFFLINE ERP')
         Name_label = Gtk.Label("Name :")
