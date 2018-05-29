@@ -5,12 +5,13 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 from tabula import read_pdf, convert_into
 #import tabula 
 
-def split_pdf(path):
+def split_pdf():
 	''' Splits the timetable pdf into individual pages 
-		path here is the pdf path of timetable.
 	'''
+	path = '/home/pranjal/Python/repos/Projects/TimeTable@BPHC/TIMETABLE II SEM 2017-18 .pdf'
 	infile = PdfFileReader(open(path, 'rb'))
 	
+	##Remove absolute path
 
 	for i in xrange(infile.getNumPages()):
 	   	p = infile.getPage(i)
@@ -19,24 +20,16 @@ def split_pdf(path):
 		with open('Pages/pdf/page-%02d.pdf' % i, 'wb') as f:
 			outfile.write(f)
 
-split_pdf('/home/pranjal/Python/repos/Projects/TimeTable@BPHC/TIMETABLE II SEM 2017-18 .pdf')
-
 def extract_to_csv():
-	''' Index is the starting page containing the coursewise timetable.
-		and path is the path of pages (split pages)
-		cursor.execute( CREATE TABLE courses ( 
-		COURSE_CODE text, 
-		COURSE_TITLE text, 
-		INSTRUCTOR text, 
-		DAY text, HOURS text, 
-		COMPRE_DATE text) )
+	''' 
+		Extracts table from the pdf and stores them in a database (courses.db)
 	'''
 	path = '/home/pranjal/Python/repos/Projects/TimeTable@BPHC/Pages/pdf'
 	
 	db = sqlite3.connect('courses.db')
 	cursor = db.cursor() 
 
-	
+	##Remove absolute path
 
 
 	directory_files = os.listdir(path)
@@ -52,10 +45,11 @@ def extract_to_csv():
 				'skiprows' : [0,1,2,3,4,5], 
 				'keep_default_na' : False,
 				'usecols' : [1,2,5,7,8,10]})
-			data.to_sql(name = 'courses', con = db, index = False, index_label = None, if_exists = 'append')
+			data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'INSTRUCTOR', 'DAY', 'HOURS', 'COMPRE_DATE']
+			data.to_sql(name = 'courses', con = db, index = False, if_exists = 'append')
 
 			
-
+split_pdf()
 extract_to_csv()	
 
 
