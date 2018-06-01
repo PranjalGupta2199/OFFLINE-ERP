@@ -1,3 +1,4 @@
+import pandas
 import sqlite3
 
 class Searching:
@@ -16,7 +17,7 @@ class Searching:
 	'''
 	def __init__(self, parameter):
 		self.parameter = parameter
-
+		self.lecture, self.tutorial, self.practical = [], [], []
 
 	def search(self, query, cursor):
 
@@ -30,6 +31,7 @@ class Searching:
 		
 		cursor.execute("SELECT * FROM courses WHERE _rowid_ >= ? ", match_id )
 		result_list = [cursor.fetchone()] #contains the complete details of the course
+		
 		try:
 			next_record = cursor.fetchone()
 			while (not next_record[0]):
@@ -38,14 +40,41 @@ class Searching:
 		except: ##add excpetion type
 			pass
 		finally:
-			self.Print_(result_list)
+			#self.Print_(result_list)
+			pass
+
+		details_df = pandas.DataFrame(result_list)
+		tut_index, prac_index = -1, -1
+
+		for index in range (len(details_df[1])) :
+			if (details_df[1][index].lower() == 'practical') :
+				prac_index = index
+			elif (details_df[1][index].lower() == 'tutorial') :
+				tut_index = index
+
+		if (tut_index == -1) :
+			if (prac_index == -1):
+				self.lecture = details_df
+			else :
+				self.practical = details_df[prac_index : ]
+				self.lecture = details_df[ : prac_index]
+		else:
+			if (prac_index == -1):
+				self.lecture = details_df[ : tut_index]
+				self.tutorial = details_df[tut_index : ]
+			else :
+				self.lecture = details_df[ : prac_index]
+				self.practical = details_df[prac_index : tut_index]
+				self.tutorial = details_df[tut_index : ]
+
 
 	def Print_ (self, list_):
 		for i in range(len(list_)):
 			print i, list_[i]
 
 		if not list_ : 
-			print 'Sorry, No searches where found.'
+			pass
+			#print 'Sorry, No searches where found.'
 
 
 db = sqlite3.connect('courses.db')
