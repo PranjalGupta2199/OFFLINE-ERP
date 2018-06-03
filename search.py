@@ -15,19 +15,21 @@ class Searching:
 			__init__ : Instantiates the instance of the class
 			search : matches the query with the given parameter
 	'''
-	def __init__(self, parameter):
-		self.parameter = parameter
+	def __init__(self):
 		self.lecture, self.tutorial, self.practical = [], [], []
 
 	def search(self, query, cursor):
 
-		cursor.execute ( "SELECT {} FROM courses WHERE {} LIKE ?".format(self.parameter, self.parameter), ('%' + query + '%',))
+		cursor.execute ( "SELECT COURSE_CODE, COURSE_TITLE FROM \
+		 courses WHERE COURSE_CODE  LIKE ? OR COURSE_TITLE LIKE ?",\
+		  ('%' + query + '%','%' + query + '%'))
 		match_list = cursor.fetchall()  #This will print all the matched strings 
 
 		self.Print_(match_list)  #only for command line
 		prompt = input(' match number :')	
-		match_parameter = match_list[prompt] #This is the desired course_code/course_title
-		match_id = cursor.execute("SELECT _rowid_ FROM courses WHERE {} = ?".format(self.parameter), match_parameter).fetchall()[0] 
+		match_parameter = match_list[prompt] #This is the desired course_code and course_title
+		match_id = cursor.execute("SELECT _rowid_ FROM courses WHERE COURSE_CODE = ? AND COURSE_TITLE = ?",\
+		 match_parameter).fetchall()[0] 
 		
 		cursor.execute("SELECT * FROM courses WHERE _rowid_ >= ? ", match_id )
 		result_list = [cursor.fetchone()] #contains the complete details of the course
@@ -37,7 +39,7 @@ class Searching:
 			while (not next_record[0]):
 				result_list.append(next_record)
 				next_record = cursor.fetchone()		  
-		except: ##add excpetion type
+		except: ##add exception type
 			pass
 		finally:
 			#self.Print_(result_list)
@@ -67,6 +69,12 @@ class Searching:
 				self.practical = details_df[prac_index : tut_index]
 				self.tutorial = details_df[tut_index : ]
 
+	def __str__ (self) : 
+
+		print self.lecture
+		print self.practical
+		print self.tutorial
+		return ' '
 
 	def Print_ (self, list_):
 		for i in range(len(list_)):
@@ -77,12 +85,14 @@ class Searching:
 			#print 'Sorry, No searches where found.'
 
 
-db = sqlite3.connect('courses.db')
-cursor = db.cursor()
+if __name__ == '__main__':
+	db = sqlite3.connect('courses.db')
+	cursor = db.cursor()
 
-while True:
-	course_title_search = Searching('COURSE_TITLE')
-	print
-	print 
-	query = raw_input("Enter your query : ")
-	course_title_search.search(query, cursor)
+	while True:
+		search_object = Searching()
+		print
+		print 
+		query = raw_input("Enter your query : ")
+		search_object.search(query, cursor)
+		print search_object

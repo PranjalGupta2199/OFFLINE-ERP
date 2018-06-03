@@ -22,14 +22,11 @@ def split_pdf():
 		with open('Pages/page-%02d.pdf' % i, 'wb') as f:
 			outfile.write(f)
 
-def extract_to_csv():
+def to_database(connection_object):
 	''' 
 		Extracts table from the pdf and stores them in a database (courses.db)
 	'''
 	path = '/home/pranjal/Python/repos/Projects/TimeTable@BPHC/Pages/'
-	
-	db = sqlite3.connect('courses.db')
-	#cursor = db.cursor() 
 
 	##Remove absolute path
 
@@ -55,11 +52,13 @@ def extract_to_csv():
 			data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'SECTION', 
 			'INSTRUCTOR', 'DAY', 'HOURS', 'COMPRE_DATE']
 			
-			data.to_sql(name = 'courses', con = db, 
+			data.to_sql(name = 'courses', con = connection_object, 
 				index = False, if_exists = 'append')
 
-			
-split_pdf()
-extract_to_csv()	
+if __name__ == '__main__':
+	db = sqlite3.connect('courses.db')
+	#cursor = db.cursor() 
+	split_pdf()
+	to_database(db)	
 
 
