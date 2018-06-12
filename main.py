@@ -12,8 +12,8 @@ from gi.repository import Gtk
 
 if __name__ == "__main__" :
 	db = sqlite3.connect('/home/pranjal/Python/repos/Projects/TimeTable@BPHC/packages/courses.db')
-	pdf_reader.split_pdf()
-	pdf_reader.to_database(db)
+	#pdf_reader.split_pdf()
+	#pdf_reader.to_database(db)
 	window = gui.MyWindow()
 	window.connect('delete-event', Gtk.main_quit)
 	window.show_all()
