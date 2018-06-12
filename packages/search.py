@@ -17,28 +17,30 @@ class Searching:
 	'''
 	def __init__(self):
 		self.lecture, self.tutorial, self.practical = [], [], []
+		db = sqlite3.connect('/home/pranjal/Python/repos/Projects/TimeTable@BPHC/packages/courses.db')
+		self.cursor = db.cursor()
 
-	def search(self, query, cursor):
 
-		cursor.execute ( "SELECT COURSE_CODE, COURSE_TITLE FROM \
+	def get_result(self, query):
+
+		self.cursor.execute ( "SELECT COURSE_CODE, COURSE_TITLE FROM \
 		 courses WHERE COURSE_CODE  LIKE ? OR COURSE_TITLE LIKE ?",\
 		  ('%' + query + '%','%' + query + '%'))
-		match_list = cursor.fetchall()  #This will print all the matched strings 
+		return self.cursor.fetchall()  #This will return all the matched strings 
 
-		self.Print_(match_list)  #only for command line
-		prompt = input(' match number :')	
-		match_parameter = match_list[prompt] #This is the desired course_code and course_title
-		match_id = cursor.execute("SELECT _rowid_ FROM courses WHERE COURSE_CODE = ? AND COURSE_TITLE = ?",\
+	def get_course_details (self, match_parameter): #match_parameter is a tuple
+
+		match_id = self.cursor.execute("SELECT _rowid_ FROM courses WHERE COURSE_CODE = ? AND COURSE_TITLE = ?",\
 		 match_parameter).fetchall()[0] 
 		
-		cursor.execute("SELECT * FROM courses WHERE _rowid_ >= ? ", match_id )
-		result_list = [cursor.fetchone()] #contains the complete details of the course
+		self.cursor.execute("SELECT * FROM courses WHERE _rowid_ >= ? ", match_id )
+		result_list = [self.cursor.fetchone()] #contains the complete details of the course
 		
 		try:
-			next_record = cursor.fetchone()
+			next_record = self.cursor.fetchone()
 			while (not next_record[0]):
 				result_list.append(next_record)
-				next_record = cursor.fetchone()		  
+				next_record = self.cursor.fetchone()		  
 		except: ##add exception type
 			pass
 		finally:
@@ -86,13 +88,11 @@ class Searching:
 
 
 if __name__ == '__main__':
-	db = sqlite3.connect('courses.db')
-	cursor = db.cursor()
-
+	
 	while True:
 		search_object = Searching()
 		print
 		print 
 		query = raw_input("Enter your query : ")
-		search_object.search(query, cursor)
+		search_object.search(query)
 		print search_object
