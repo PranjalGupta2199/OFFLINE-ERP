@@ -33,6 +33,12 @@ class MyWindow(Gtk.Window):
         self.page01_tut_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
         self.page01_prac_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
         
+        self.lec_store = Gtk.ListStore(bool, str, str, str, str)
+        self.prac_store = Gtk.ListStore(bool, str, str, str, str)
+        self.tut_store = Gtk.ListStore(bool, str, str, str, str)
+
+
+
         self.page01_notebook.append_page(self.page01_course_tab, Gtk.Label("COURSE"))
         self.page01_notebook.append_page(self.page01_lec_tab, Gtk.Label("LECTURE") )
         self.page01_notebook.append_page(self.page01_prac_tab, Gtk.Label("PRACTICAL"))
@@ -54,20 +60,24 @@ class MyWindow(Gtk.Window):
         
         
         renderer_toggle = Gtk.CellRendererToggle()
-        renderer_toggle.set_radio(False)
+        renderer_toggle.set_radio(True)
         renderer_toggle.connect("toggled", self.get_course_details)
+
+
+        selected_section = Gtk.TreeViewColumn(" ", renderer_toggle)
+        selected_section.add_attribute(renderer_toggle, 'active', 0)
 
         self.store = Gtk.ListStore(bool,str, str)
 
         for match in self.match_list :
-            self.store.append([True] + list(match))
+            self.store.append([False] + list(match))
 
         treeview = Gtk.TreeView(model = self.store)
         selection = treeview.get_selection()
         selection.set_mode(0)
+        
+        treeview.append_column(selected_section)        
 
-        selected_section = Gtk.TreeViewColumn("", renderer_toggle)
-        treeview.append_column(selected_section)
 
         for i, column_title in enumerate(["COURSE CODE", "COURSE TITLE"]):
             renderer = Gtk.CellRendererText()
@@ -80,21 +90,26 @@ class MyWindow(Gtk.Window):
         
 
     def get_course_details(self, widget, path) :
+        selected_path = Gtk.TreePath(path)
+        for row in self.store:
+            row[0] = (row.path == selected_path)
 
         selected_course_code = self.store[path][1]
         selected_course_title = self.store[path][2]
         match_parameter = (selected_course_code, selected_course_title)
         self.sobject.get_course_details(match_parameter)
 
-        self.display_sections(dataframe = self.sobject.lecture, tab = self.page01_lec_tab)
-        self.display_sections(dataframe = self.sobject.practical, tab = self.page01_prac_tab)
-        self.display_sections(dataframe = self.sobject.tutorial, tab = self.page01_tut_tab)
+        self.display_sections(dataframe = self.sobject.lecture, tab = self.page01_lec_tab, store = self.lec_store)
+        self.display_sections(dataframe = self.sobject.practical, tab = self.page01_prac_tab, store = self.prac_store)
+        self.display_sections(dataframe = self.sobject.tutorial, tab = self.page01_tut_tab, store = self.tut_store)
 
-    def display_sections (self, dataframe, tab) :
+    def display_sections (self, dataframe, tab, store) :
         if tab.get_child() != None :
+            store.clear()
             tab.remove(tab.get_child())
 
-        store = Gtk.ListStore(bool, str, str, str, str) ##Radio_button, sec, instructor(s), days, hours
+
+         ##Radio_button, sec, instructor(s), days, hours
 
         if dataframe.empty :
             store.append([False, ' ', ' ', ' ', ' '])
@@ -116,14 +131,18 @@ class MyWindow(Gtk.Window):
                 store.append([False, liststore_data_Section, liststore_data_Instructor, liststore_data_days, liststore_data_hours])
             
             treeview = Gtk.TreeView(model = store)
-            
+            selection = treeview.get_selection()
+            selection.set_mode(0)
 
-            renderer_radio = Gtk.CellRendererToggle()
-            renderer_radio.set_radio(True)
-            renderer_radio.connect("toggled", self.add_to_timetable)
+            renderer_toggle = Gtk.CellRendererToggle()
+            renderer_toggle.set_radio(True)
+            renderer_toggle.connect("toggled", self.add_to_timetable, store)
 
-            column_radio = Gtk.TreeViewColumn(" ", renderer_radio)
-            treeview.append_column(column_radio)
+
+            selected_section = Gtk.TreeViewColumn(" ", renderer_toggle)
+            selected_section.add_attribute(renderer_toggle, 'active', 0)
+            treeview.append_column(selected_section) 
+
     		
             for i, column_title in enumerate(["SECTION", "INSTRUCTOR", "DAYS", "HOURS"]) :
                 renderer = Gtk.CellRendererText()
@@ -134,7 +153,10 @@ class MyWindow(Gtk.Window):
 
 
 
-    def add_to_timetable(self, widget, path) :
+    def add_to_timetable(self, widget, path, store) :
+        selected_path = Gtk.TreePath(path)
+        for row in store:
+            row[0] = (row.path == selected_path)
         print 'working'
 
 
