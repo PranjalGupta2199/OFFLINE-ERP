@@ -16,7 +16,7 @@ class Searching:
 			search : matches the query with the given parameter
 	'''
 	def __init__(self):
-		self.lecture, self.tutorial, self.practical = [], [], []
+		self.lecture, self.tutorial, self.practical = [],[],[]	
 		db = sqlite3.connect('/home/pranjal/Python/repos/Projects/TimeTable@BPHC/packages/courses.db')
 		self.cursor = db.cursor()
 
@@ -58,12 +58,16 @@ class Searching:
 
 		if (tut_index == -1) :
 			if (prac_index == -1):
+				self.practical = pandas.DataFrame([])
+				self.tutorial = pandas.DataFrame([])
 				self.lecture = details_df
 			else :
+				self.tutorial = pandas.DataFrame([])
 				self.practical = details_df[prac_index : ]
 				self.lecture = details_df[ : prac_index]
 		else:
 			if (prac_index == -1):
+				self.practical = pandas.DataFrame([])
 				self.lecture = details_df[ : tut_index]
 				self.tutorial = details_df[tut_index : ]
 			else :
