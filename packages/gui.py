@@ -6,6 +6,7 @@ import pandas
 
 class MyWindow(Gtk.Window):
     Label_list = []
+    added_courses = []
 
     def __init__(self):
         self.sobject = search.Searching()
@@ -20,6 +21,13 @@ class MyWindow(Gtk.Window):
         page00.set_row_homogeneous(True)
         page00.set_column_homogeneous(True)
 
+        self.clear_all_button = Gtk.Button("Clear All")
+        self.clear_all_button.connect('clicked', self.clear_timetable)
+        page00.attach(child = self.clear_all_button, left = 0, top = 11, width = 2, height = 1)
+
+        self.gen_pdf_button = Gtk.Button("Generate pdf")
+        self.gen_pdf_button.connect('clicked', self.gen_pdf)
+        page00.attach(child = self.gen_pdf_button, left = 6, top = 11, width = 2, height = 1)
 
         self.create_timetable(page00)
         self.notebook.append_page(page00, Gtk.Label("YOUR TIMETABLE"))
@@ -74,8 +82,13 @@ class MyWindow(Gtk.Window):
             MyWindow.Label_list.append(l)
             l = []
 
+    def clear_timetable(self, widget, data = None) :
+        for row in range (len(MyWindow.Label_list)) :
+            for col in range (len(MyWindow.Label_list[row])) :
+                MyWindow.Label_list[row] [col].set_label(self.schedule[row][col])      
 
-
+    def gen_pdf(self, widget) : 
+        pass
 
 
     def search (self, widget) : 
@@ -83,7 +96,7 @@ class MyWindow(Gtk.Window):
         self.display_course_code(self.page01_course_tab)
 
 
-    def add_column_text(self, store, tab, callback_method, column_title_list) :
+    def add_column_text(self, store, section_type,tab, callback_method, column_title_list) :
         if tab.get_child() != None :
             store.clear()
             tab.remove(tab.get_child())
@@ -95,7 +108,7 @@ class MyWindow(Gtk.Window):
 
         renderer_toggle = Gtk.CellRendererToggle()
         renderer_toggle.set_radio(True)
-        renderer_toggle.connect("toggled", callback_method, store)
+        renderer_toggle.connect("toggled", callback_method, store, section_type)
 
 
         selected_section = Gtk.TreeViewColumn(" ", renderer_toggle)
@@ -115,7 +128,7 @@ class MyWindow(Gtk.Window):
     def display_course_code(self, tab):
         
         self.store = Gtk.ListStore(bool,str, str)
-        self.add_column_text(self.store, tab, self.get_course_details, ["COURSE CODE", "COURSE TITLE"])
+        self.add_column_text(self.store, ' ', tab, self.get_course_details, ["COURSE CODE", "COURSE TITLE"])
         
         for match in self.match_list :
             self.store.append([False] + list(match))
@@ -133,13 +146,13 @@ class MyWindow(Gtk.Window):
         match_parameter = (self.selected_course_code, self.selected_course_title)
         self.sobject.get_course_details(match_parameter)
 
-        self.display_sections(dataframe = self.sobject.lecture, tab = self.page01_lec_tab, store = self.lec_store)
-        self.display_sections(dataframe = self.sobject.practical, tab = self.page01_prac_tab, store = self.prac_store)
-        self.display_sections(dataframe = self.sobject.tutorial, tab = self.page01_tut_tab, store = self.tut_store)
+        self.display_sections(dataframe = self.sobject.lecture, tab = self.page01_lec_tab, store = self.lec_store, section_type = 'LECTURE')
+        self.display_sections(dataframe = self.sobject.practical, tab = self.page01_prac_tab, store = self.prac_store, section_type = 'PRACTICAL')
+        self.display_sections(dataframe = self.sobject.tutorial, tab = self.page01_tut_tab, store = self.tut_store, section_type = 'TUTORIAL')
 
-    def display_sections (self, dataframe, tab, store) :
+    def display_sections (self, dataframe, tab, store, section_type) :
          ##Radio_button, sec, instructor(s), days, hours
-        self.add_column_text(store, tab, self.update_timetable, ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
+        self.add_column_text(store, section_type, tab, self.update_timetable, ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
         if dataframe.empty :
             store.append([False, ' ', ' ', ' ', ' '])
 
@@ -162,7 +175,7 @@ class MyWindow(Gtk.Window):
 
 
 
-    def update_timetable(self, widget, path, store) :
+    def update_timetable(self, widget, path, store, section_type) :
         selected_path = Gtk.TreePath(path)
         for row in store:
             row[0] = (row.path == selected_path)
@@ -175,7 +188,16 @@ class MyWindow(Gtk.Window):
             self.selected_hour[i] = int(self.selected_hour[i])
 
 
-        self.text = self.selected_course_code + '\n' + self.selected_course_title + '\n' + self.selected_instructor 
+        self.text = self.selected_course_code + '\n' + self.selected_course_title + '\n' + section_type + '\n' + self.selected_instructor 
+
+        if self.selected_course_code not in MyWindow.added_courses : 
+            MyWindow.added_courses.append(self.selected_course_code)
+        else :
+            for row in range (len(MyWindow.Label_list)) :
+                for col in range (len(MyWindow.Label_list[row])) :
+                    if self.selected_course_code in MyWindow.Label_list[row][col].get_label()\
+                    and section_type in MyWindow.Label_list[row][col].get_label() :
+                        MyWindow.Label_list[row][col].set_label(' ')
 
         for row in self.selected_hour : 
             for col in self.selected_day : 
