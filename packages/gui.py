@@ -15,30 +15,32 @@ class MyWindow(Gtk.Window):
 
         page00 = Gtk.Grid()
         page01 = Gtk.Grid()
+        #page01.set_column_homogeneous(True)
+        #page01.set_row_homogeneous(True)
         self.notebook.append_page(page00, Gtk.Label("YOUR TIMETABLE"))
 
         self.SearchBar = Gtk.Entry()
         
-        page01.attach(child = self.SearchBar, left = 1, top = 1, width = 7, height = 1)
+        page01.attach(child = self.SearchBar, left = 1, top = 1, width = 4, height = 1)
      
         self.SearchButton = Gtk.Button("GO !")
         self.SearchButton.connect('clicked', self.search)
 
-        page01.attach_next_to(child = self.SearchButton, sibling = self.SearchBar, side = Gtk.PositionType(1), width = 2, height = 1)
+        page01.attach_next_to(child = self.SearchButton, sibling = self.SearchBar, side = Gtk.PositionType(1), width = 1, height = 1)
      	
 
         self.page01_notebook = Gtk.Notebook()
         self.page01_course_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
-        self.page01_lec_tab = Gtk.Box()
-        self.page01_tut_tab = Gtk.Box()
-        self.page01_prac_tab = Gtk.Box()
+        self.page01_lec_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
+        self.page01_tut_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
+        self.page01_prac_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
         
         self.page01_notebook.append_page(self.page01_course_tab, Gtk.Label("COURSE"))
         self.page01_notebook.append_page(self.page01_lec_tab, Gtk.Label("LECTURE") )
         self.page01_notebook.append_page(self.page01_prac_tab, Gtk.Label("PRACTICAL"))
         self.page01_notebook.append_page(self.page01_tut_tab, Gtk.Label("TUTORIAL"))
 
-        page01.attach_next_to(child = self.page01_notebook, sibling = self.SearchBar, side = Gtk.PositionType(3), width = 2, height = 1)
+        page01.attach_next_to(child = self.page01_notebook, sibling = self.SearchBar, side = Gtk.PositionType(3), width = 1, height = 1)
 
         self.notebook.append_page(page01, Gtk.Label("SEARCH"))
     
@@ -54,20 +56,21 @@ class MyWindow(Gtk.Window):
         
         
         renderer_toggle = Gtk.CellRendererToggle()
-        renderer_toggle.set_radio(True)
+        renderer_toggle.set_radio(False)
         renderer_toggle.connect("toggled", self.get_course_details)
 
         self.store = Gtk.ListStore(bool,str, str)
 
         for match in self.match_list :
-            self.store.append([False] + list(match))
+            self.store.append([True] + list(match))
 
         treeview = Gtk.TreeView(model = self.store)
         selection = treeview.get_selection()
         selection.set_mode(0)
 
-        selected_section = Gtk.TreeViewColumn("", renderer_toggle, active=0)
+        selected_section = Gtk.TreeViewColumn("", renderer_toggle)
         treeview.append_column(selected_section)
+
         for i, column_title in enumerate(["COURSE CODE", "COURSE TITLE"]):
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(column_title, renderer, text=i+1)
@@ -76,45 +79,47 @@ class MyWindow(Gtk.Window):
 
         treeview.show_all()
         self.page01_course_tab.add(treeview)
-
         
 
-
-
-    def get_course_details(self, widget, event) :
-        text = widget.get_label()
-        match_parameter = tuple(text.split(" "))
-        
+    def get_course_details(self, widget, path) :
+        selected_course_code = self.store[path][1]
+        selected_course_title = self.store[path][2]
+        match_parameter = (selected_course_code, selected_course_title)
         self.sobject.get_course_details(match_parameter)
 
-    def display_sections (self, list_, tab) :
-        liststore = Gtk.ListStore(bool, str, str, str, str) ##Radio_button, sec, instructor(s), days, hours
-		
-        count = -1
-        liststore_data_Section = " "
-        liststore_data_Instructor = " "
-        liststore_data_days = " "
-        liststore_data_hours = " "
+        self.display_sections(self.sobject.lecture, self.page01_lec_tab)
+        self.display_sections(self.sobject.practical, self.page01_prac_tab)
+        self.display_sections(self.sobject.tutorial, self.page01_tut_tab)
 
-        while count < len(list_) - 1 :
-            item = list_[count + 1]
-            liststore_data_Section = list_[1]
-            liststore_data_Instructor = list_[2]
-            liststore_data_days = list_[3]
-            liststore_data_hours = list_[4]
+    def display_sections (self, dataframe, tab) :
+        try:
+            tab.remove(tab.get_child())
+        except:
+            pass
+        self.sec_store = Gtk.ListStore(bool, str, str, str, str) ##Radio_button, sec, instructor(s), days, hours
 
-            try:
-                while not next(item[1]) :
-                    liststore_data_Instructor += '\n' + next(item[2])
-                    item = next(item)
+        try :
+            if not dataframe :
+                self.sec_store.append([False, ' ', ' ', ' ', ' '])                
+        except:
+            count = 0
+            while count <= len(dataframe) - 1:
+                liststore_data_Section = dataframe.iloc[count][2] 
+                liststore_data_Instructor = dataframe.iloc[count][3]
+                liststore_data_days = dataframe.iloc[count][4]
+                liststore_data_hours = dataframe.iloc[count][5]
+
+                count += 1
+
+                while count < len(dataframe) - 1 and not dataframe.iloc[count][4]:
+                    liststore_data_Instructor += '\n' + dataframe.iloc[count][3]
                     count += 1
-            except :pass
+
+                self.sec_store.append([False, liststore_data_Section, liststore_data_Instructor, liststore_data_days, liststore_data_hours])
 
 
-        liststore.append([False, liststore_data_Section, liststore_data_Instructor, liststore_data_days, liststore_data_hours])
-
-        treeview = Gtk.TreeView(model = liststore)
-        #tab.pack_start(treeview, False, False, 0)
+        treeview = Gtk.TreeView(model = self.sec_store)
+        
 
         renderer_radio = Gtk.CellRendererToggle()
         renderer_radio.set_radio(True)
@@ -123,15 +128,17 @@ class MyWindow(Gtk.Window):
         column_radio = Gtk.TreeViewColumn(" ", renderer_radio)
         treeview.append_column(column_radio)
 		
-        for column in ["SECTION", "INSTRUCTOR(S), DAYS, HOURS"] :
-            renderer_text = Gtk.CellRendererText()
-            column_text = Gtk.TreeViewColumn(column, renderer_text)
-            treeview.append_column(column_text)
+        for i, column_title in enumerate(["SECTION", "INSTRUCTOR", "DAYS", "HOURS"]) :
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(column_title, renderer, text=i+1)
+            treeview.append_column(column)
+        treeview.show_all()
 
+        tab.add(treeview)
 
 
     def add_to_timetable(self, widget) :
-        pass
+        print 'working'
 
 
 
