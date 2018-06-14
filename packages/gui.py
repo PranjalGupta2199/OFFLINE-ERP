@@ -4,6 +4,13 @@ from gi.repository import Gtk
 from . import search
 import pandas
 
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+
+
+
 class MyWindow(Gtk.Window):
     Label_list = []
     added_courses = []
@@ -15,7 +22,9 @@ class MyWindow(Gtk.Window):
      	self.notebook = Gtk.Notebook()
         self.add(self.notebook)
 
+        page00_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
         page00 = Gtk.Grid()
+        page00_window.add(page00)
         page01 = Gtk.Grid()
 
         page00.set_row_homogeneous(True)
@@ -30,7 +39,7 @@ class MyWindow(Gtk.Window):
         page00.attach(child = self.gen_pdf_button, left = 6, top = 11, width = 2, height = 1)
 
         self.create_timetable(page00)
-        self.notebook.append_page(page00, Gtk.Label("YOUR TIMETABLE"))
+        self.notebook.append_page(page00_window, Gtk.Label("YOUR TIMETABLE"))
 
         self.SearchBar = Gtk.Entry()
         
@@ -88,8 +97,31 @@ class MyWindow(Gtk.Window):
                 MyWindow.Label_list[row] [col].set_label(self.schedule[row][col])      
 
     def gen_pdf(self, widget) : 
-        pass
+        doc = SimpleDocTemplate("TIMETABLE.pdf", pagesize = letter)
+        element = []
 
+        headline = "WEEKLY SCHEDULE"
+
+        style = getSampleStyleSheet()
+        normal = style["Heading1"]
+
+        para = Paragraph(headline, normal)
+        element.append(para)
+
+        user_data = self.schedule
+        
+        for row in range (len(MyWindow.Label_list)) :
+            for col in range (len(MyWindow.Label_list[row])) :
+                user_data[row][col] =  MyWindow.Label_list[row][col].get_label()
+            
+
+        table = Table(data = user_data)
+        table.setStyle(TableStyle([
+                                ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
+                                ('BOX', (0,0), (-1,-1), 0.5, colors.black),
+                                ]))
+        element.append(table)
+        doc.build(element)
 
     def search (self, widget) : 
         self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
@@ -207,6 +239,7 @@ class MyWindow(Gtk.Window):
                 elif col == 'Th' : MyWindow.Label_list[row][4].set_label(self.text)
                 elif col == 'F' : MyWindow.Label_list[row][5].set_label(self.text)
                 elif col == 'S' : MyWindow.Label_list[row][6].set_label(self.text)
+
 
         
 
