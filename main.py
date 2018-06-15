@@ -1,20 +1,25 @@
 import gi
-gi.require_version("Gtk", "3.0")
-import pandas 
-import sqlite3
 import os
-from packages import gui
+gi.require_version("Gtk", "3.0")
+from packages import page_01
+from packages import page_00
 from packages import pdf_reader
 from packages import search
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from tabula import read_pdf, convert_into
 from gi.repository import Gtk
 
 if __name__ == "__main__" :
-	db = sqlite3.connect('/home/pranjal/Python/repos/Projects/TimeTable@BPHC/packages/courses.db')
-	#pdf_reader.split_pdf()
-	#pdf_reader.to_database(db)
-	window = gui.MyWindow()
-	window.connect('delete-event', Gtk.main_quit)
-	window.show_all()
-	Gtk.main()
+	try :
+		flag = 1
+		os.mkdir("Pages")
+		window0 = page_00.FileChooser()
+		window0.connect('delete-event', Gtk.main_quit)
+		window0.show_all()
+		Gtk.main()
+	except :
+		pass
+	
+	if flag == 1:
+		window1 = page_01.MyWindow()
+		window1.connect('delete-event', Gtk.main_quit)
+		window1.show_all()
+		Gtk.main()

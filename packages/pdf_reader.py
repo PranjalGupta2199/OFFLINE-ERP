@@ -5,13 +5,11 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 from tabula import read_pdf, convert_into
 
 
-def split_pdf():
+def split_pdf(file_path, folder_path):
 	''' Splits the timetable pdf into individual pages 
 	'''
-	path = '/home/pranjal/Python/repos/Projects/TimeTable@BPHC/TIMETABLE II SEM 2017-18 .pdf'
-	infile = PdfFileReader(open(path, 'rb'))
+	infile = PdfFileReader(open(file_path, 'rb'))
 	
-	##Remove absolute path
 
 	for i in xrange(infile.getNumPages()):
 	   	p = infile.getPage(i)
@@ -19,14 +17,16 @@ def split_pdf():
 		outfile = PdfFileWriter()
 		outfile.addPage(p)
 		
-		with open('Pages/page-%02d.pdf' % i, 'wb') as f:
+		split_page_path = os.path.join(folder_path, 'Pages/page-%02d.pdf' % i)
+
+		with open(split_page_path, 'wb') as f:
 			outfile.write(f)
 
-def to_database(connection_object):
+def to_database(folder_path, connection_object):
 	''' 
 		Extracts table from the pdf and stores them in a database (courses.db)
 	'''
-	path = '/home/pranjal/Python/repos/Projects/TimeTable@BPHC/Pages/'
+	path = os.path.join(folder_path, "Pages")
 
 	##Remove absolute path
 

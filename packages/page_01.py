@@ -4,6 +4,7 @@ from gi.repository import Gtk
 from . import search
 import pandas
 
+
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, inch
 from reportlab.lib.styles import getSampleStyleSheet
@@ -18,13 +19,15 @@ class MyWindow(Gtk.Window):
     def __init__(self):
         self.sobject = search.Searching()
         super(MyWindow, self).__init__(title = "OFFLINE ERP")
-        self.set_size_request(400, 400)
+        self.set_size_request(1000, 500)
      	self.notebook = Gtk.Notebook()
         self.add(self.notebook)
+        self.maximize()
 
         page00_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
         page00 = Gtk.Grid()
         page00_window.add(page00)
+        
         page01 = Gtk.Grid()
 
         page00.set_row_homogeneous(True)
@@ -143,9 +146,9 @@ class MyWindow(Gtk.Window):
         renderer_toggle.connect("toggled", callback_method, store, section_type)
 
 
-        selected_section = Gtk.TreeViewColumn(" ", renderer_toggle)
-        selected_section.add_attribute(renderer_toggle, 'active', 0)
-        treeview.append_column(selected_section) 
+        radio_column  = Gtk.TreeViewColumn(" ", renderer_toggle)
+        radio_column.add_attribute(renderer_toggle, 'active', 0)
+        treeview.append_column(radio_column) 
 
         
         for i, column_title in enumerate(column_title_list) :
@@ -186,7 +189,8 @@ class MyWindow(Gtk.Window):
          ##Radio_button, sec, instructor(s), days, hours
         self.add_column_text(store, section_type, tab, self.update_timetable, ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
         if dataframe.empty :
-            store.append([False, ' ', ' ', ' ', ' '])
+            pass
+            #store.append([False, ' ', ' ', ' ', ' '])
 
         else :
             count = 0   
@@ -198,7 +202,7 @@ class MyWindow(Gtk.Window):
 
                 count += 1
 
-                while count < len(dataframe) - 1 and not dataframe.iloc[count][4]:
+                while count <= len(dataframe) - 1 and not dataframe.iloc[count][4]:
                     liststore_data_Instructor += '\n' + dataframe.iloc[count][3]
                     count += 1
 
@@ -212,6 +216,10 @@ class MyWindow(Gtk.Window):
         for row in store:
             row[0] = (row.path == selected_path)
         
+        self.selected_section = store[path][1]
+        if not self.selected_section :
+            self.selected_section = '1' 
+
         self.selected_instructor = store[path][2]
         self.selected_hour = store[path][4].split()
         self.selected_day = store[path][3].split()
@@ -220,7 +228,7 @@ class MyWindow(Gtk.Window):
             self.selected_hour[i] = int(self.selected_hour[i])
 
 
-        self.text = self.selected_course_code + '\n' + self.selected_course_title + '\n' + section_type + '\n' + self.selected_instructor 
+        self.text = self.selected_course_code + '\n' + section_type[0] + '-' + self.selected_section 
 
         if self.selected_course_code not in MyWindow.added_courses : 
             MyWindow.added_courses.append(self.selected_course_code)
