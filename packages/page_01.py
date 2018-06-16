@@ -270,7 +270,6 @@ class MyWindow(Gtk.Window):
 
         
         self.notebook.append_page(page01, Gtk.Label("SEARCH"))
-        self.notebook.append_page(self.page02, Gtk.Label("YOUR COURSES"))
     
     def create_timetable(self, grid) :
         self.schedule = [
@@ -299,8 +298,6 @@ class MyWindow(Gtk.Window):
             for col in range (len(MyWindow.Label_list[row])) :
                 MyWindow.Label_list[row] [col].set_label(self.schedule[row][col])      
 
-        self.page02_info = []
-        self.update_page()
     def gen_pdf(self, widget) : 
         doc = SimpleDocTemplate("TIMETABLE.pdf", pagesize = letter)
         element = []
@@ -327,6 +324,7 @@ class MyWindow(Gtk.Window):
                                 ]))
         element.append(table)
         doc.build(element)
+        return True
 
     def search (self, widget) : 
         self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
@@ -454,20 +452,6 @@ class MyWindow(Gtk.Window):
 
 
         self.text_to_display = self.selected_course_code + '\n' + section_type[0] + '-' + self.selected_section
-        
-        info = self.selected_course_code + '-' + self.selected_course_title + '-' + section_type[0]  + self.selected_section + '-' + self.selected_instructor + '-' + store[path][3] + '-' + store[path][4] 
-
-        for row in self.page02_info :
-            row_list = row.split('-')
-            row_list_sec_info = row_list[2] 
-
-            if self.selected_course_code == row_list[0] :
-                if row_list_sec_info[0] == section_type[0] :
-                    self.page02_info.remove(row)
-                    self.page02_info.append(info)
-                    break
-        else :
-            self.page02_info.append(info)
 
         if self.selected_course_code not in MyWindow.added_courses : 
             MyWindow.added_courses.append(self.selected_course_code)
@@ -483,17 +467,17 @@ class MyWindow(Gtk.Window):
         for row in self.selected_hour : 
             for col in self.selected_day : 
                 if col == "M" : 
-                    MyWindow.Label_list[row][1].set_label(self.text)
+                    MyWindow.Label_list[row][1].set_label(self.text_to_display)
                 elif col == 'T' : 
-                    MyWindow.Label_list[row][2].set_label(self.text)
+                    MyWindow.Label_list[row][2].set_label(self.text_to_display)
                 elif col == 'W' : 
-                    MyWindow.Label_list[row][3].set_label(self.text)
+                    MyWindow.Label_list[row][3].set_label(self.text_to_display)
                 elif col == 'Th' : 
-                    MyWindow.Label_list[row][4].set_label(self.text)
+                    MyWindow.Label_list[row][4].set_label(self.text_to_display)
                 elif col == 'F' : 
-                    MyWindow.Label_list[row][5].set_label(self.text)
+                    MyWindow.Label_list[row][5].set_label(self.text_to_display)
                 elif col == 'S' : 
-                    MyWindow.Label_list[row][6].set_label(self.text)
+                    MyWindow.Label_list[row][6].set_label(self.text_to_display)
 
 
 
