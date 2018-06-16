@@ -18,7 +18,6 @@ class MyWindow(Gtk.Window):
 
     def __init__(self):
 
->>>>>>> Development
         super(MyWindow, self).__init__(title = "OFFLINE ERP")
         self.set_size_request(1000, 500)
      	self.notebook = Gtk.Notebook()
