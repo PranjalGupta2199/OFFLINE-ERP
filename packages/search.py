@@ -1,5 +1,6 @@
 import pandas
 import sqlite3
+import os
 
 class Searching:
 	'''
@@ -17,7 +18,9 @@ class Searching:
 	'''
 	def __init__(self):
 		self.lecture, self.tutorial, self.practical = [],[],[]	
-		db = sqlite3.connect('/home/pranjal/Python/repos/Projects/TimeTable@BPHC/packages/courses.db')
+		
+		dirname = os.path.join(os.getcwd(),'packages/courses.db')
+		db = sqlite3.connect(dirname)
 		self.cursor = db.cursor()
 
 

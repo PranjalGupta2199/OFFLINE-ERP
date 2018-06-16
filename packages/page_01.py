@@ -17,12 +17,15 @@ class MyWindow(Gtk.Window):
     added_courses = []
 
     def __init__(self):
-        self.sobject = search.Searching()
         super(MyWindow, self).__init__(title = "OFFLINE ERP")
         self.set_size_request(1000, 500)
      	self.notebook = Gtk.Notebook()
         self.add(self.notebook)
         self.maximize()
+
+
+
+        self.sobject = search.Searching()
 
         page00_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
         page00 = Gtk.Grid()
