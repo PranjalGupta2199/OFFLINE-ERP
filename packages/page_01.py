@@ -238,8 +238,11 @@ class MyWindow(Gtk.Window):
      
         self.SearchButton = Gtk.Button("GO !")
         self.SearchButton.connect('clicked', self.search)
-        page01.attach_next_to(child = self.SearchButton, sibling = self.SearchBar,
-                    side = Gtk.PositionType(1), width = 1, height = 1)
+        page01.attach_next_to(
+                    child = self.SearchButton, 
+                    sibling = self.SearchBar,
+                    side = Gtk.PositionType(1), 
+                    width = 1, height = 1)
      	
         self.page01_notebook = Gtk.Notebook()
         self.page01_course_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
@@ -255,10 +258,14 @@ class MyWindow(Gtk.Window):
         self.prac_store = Gtk.ListStore(bool, str, str, str, str)
         self.tut_store = Gtk.ListStore(bool, str, str, str, str)
 
-        self.page01_notebook.append_page(self.page01_course_tab, Gtk.Label("COURSE"))
-        self.page01_notebook.append_page(self.page01_lec_tab, Gtk.Label("LECTURE") )
-        self.page01_notebook.append_page(self.page01_prac_tab, Gtk.Label("PRACTICAL"))
-        self.page01_notebook.append_page(self.page01_tut_tab, Gtk.Label("TUTORIAL"))
+        self.page01_notebook.append_page(
+            self.page01_course_tab, Gtk.Label("COURSE"))
+        self.page01_notebook.append_page(
+            self.page01_lec_tab, Gtk.Label("LECTURE") )
+        self.page01_notebook.append_page(
+            self.page01_prac_tab, Gtk.Label("PRACTICAL"))
+        self.page01_notebook.append_page(
+            self.page01_tut_tab, Gtk.Label("TUTORIAL"))
 
         
         self.notebook.append_page(page01, Gtk.Label("SEARCH"))
@@ -322,7 +329,10 @@ class MyWindow(Gtk.Window):
         self.display_course_code(self.page01_course_tab)
 
 
-    def add_column_text(self, store, section_type, tab, callback_method, column_title_list) :
+    def add_column_text(self, store, 
+        section_type, tab, 
+        callback_method, column_title_list) :
+        
         if tab.get_child() != None :
             store.clear()
             tab.remove(tab.get_child())
@@ -334,7 +344,9 @@ class MyWindow(Gtk.Window):
 
         renderer_toggle = Gtk.CellRendererToggle()
         renderer_toggle.set_radio(True)
-        renderer_toggle.connect("toggled", callback_method, store, section_type)
+        renderer_toggle.connect("toggled", 
+            callback_method, 
+            store, section_type)
 
 
         radio_column  = Gtk.TreeViewColumn(" ", renderer_toggle)
@@ -344,7 +356,8 @@ class MyWindow(Gtk.Window):
         
         for i, column_title in enumerate(column_title_list) :
             renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(column_title, renderer, text=i+1)
+            column = Gtk.TreeViewColumn(
+                column_title, renderer, text=i+1)
             treeview.append_column(column)
         
         treeview.show_all()
@@ -354,7 +367,10 @@ class MyWindow(Gtk.Window):
     def display_course_code(self, tab):
         
         self.store = Gtk.ListStore(bool,str, str)
-        self.add_column_text(self.store, ' ', tab, self.get_course_details, ["COURSE CODE", "COURSE TITLE"])
+        self.add_column_text(
+            self.store, ' ', tab, 
+            self.get_course_details, 
+            ["COURSE CODE", "COURSE TITLE"])
         
         for match in self.match_list :
             self.store.append([False] + list(match))
@@ -370,12 +386,27 @@ class MyWindow(Gtk.Window):
         match_parameter = (self.selected_course_code, self.selected_course_title)
         self.sobject.get_course_details(match_parameter)
 
-        self.display_sections(dataframe = self.sobject.lecture, tab = self.page01_lec_tab, store = self.lec_store, section_type = 'LECTURE')
-        self.display_sections(dataframe = self.sobject.practical, tab = self.page01_prac_tab, store = self.prac_store, section_type = 'PRACTICAL')
-        self.display_sections(dataframe = self.sobject.tutorial, tab = self.page01_tut_tab, store = self.tut_store, section_type = 'TUTORIAL')
+        self.display_sections(
+            dataframe = self.sobject.lecture, 
+            tab = self.page01_lec_tab, 
+            store = self.lec_store, 
+            section_type = 'LECTURE')
+        self.display_sections(
+            dataframe = self.sobject.practical, 
+            tab = self.page01_prac_tab, 
+            store = self.prac_store, 
+            section_type = 'PRACTICAL')
+        self.display_sections(
+            dataframe = self.sobject.tutorial, 
+            tab = self.page01_tut_tab, 
+            store = self.tut_store, 
+            section_type = 'TUTORIAL')
 
     def display_sections (self, dataframe, tab, store, section_type) :
-        self.add_column_text(store, section_type, tab, self.update_timetable, ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
+        self.add_column_text(
+            store, section_type, 
+            tab, self.update_timetable, 
+            ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
         if dataframe.empty :
             pass
             #store.append([False, ' ', ' ', ' ', ' '])
@@ -394,7 +425,11 @@ class MyWindow(Gtk.Window):
                     liststore_data_Instructor += '\n' + dataframe.iloc[count][3]
                     count += 1
 
-                store.append([False, liststore_data_Section, liststore_data_Instructor, liststore_data_days, liststore_data_hours])
+                store.append([
+                    False, liststore_data_Section, 
+                    liststore_data_Instructor, 
+                    liststore_data_days, 
+                    liststore_data_hours])
                 
 
     def update_timetable(self, widget, path, store, section_type) :
@@ -421,18 +456,26 @@ class MyWindow(Gtk.Window):
         else :
             for row in range (len(MyWindow.Label_list)) :
                 for col in range (len(MyWindow.Label_list[row])) :
-                    if self.selected_course_code in MyWindow.Label_list[row][col].get_label()\
-                    and section_type in MyWindow.Label_list[row][col].get_label() :
+                    if self.selected_course_code in \
+                        MyWindow.Label_list[row][col].get_label()\
+                    and section_type in \
+                        MyWindow.Label_list[row][col].get_label() :
                         MyWindow.Label_list[row][col].set_label(' ')
 
         for row in self.selected_hour : 
             for col in self.selected_day : 
-                if col == "M" : MyWindow.Label_list[row][1].set_label(self.text)
-                elif col == 'T' : MyWindow.Label_list[row][2].set_label(self.text)
-                elif col == 'W' : MyWindow.Label_list[row][3].set_label(self.text)
-                elif col == 'Th' : MyWindow.Label_list[row][4].set_label(self.text)
-                elif col == 'F' : MyWindow.Label_list[row][5].set_label(self.text)
-                elif col == 'S' : MyWindow.Label_list[row][6].set_label(self.text)
+                if col == "M" : 
+                    MyWindow.Label_list[row][1].set_label(self.text)
+                elif col == 'T' : 
+                    MyWindow.Label_list[row][2].set_label(self.text)
+                elif col == 'W' : 
+                    MyWindow.Label_list[row][3].set_label(self.text)
+                elif col == 'Th' : 
+                    MyWindow.Label_list[row][4].set_label(self.text)
+                elif col == 'F' : 
+                    MyWindow.Label_list[row][5].set_label(self.text)
+                elif col == 'S' : 
+                    MyWindow.Label_list[row][6].set_label(self.text)
 
 
         
