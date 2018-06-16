@@ -17,6 +17,7 @@ class MyWindow(Gtk.Window):
     added_courses = []
 
     def __init__(self):
+        self.page02_info = []
         self.sobject = search.Searching()
         super(MyWindow, self).__init__(title = "OFFLINE ERP")
         self.set_size_request(1000, 500)
@@ -29,6 +30,9 @@ class MyWindow(Gtk.Window):
         page00_window.add(page00)
         
         page01 = Gtk.Grid()
+
+
+        self.page02 = Gtk.Grid()
 
         page00.set_row_homogeneous(True)
         page00.set_column_homogeneous(True)
@@ -71,6 +75,7 @@ class MyWindow(Gtk.Window):
         page01.attach_next_to(child = self.page01_notebook, sibling = self.SearchBar, side = Gtk.PositionType(3), width = 1, height = 1)
 
         self.notebook.append_page(page01, Gtk.Label("SEARCH"))
+        self.notebook.append_page(self.page02, Gtk.Label("YOUR COURSES"))
     
     def create_timetable(self, grid) :
         self.schedule = [
@@ -99,6 +104,8 @@ class MyWindow(Gtk.Window):
             for col in range (len(MyWindow.Label_list[row])) :
                 MyWindow.Label_list[row] [col].set_label(self.schedule[row][col])      
 
+        self.page02_info = []
+        self.update_page()
     def gen_pdf(self, widget) : 
         doc = SimpleDocTemplate("TIMETABLE.pdf", pagesize = letter)
         element = []
@@ -221,14 +228,28 @@ class MyWindow(Gtk.Window):
             self.selected_section = '1' 
 
         self.selected_instructor = store[path][2]
-        self.selected_hour = store[path][4].split()
         self.selected_day = store[path][3].split()
+        self.selected_hour = store[path][4].split()
 
         for i in range (len(self.selected_hour)) :
             self.selected_hour[i] = int(self.selected_hour[i])
 
 
-        self.text = self.selected_course_code + '\n' + section_type[0] + '-' + self.selected_section 
+        self.text_to_display = self.selected_course_code + '\n' + section_type[0] + '-' + self.selected_section
+        
+        info = self.selected_course_code + '-' + self.selected_course_title + '-' + section_type[0]  + self.selected_section + '-' + self.selected_instructor + '-' + store[path][3] + '-' + store[path][4] 
+
+        for row in self.page02_info :
+            row_list = row.split('-')
+            row_list_sec_info = row_list[2] 
+
+            if self.selected_course_code == row_list[0] :
+                if row_list_sec_info[0] == section_type[0] :
+                    self.page02_info.remove(row)
+                    self.page02_info.append(info)
+                    break
+        else :
+            self.page02_info.append(info)
 
         if self.selected_course_code not in MyWindow.added_courses : 
             MyWindow.added_courses.append(self.selected_course_code)
@@ -241,12 +262,54 @@ class MyWindow(Gtk.Window):
 
         for row in self.selected_hour : 
             for col in self.selected_day : 
-                if col == "M" : MyWindow.Label_list[row][1].set_label(self.text)
-                elif col == 'T' : MyWindow.Label_list[row][2].set_label(self.text)
-                elif col == 'W' : MyWindow.Label_list[row][3].set_label(self.text)
-                elif col == 'Th' : MyWindow.Label_list[row][4].set_label(self.text)
-                elif col == 'F' : MyWindow.Label_list[row][5].set_label(self.text)
-                elif col == 'S' : MyWindow.Label_list[row][6].set_label(self.text)
+                if col == "M" : MyWindow.Label_list[row][1].set_label(self.text_to_display)
+                elif col == 'T' : MyWindow.Label_list[row][2].set_label(self.text_to_display)
+                elif col == 'W' : MyWindow.Label_list[row][3].set_label(self.text_to_display)
+                elif col == 'Th' : MyWindow.Label_list[row][4].set_label(self.text_to_display)
+                elif col == 'F' : MyWindow.Label_list[row][5].set_label(self.text_to_display)
+                elif col == 'S' : MyWindow.Label_list[row][6].set_label(self.text_to_display)
+        self.update_page()
+
+
+    def update_page(self) :
+        page02_store = Gtk.ListStore(str, str, str, str, str, str)
+
+        for info in self.page02_info :
+            page02_store.append(info.split('-'))
+
+        treeview = Gtk.TreeView(model = page02_store)
+        selection = treeview.get_selection()
+        selection.set_mode(1)
+        
+        for i, column_title in enumerate(['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'DAYS', 'HOURS']) :
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+            treeview.append_column(column)
+        
+        treeview.show_all()
+        if self.page02.get_children() :
+            self.page02.remove(self.page02.get_children()[0])
+        self.page02.attach(child = treeview, left = 0, top = 0, width = 1, height = 1)
+        
+        self.remove_button = Gtk.Button('Remove selected')
+        self.remove_button.connect('clicked', self.remove_course, selection)
+        self.page02.attach_next_to(child = self.remove_button, sibling = treeview, side = Gtk.PositionType(3), width = 3, height = 1)
+
+
+    def remove_course(self, widget, selection) :
+        tree_model, tree_iter = selection.get_selected()
+
+        if tree_iter is not None :
+            row_contents = tree_model[tree_iter]
+            print row_contents
+
+
+
+
+
+
+
+
 
 
         
