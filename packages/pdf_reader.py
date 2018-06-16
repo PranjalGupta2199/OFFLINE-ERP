@@ -28,9 +28,6 @@ def to_database(folder_path, connection_object):
 	'''
 	path = os.path.join(folder_path, "Pages")
 
-	##Remove absolute path
-
-
 	directory_files = os.listdir(path)
 	directory_files.sort()
 
@@ -57,7 +54,6 @@ def to_database(folder_path, connection_object):
 
 if __name__ == '__main__':
 	db = sqlite3.connect('courses.db')
-	#cursor = db.cursor() 
 	split_pdf()
 	to_database(db)	
 
