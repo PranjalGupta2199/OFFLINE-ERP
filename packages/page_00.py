@@ -17,11 +17,6 @@ class FileChooser(Gtk.Window):
 
 		file_button = Gtk.Button("icon")
 		file_button.connect('clicked', self.file_choose)
-		
-		folder_label = Gtk.Label("Please specify the repo of this app : ")
-
-		folder_button = Gtk.Button("icon")
-		folder_button.connect('clicked', self.folder_choose)
 
 		okay_label = Gtk.Label("After selecting the path press okay.")
 
@@ -34,10 +29,8 @@ class FileChooser(Gtk.Window):
 		
 		self.grid.attach(child = file_label, left = 0, top = 0, width = 2, height = 1)
 		self.grid.attach_next_to(child = file_button, sibling = file_label, side = Gtk.PositionType(1), width = 1, height = 1)
-		self.grid.attach_next_to(child = folder_label, sibling = file_label, side = Gtk.PositionType(3), width = 2, height = 1)
-		self.grid.attach_next_to(child = folder_button, sibling = folder_label, side = Gtk.PositionType(1), width = 1, height = 1)
-		self.grid.attach_next_to(child = okay_label, sibling = folder_label, side = Gtk.PositionType(3), width = 1, height = 1)
-		self.grid.attach_next_to(child = okay_button, sibling = folder_button, side = Gtk.PositionType(3), width = 1, height = 1)
+		self.grid.attach_next_to(child = okay_label, sibling = file_label, side = Gtk.PositionType(3), width = 1, height = 1)
+		self.grid.attach_next_to(child = okay_button, sibling = file_button, side = Gtk.PositionType(3), width = 1, height = 1)
 		self.grid.attach_next_to(child = next_button, sibling = okay_button, side = Gtk.PositionType(3), width = 2, height = 1)
 		
 
@@ -56,29 +49,14 @@ class FileChooser(Gtk.Window):
 
 		dialog.destroy()
 
-	def folder_choose(self, widget, data = None):
-		dialog = Gtk.FileChooserDialog("Please choose your folder :", self,
-			Gtk.FileChooserAction.SELECT_FOLDER,
-			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-			Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
-		response = dialog.run()
-
-		if response == Gtk.ResponseType.OK :
-			self.folder_path = dialog.get_filename()
-		elif response == Gtk.ResponseType.CANCEL :
-			pass
-
-		dialog.destroy()
 
 	def move_to_pdf_reader(self, widget, data = None) :
-		self.database = sqlite3.connect(os.path.join(self.folder_path, "packages/courses.db"))
+		self.database = sqlite3.connect(os.path.join(os.getcwd(), "packages/courses.db"))
 		pdf_reader.split_pdf(
-			file_path = self.file_path, 
-			folder_path = self.folder_path)
+			file_path = self.file_path)
 
 		pdf_reader.to_database(
-			folder_path = self.folder_path,
 			connection_object = self.database)
 
 	def move_to_next_page(self, widget, data = None) :
