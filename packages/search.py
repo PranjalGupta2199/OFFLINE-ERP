@@ -6,15 +6,31 @@ class Searching:
 	'''
 		Searches a match for the given query for the parameter
 
-		Instance Variables :
-			@query : String, Pattern entered by the user to be matched
-			@parameter : String, Column name in the database whose value will be matched by the qwery.
-						 Contains only two values - COURSE_CODE and COURSE_TITLE
-			@cursor : Database (sqlite3) cursor object
+		METHODS : 
+			__init__(self) :
+				Constructs the Searching class instance
 
-		Instance Methods :
-			__init__ : Instantiates the instance of the class
-			search : matches the query with the given parameter
+				@variables :
+					self.lecture, self.tutorial, self.practical : pandas.Dataframe
+								Contains the details of all the available sections
+					db : sqlite3 connection object
+
+					self.cursor : sqlite3 cursor object.
+
+			get_result (self, query) :
+				Searches for a match in the database from the given query.
+
+			get_course_details (self, match_parameter) :
+				Retrives information (section details) from the database.
+
+				@parameter : 
+					match_parameter : tuple
+						contains tuple of strings having course_code and course_title as its 
+						elements
+
+			__str__(self) :
+				returns the string representation of the object. 
+
 	'''
 	def __init__(self):
 		self.lecture, self.tutorial, self.practical = [],[],[]	
@@ -33,7 +49,8 @@ class Searching:
 
 	def get_course_details (self, match_parameter): #match_parameter is a tuple
 
-		match_id = self.cursor.execute("SELECT _rowid_ FROM courses WHERE COURSE_CODE = ? AND COURSE_TITLE = ?",\
+		match_id = self.cursor.execute("SELECT _rowid_ FROM courses \
+			WHERE COURSE_CODE = ? AND COURSE_TITLE = ?",\
 		 match_parameter).fetchall()[0] 
 		
 		self.cursor.execute("SELECT * FROM courses WHERE _rowid_ >= ? ", match_id )
@@ -84,14 +101,6 @@ class Searching:
 		print self.practical
 		print self.tutorial
 		return ' '
-
-	def Print_ (self, list_):
-		for i in range(len(list_)):
-			print i, list_[i]
-
-		if not list_ : 
-			pass
-			#print 'Sorry, No searches where found.'
 
 
 if __name__ == '__main__':
