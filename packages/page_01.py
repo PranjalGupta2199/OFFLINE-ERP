@@ -274,15 +274,15 @@ class MyWindow(Gtk.Window):
     def create_timetable(self, grid) :
         self.schedule = [
         ['HOURS/DAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
-        ['08:00 AM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['09:00 AM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['10 : 00 AM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['11 : 00 AM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['12 : 00 PM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['01 : 00 PM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['02 : 00 PM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['03 : 00 PM', ' ', ' ', ' ', ' ', ' ',' '],
-        ['04 : 00 PM', ' ', ' ', ' ', ' ', ' ',' ']]
+        ['08 : 00 AM', '', '', '', '', '', ''],
+        ['09 : 00 AM', '', '', '', '', '', ''],
+        ['10 : 00 AM', '', '', '', '', '', ''],
+        ['11 : 00 AM', '', '', '', '', '', ''],
+        ['12 : 00 PM', '', '', '', '', '', ''],
+        ['01 : 00 PM', '', '', '', '', '', ''],
+        ['02 : 00 PM', '', '', '', '', '', ''],
+        ['03 : 00 PM', '', '', '', '', '', ''],
+        ['04 : 00 PM', '', '', '', '', '', '']]
 
         l = []
         for row in range (len(self.schedule)) :
@@ -452,9 +452,51 @@ class MyWindow(Gtk.Window):
 
         self.text_to_display = self.selected_course_code + '\n' + section_type + '-' + self.selected_section
 
-        if self.selected_course_code not in MyWindow.added_courses : 
-            MyWindow.added_courses.append(self.selected_course_code)
-            self.add_to_timetable()
+        if self.selected_course_code not in MyWindow.added_courses :
+            flag = 0
+            for row in self.selected_hour :
+                for col in self.selected_day :
+                    if col == 'M' : 
+                        text = MyWindow.Label_list[row][1].get_label() 
+                    elif col == 'T' :
+                        text = MyWindow.Label_list[row][2].get_label() 
+                    elif col == 'W' :
+                        text = MyWindow.Label_list[row][3].get_label() 
+                    elif col == 'Th' :
+                        text = MyWindow.Label_list[row][4].get_label() 
+                    elif col == 'F' :
+                        text = MyWindow.Label_list[row][5].get_label() 
+                    elif col == 'S' :
+                        text = MyWindow.Label_list[row][6].get_label() 
+                    if flag == 0 :
+                        if text :
+                            print text
+                            dialog = Gtk.MessageDialog(self, 0, 
+                            Gtk.MessageType.QUESTION,
+                            Gtk.ButtonsType.YES_NO, 
+                            "Warning : You cannot have 2 classes at the same time !!")
+
+                            dialog.format_secondary_text(
+                                "Do you want to replace this course ?")
+
+                            response = dialog.run()
+
+                            if response == Gtk.ResponseType.YES :
+                                MyWindow.added_courses.append(self.selected_course_code)
+                                self.add_to_timetable()
+
+                            elif response == Gtk.ResponseType.NO :
+                                pass
+
+                            flag = 1                            
+                            dialog.destroy()
+                        else :
+                            MyWindow.added_courses.append(self.selected_course_code)
+                            self.add_to_timetable()
+                            break
+                    else :
+                        break
+
         else :
             flag = 0
             for row in range (len(MyWindow.Label_list)) :
