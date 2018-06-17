@@ -173,7 +173,6 @@ class MyWindow(Gtk.Window):
                         Contains the string value for type of section 
 
         update_timetable (self, widget, path, store, section_type) :
-            Adds the selected section to the timetable.
             This is a callback method for Gtk.CellRendererToggle object.
 
                 @parameters :
@@ -196,6 +195,9 @@ class MyWindow(Gtk.Window):
 
                     MyWindow.added_course : list
                         Contains a list of all the course_code a user has opted for.    
+        
+        add_to_timetable(self) :
+            Adds the selected section to the timetable.
     '''
 
 
@@ -268,8 +270,22 @@ class MyWindow(Gtk.Window):
         self.page01_notebook.append_page(
             self.page01_tut_tab, Gtk.Label("TUTORIAL"))
 
-        
         self.notebook.append_page(page01, Gtk.Label("SEARCH"))
+
+        self.page02 = Gtk.Grid()
+
+        self.remove_button = Gtk.Button("Remove Selected")
+        self.page02.attach(child = self.remove_button, left = 0,
+            top = 0, width = 1, height = 1)
+
+        self.catalog_store = Gtk.ListStore(str, str, str, str, str, str)
+        self.catalog_info = []
+
+        self.notebook.append_page(self.page02, Gtk.Label('COURSE CATALOG'))
+
+
+        
+        
     
     def create_timetable(self, grid) :
         self.schedule = [
@@ -330,14 +346,17 @@ class MyWindow(Gtk.Window):
         self.display_course_code(self.page01_course_tab)
 
 
-    def add_column_text(self, store, 
+    def add_column_text(
+        self, store, 
         section_type, tab, 
         callback_method, column_title_list) :
         
-        if tab.get_child() != None :
-            store.clear()
-            tab.remove(tab.get_child())
-            
+        try:
+            if tab.get_child() != None :
+                store.clear()
+                tab.remove(tab.get_child())
+        except :
+            pass            
         
         treeview = Gtk.TreeView(model = store)
         selection = treeview.get_selection()
@@ -452,6 +471,13 @@ class MyWindow(Gtk.Window):
 
         self.text_to_display = self.selected_course_code + '\n' + section_type + '-' + self.selected_section
 
+        self.info = self.selected_course_code + ';' + \
+         self.selected_course_title + ';' + \
+         section_type + '-' + self.selected_section + ';' +\
+         self.selected_instructor + ';' +\
+         store[path][3] + ';' + store[path][4]
+  
+
         if self.selected_course_code not in MyWindow.added_courses :
             flag = 0
             for row in self.selected_hour :
@@ -470,7 +496,6 @@ class MyWindow(Gtk.Window):
                         text = MyWindow.Label_list[row][6].get_label() 
                     if flag == 0 :
                         if text :
-                            print text
                             dialog = Gtk.MessageDialog(self, 0, 
                             Gtk.MessageType.QUESTION,
                             Gtk.ButtonsType.YES_NO, 
@@ -485,6 +510,13 @@ class MyWindow(Gtk.Window):
                                 MyWindow.added_courses.append(self.selected_course_code)
                                 self.add_to_timetable()
 
+                                for index in self.catalog_info :
+                                    if text.split(';')[0] in index \
+                                    and text.split(';')[1] in index :
+                                        self.catalog_info.remove(index)
+                                        self.catalog_info.insert(0, self.info)
+                                        break
+
                             elif response == Gtk.ResponseType.NO :
                                 pass
 
@@ -493,6 +525,7 @@ class MyWindow(Gtk.Window):
                         else :
                             MyWindow.added_courses.append(self.selected_course_code)
                             self.add_to_timetable()
+                            self.catalog_info.insert(0, self.info)
                             break
                     else :
                         break
@@ -529,12 +562,24 @@ class MyWindow(Gtk.Window):
                                 MyWindow.Label_list[row][col].set_label(' ')
                                 self.add_to_timetable()
 
+                                for index in self.catalog_info :
+                                    if text.split(';')[0] in index \
+                                    and text.split(';')[1] in index :
+                                        self.catalog_info.remove(index)
+                                        self.catalog_info.insert(0, self.info)
+                                        break
+
                 elif response == Gtk.ResponseType.NO :
                     pass
+
+
                 dialog.destroy()
             
             else :
                 self.add_to_timetable()
+                self.catalog_info.insert(0, self.info)
+
+        self.add_to_catalog()
 
     def add_to_timetable(self) :
 
@@ -552,6 +597,39 @@ class MyWindow(Gtk.Window):
                     MyWindow.Label_list[row][5].set_label(self.text_to_display)
                 elif col == 'S' : 
                     MyWindow.Label_list[row][6].set_label(self.text_to_display)
+
+
+    def add_to_catalog(self) :
+        if len(self.page02.get_children()) == 2 :
+            self.catalog_store.clear()
+            self.page02.remove(
+                self.page02.get_children()[-1])
+    
+
+        for row in self.catalog_info :
+            self.catalog_store.append(row.split(';'))
+
+        treeview = Gtk.TreeView(model = self.catalog_store)
+
+        for i, column_title in enumerate(['COURSE CODE', 'COURSE TITLE', \
+            'SECTION', 'INSTRUCTOR', 'DAY', 'HOURS']) :
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(
+                column_title, renderer, text = i)
+            treeview.append_column(column)
+
+        self.page02.attach(child = treeview, left = 0,
+        top = 0, width = 1, height = 1)
+        #self.page02.attach_next_to(
+            #child = self.remove_button, sibling = treeview,
+            #side = Gtk.PositionType(3), width = 1, height = 1)
+
+        treeview.show_all()
+
+        
+
+
+
 
         
 
