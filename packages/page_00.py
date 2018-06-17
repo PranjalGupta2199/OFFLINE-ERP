@@ -103,8 +103,8 @@ class FileChooser(Gtk.Window):
 			side = Gtk.PositionType(3), width = 1, height = 1)
 		
 		self.grid.attach_next_to(
-			child = okay_button, sibling = okay_label, 
-			side = Gtk.PositionType(1), width = 1, height = 1)
+			child = okay_button, sibling = file_button, 
+			side = Gtk.PositionType(3), width = 1, height = 1)
 		
 		self.grid.attach_next_to(
 			child = next_button, sibling = okay_button, 

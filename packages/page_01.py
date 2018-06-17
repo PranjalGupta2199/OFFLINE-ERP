@@ -3,7 +3,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from . import search
 import pandas
-
+import copy
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, inch
@@ -310,7 +310,7 @@ class MyWindow(Gtk.Window):
         para = Paragraph(headline, normal)
         element.append(para)
 
-        user_data = self.schedule
+        user_data = copy.deepcopy(self.schedule)
         
         for row in range (len(MyWindow.Label_list)) :
             for col in range (len(MyWindow.Label_list[row])) :
@@ -324,7 +324,6 @@ class MyWindow(Gtk.Window):
                                 ]))
         element.append(table)
         doc.build(element)
-        return True
 
     def search (self, widget) : 
         self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
