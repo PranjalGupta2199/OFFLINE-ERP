@@ -391,17 +391,17 @@ class MyWindow(Gtk.Window):
             dataframe = self.sobject.lecture, 
             tab = self.page01_lec_tab, 
             store = self.lec_store, 
-            section_type = 'LECTURE')
+            section_type = 'LEC')
         self.display_sections(
             dataframe = self.sobject.practical, 
             tab = self.page01_prac_tab, 
             store = self.prac_store, 
-            section_type = 'PRACTICAL')
+            section_type = 'PRAC')
         self.display_sections(
             dataframe = self.sobject.tutorial, 
             tab = self.page01_tut_tab, 
             store = self.tut_store, 
-            section_type = 'TUTORIAL')
+            section_type = 'TUT')
 
     def display_sections (self, dataframe, tab, store, section_type) :
         self.add_column_text(
@@ -450,18 +450,51 @@ class MyWindow(Gtk.Window):
             self.selected_hour[i] = int(self.selected_hour[i])
 
 
-        self.text_to_display = self.selected_course_code + '\n' + section_type[0] + '-' + self.selected_section
+        self.text_to_display = self.selected_course_code + '\n' + section_type + '-' + self.selected_section
 
         if self.selected_course_code not in MyWindow.added_courses : 
             MyWindow.added_courses.append(self.selected_course_code)
+            self.add_to_timetable()
         else :
+            flag = 0
             for row in range (len(MyWindow.Label_list)) :
                 for col in range (len(MyWindow.Label_list[row])) :
-                    if self.selected_course_code in \
-                        MyWindow.Label_list[row][col].get_label()\
-                    and section_type in \
-                        MyWindow.Label_list[row][col].get_label() :
-                        MyWindow.Label_list[row][col].set_label(' ')
+                    
+                    text = MyWindow.Label_list[row][col].get_label()
+                    
+                    if self.selected_course_code in text \
+                        and section_type in text :
+
+                        flag = 1
+                        break
+
+            if flag == 1 :
+                dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.QUESTION,
+                    Gtk.ButtonsType.YES_NO, 
+                    "Warning : You are about to change a section !")
+                dialog.format_secondary_text("Do you wish to continue ?")
+
+                response = dialog.run()
+
+                if response == Gtk.ResponseType.YES :
+                    
+                    for row in range (len(MyWindow.Label_list)) :
+                        for col in range (len(MyWindow.Label_list[row])) :
+                            text = MyWindow.Label_list[row][col].get_label()
+
+                            if self.selected_course_code in text \
+                                and section_type in text :
+                                MyWindow.Label_list[row][col].set_label(' ')
+                                self.add_to_timetable()
+
+                elif response == Gtk.ResponseType.NO :
+                    pass
+                dialog.destroy()
+            
+            else :
+                self.add_to_timetable()
+
+    def add_to_timetable(self) :
 
         for row in self.selected_hour : 
             for col in self.selected_day : 
@@ -477,8 +510,6 @@ class MyWindow(Gtk.Window):
                     MyWindow.Label_list[row][5].set_label(self.text_to_display)
                 elif col == 'S' : 
                     MyWindow.Label_list[row][6].set_label(self.text_to_display)
-
-
 
         
 
