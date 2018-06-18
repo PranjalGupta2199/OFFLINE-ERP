@@ -277,7 +277,7 @@ class MyWindow(Gtk.Window):
         self.page02.attach(child = self.page02_window, 
             left = 0, top = 0, width = 1, height = 1)
 
-        self.remove_button = Gtk.Button(r"SELECT COURSES FROM THE CATALOG TO REMOVE")
+        self.remove_button = Gtk.Button("SELECT COURSES FROM THE CATALOG TO REMOVE")
         self.page02.attach_next_to(child = self.remove_button, 
             sibling = self.page02_window, 
             side = Gtk.PositionType(3), 
@@ -285,9 +285,9 @@ class MyWindow(Gtk.Window):
 
 
         
-        self.catalog_store = Gtk.ListStore(str, str, str, str, str, str)
+        self.remove_button.connect('clicked', self.remove_course)        
+        self.catalog_store = Gtk.ListStore(bool, str, str, str, str, str, str)
         self.catalog_info = []
-
         self.notebook.append_page(self.page02, Gtk.Label('COURSE CATALOG'))
 
 
@@ -370,7 +370,7 @@ class MyWindow(Gtk.Window):
         selection.set_mode(0)
 
         renderer_toggle = Gtk.CellRendererToggle()
-        renderer_toggle.set_radio(True)
+        renderer_toggle.set_radio(False)
         renderer_toggle.connect("toggled", 
             callback_method, 
             store, section_type)
@@ -606,92 +606,79 @@ class MyWindow(Gtk.Window):
                     MyWindow.Label_list[row][6].set_label(self.text_to_display)
 
 
-    def remove_course(self, widget, selection) :
-        tree_model, tree_iter = selection.get_selected()
+    def remove_course(self, widget, data = None) :
+        for row in self.catalog_store :
+            if row[0] == True :
+                remove_course_code = row[1]
+                remove_section = row[3]
+                remove_hour = row[-1]
+                remove_day = row[-2]
 
-        if tree_iter is not None :
-            row_contents = tree_model[tree_iter]
-            remove_hour = row_contents[-1]
-            remove_day = row_contents[-2]
-
-            dialog = Gtk.MessageDialog(self, 0, 
-                Gtk.MessageType.WARNING,
-                Gtk.ButtonsType.OK_CANCEL, 
-                "You are about to remove the selected course")
-            
-            dialog.format_secondary_text(
-                "Press OK to continue or CANCEL to abort")
-            
-            response = dialog.run()
-            
-            if response == Gtk.ResponseType.OK:
-
-                for col in remove_day.split() :
-                    for row in remove_hour.split() :
-                        if col == 'M' :
-                            MyWindow.Label_list[int(row)][1].set_label('')
-                        elif col == 'T' :
-                            MyWindow.Label_list[int(row)][2].set_label('')
-                        elif col == 'W' :
-                            MyWindow.Label_list[int(row)][3].set_label('')
-                        elif col == 'Th' :
-                            MyWindow.Label_list[int(row)][4].set_label('')
-                        elif col == 'F' :
-                            MyWindow.Label_list[int(row)][5].set_label('')
-                        elif col == 'S' :
-                            MyWindow.Label_list[int(row)][6].set_label('')
-
-                remove_course_code = row_contents[0]
-                remove_section = row_contents[2]
-
-                count = 0
-                for strings in self.catalog_info :
-                    if remove_course_code in strings :
-                        count += 1
-
-                    if remove_course_code in strings \
-                    and remove_section in strings :
-                        self.catalog_info.remove(strings)
+                dialog = Gtk.MessageDialog(self, 0, 
+                    Gtk.MessageType.WARNING,
+                    Gtk.ButtonsType.OK_CANCEL, 
+                    "You are about to remove the selected course")
                 
-                if count == 1:
-                    MyWindow.added_courses.remove(remove_course_code)
+                dialog.format_secondary_text(
+                    "Press OK to continue or CANCEL to abort")
+                
+                response = dialog.run()
+                
+                if response == Gtk.ResponseType.OK:
+                    for col in remove_day.split() :
+                        for row in remove_hour.split() :
+                            if col == 'M' :
+                                MyWindow.Label_list[int(row)][1].set_label('')
+                            elif col == 'T' :
+                                MyWindow.Label_list[int(row)][2].set_label('')
+                            elif col == 'W' :
+                                MyWindow.Label_list[int(row)][3].set_label('')
+                            elif col == 'Th' :
+                                MyWindow.Label_list[int(row)][4].set_label('')
+                            elif col == 'F' :
+                                MyWindow.Label_list[int(row)][5].set_label('')
+                            elif col == 'S' :
+                                MyWindow.Label_list[int(row)][6].set_label('')
 
-                self.add_to_catalog()
 
-            
-            elif response == Gtk.ResponseType.CANCEL:
-                pass
+                    count = 0
+                    for strings in self.catalog_info :
+                        if remove_course_code in strings :
+                            count += 1
 
-            dialog.destroy()
+                        if remove_course_code in strings \
+                        and remove_section in strings :
+                            self.catalog_info.remove(strings)
+                    
+                    if count == 1:
+                        MyWindow.added_courses.remove(remove_course_code)
+
+                    self.add_to_catalog()
+                    dialog.destroy()
+                    break
+                
+                elif response == Gtk.ResponseType.CANCEL:
+                    dialog.destroy()
 
 
+    def set_active(self, widget, path, store, *data) :
+        selected_path = Gtk.TreePath(path)
+        for row in store:
+            row[0] = (row.path == selected_path)
+        
 
 
     def add_to_catalog(self) :
-        if self.page02_window.get_child() :
-            self.catalog_store.clear()
-            self.page02_window.remove(
-                self.page02_window.get_child())
+        self.add_column_text(
+            self.catalog_store, None,
+            self.page02_window, self.set_active,
+            ['COURSE CODE', 'COURSE TITLE', 'INSTRUCTOR', 'SECTION', 'DAYS', 'HOURS'])
     
 
         for row in self.catalog_info :
-            self.catalog_store.append(row.split(';'))
+            self.catalog_store.append([False] + row.split(';'))
 
 
-        treeview = Gtk.TreeView(model = self.catalog_store)
-        selection = treeview.get_selection()
-
-        for i, column_title in enumerate(['COURSE CODE', 'COURSE TITLE', \
-            'SECTION', 'INSTRUCTOR', 'DAY', 'HOURS']) :
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(
-                column_title, renderer, text = i)
-            treeview.append_column(column)
-
-        self.remove_button.connect('clicked', self.remove_course, selection)
-
-        self.page02_window.add(treeview)
-        treeview.show_all()
 
         
 
