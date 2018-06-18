@@ -22,7 +22,7 @@ class MyWindow(Gtk.Window):
 
     The 1st page displays your timetable and two buttons (CLear All, Generate pdf). The clear all button 
     removes all the enteries from the timetable and Generate pdf saves your work in pdf format.
-    
+
     The 2nd page allows you to search and select courses for your timetable. It contains 
     a SearchBar, a Search Button and another notebook which has 4 pages (COURSES, LECTURE, 
     PRACTICAL, TUTORIAL). 
@@ -44,11 +44,13 @@ class MyWindow(Gtk.Window):
                     (Gtk layout containers)
 
                     self.notebook :                             Gtk.NoteBook
-                        page00_window :                         Gtk.ScrolledWindow 
+    -------------------------------------------------------------------------------                
+    YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow 
                             page00 :                            Gtk.Grid
                                 self.clear_all_button :         Gtk.Button
                                 self.gen_pdf_button :           Gtk.Button
-                        page01 :                                Gtk.Grid
+    --------------------------------------------------------------------------------                            
+    SEARCH              page01 :                                Gtk.Grid
                             self.SearchBar :                    Gtk.Entry
                             self.SearchButton :                 Gtk.Button
                             self.page01_notebook :              Gtk.NoteBook
@@ -56,12 +58,22 @@ class MyWindow(Gtk.Window):
                                 self.page01_lecture_tab :       Gtk.ScrolledWindow
                                 self.page01_tutorial_tab :      Gtk.ScrolledWindow
                                 self.page01_practical_tab :     Gtk.ScrolledWindow
-
+    --------------------------------------------------------------------------------                            
+    COURSE CATLOG       page02 :                                Gtk.Grid
+                            self.page02_window :                Gtk.ScrolledWindow
+                            self.remove_button :                Gtk.Button
+    ---------------------------------------------------------------------------------
+                    
                     Other variables : 
                         self.sobject : search.Searching () instance
                         self.lec_store, self.prac_store, self.tut_store  : Gtk.ListStore
                             (all are liststore for storing available course sections)
-
+                        self.catalog_store : Gtk.Liststore 
+                                This liststore contains information about the catalog page.
+                        self.catalog_info : List
+                                This is a list which also contains the information about the 
+                                courses you are registered in.
+                
         create_timetable (self, grid) : 
             Creates the schedule and displays on the window 
                     
@@ -173,7 +185,9 @@ class MyWindow(Gtk.Window):
                         Contains the string value for type of section 
 
         update_timetable (self, widget, path, store, section_type) :
-            This is a callback method for Gtk.CellRendererToggle object.
+            This is a callback method for Gtk.CellRendererToggle object. This 
+            method also adds dialog box if a course is clashing with other courses or 
+            when you change sections of a already selected course. 
 
                 @parameters :
                     path : int
@@ -198,6 +212,29 @@ class MyWindow(Gtk.Window):
         
         add_to_timetable(self) :
             Adds the selected section to the timetable.
+        
+        remove_course(self, widget, button) :
+            This method is called to remove the courses selected in the catalog page. This 
+            is also a callback method for Gtk.Button (self.remove_button). This method also shows 
+            dialog box warning the user to confirm before removing a course.
+
+        set_active(self, widget, path, store, data) :
+            This method activates the desired row in the catalog_store. This is a callback 
+            method for CellRendererToggle (in the Catalog page).
+
+                @parameters :
+                    path : int 
+                        Contains the index of the selected row from the catalog_store
+                    store : Gtk.ListStore
+                    data : default = None
+                        Other data can be passed to this parameter if the method needs it.
+
+                @variables :
+                    selected_path : Gtk.TreePath
+
+        add_to_catalog(self) :
+            This method updates content present in the catalog_info list to 
+            catalog_store.
     '''
 
 
@@ -277,7 +314,8 @@ class MyWindow(Gtk.Window):
         self.page02.attach(child = self.page02_window, 
             left = 0, top = 0, width = 1, height = 1)
 
-        self.remove_button = Gtk.Button("SELECT COURSES FROM THE CATALOG TO REMOVE")
+        self.remove_button = Gtk.Button(
+            "Select the coure you want to delete and press this button to continue")
         self.page02.attach_next_to(child = self.remove_button, 
             sibling = self.page02_window, 
             side = Gtk.PositionType(3), 
@@ -290,10 +328,6 @@ class MyWindow(Gtk.Window):
         self.catalog_info = []
         self.notebook.append_page(self.page02, Gtk.Label('COURSE CATALOG'))
 
-
-        
-        
-    
     def create_timetable(self, grid) :
         self.schedule = [
         ['HOURS/DAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
@@ -319,7 +353,10 @@ class MyWindow(Gtk.Window):
     def clear_timetable(self, widget, data = None) :
         for row in range (len(MyWindow.Label_list)) :
             for col in range (len(MyWindow.Label_list[row])) :
-                MyWindow.Label_list[row] [col].set_label(self.schedule[row][col])      
+                MyWindow.Label_list[row] [col].set_label(self.schedule[row][col]) 
+        
+        self.catalog_info = []
+        self.catalog_store.clear()     
 
     def gen_pdf(self, widget) : 
         doc = SimpleDocTemplate("TIMETABLE.pdf", pagesize = letter)
@@ -351,7 +388,6 @@ class MyWindow(Gtk.Window):
     def search (self, widget) : 
         self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
         self.display_course_code(self.page01_course_tab)
-
 
     def add_column_text(
         self, store, 
@@ -390,7 +426,6 @@ class MyWindow(Gtk.Window):
         treeview.show_all()
         tab.add(treeview)
 
-
     def display_course_code(self, tab):
         
         self.store = Gtk.ListStore(bool,str, str)
@@ -400,8 +435,7 @@ class MyWindow(Gtk.Window):
             ["COURSE CODE", "COURSE TITLE"])
         
         for match in self.match_list :
-            self.store.append([False] + list(match))
-        
+            self.store.append([False] + list(match))        
         
     def get_course_details(self, widget, path, *data) :
         selected_path = Gtk.TreePath(path)
@@ -458,7 +492,6 @@ class MyWindow(Gtk.Window):
                     liststore_data_days, 
                     liststore_data_hours])
                 
-
     def update_timetable(self, widget, path, store, section_type) :
         selected_path = Gtk.TreePath(path)
         for row in store:
