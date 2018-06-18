@@ -207,7 +207,7 @@ class MyWindow(Gtk.Window):
     def __init__(self):
         super(MyWindow, self).__init__(title = "OFFLINE ERP")
         self.notebook = Gtk.Notebook()
-        self.set_size_request(width = 1000, height = 500)
+        self.set_size_request(width = 1000, height = 700)
         self.add(self.notebook)
         self.maximize()
 
@@ -273,11 +273,18 @@ class MyWindow(Gtk.Window):
         self.notebook.append_page(page01, Gtk.Label("SEARCH"))
 
         self.page02 = Gtk.Grid()
+        self.page02_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
+        self.page02.attach(child = self.page02_window, 
+            left = 0, top = 0, width = 1, height = 1)
 
-        self.remove_button = Gtk.Button("Remove Selected")
-        self.page02.attach(child = self.remove_button, left = 0,
-            top = 0, width = 1, height = 1)
+        self.remove_button = Gtk.Button(r"SELECT COURSES FROM THE CATALOG TO REMOVE")
+        self.page02.attach_next_to(child = self.remove_button, 
+            sibling = self.page02_window, 
+            side = Gtk.PositionType(3), 
+            width = 1, height = 1)
 
+
+        
         self.catalog_store = Gtk.ListStore(str, str, str, str, str, str)
         self.catalog_info = []
 
@@ -511,8 +518,8 @@ class MyWindow(Gtk.Window):
                                 self.add_to_timetable()
 
                                 for index in self.catalog_info :
-                                    if text.split(';')[0] in index \
-                                    and text.split(';')[1] in index :
+                                    if text.split('\n')[0] in index \
+                                    and text.split('\n')[1] in index :
                                         self.catalog_info.remove(index)
                                         self.catalog_info.insert(0, self.info)
                                         break
@@ -563,8 +570,8 @@ class MyWindow(Gtk.Window):
                                 self.add_to_timetable()
 
                                 for index in self.catalog_info :
-                                    if text.split(';')[0] in index \
-                                    and text.split(';')[1] in index :
+                                    if text.split('\n')[0] in index \
+                                    and text.split('\n')[1] in index :
                                         self.catalog_info.remove(index)
                                         self.catalog_info.insert(0, self.info)
                                         break
@@ -599,17 +606,80 @@ class MyWindow(Gtk.Window):
                     MyWindow.Label_list[row][6].set_label(self.text_to_display)
 
 
+    def remove_course(self, widget, selection) :
+        tree_model, tree_iter = selection.get_selected()
+
+        if tree_iter is not None :
+            row_contents = tree_model[tree_iter]
+            remove_hour = row_contents[-1]
+            remove_day = row_contents[-2]
+
+            dialog = Gtk.MessageDialog(self, 0, 
+                Gtk.MessageType.WARNING,
+                Gtk.ButtonsType.OK_CANCEL, 
+                "You are about to remove the selected course")
+            
+            dialog.format_secondary_text(
+                "Press OK to continue or CANCEL to abort")
+            
+            response = dialog.run()
+            
+            if response == Gtk.ResponseType.OK:
+
+                for col in remove_day.split() :
+                    for row in remove_hour.split() :
+                        if col == 'M' :
+                            MyWindow.Label_list[int(row)][1].set_label('')
+                        elif col == 'T' :
+                            MyWindow.Label_list[int(row)][2].set_label('')
+                        elif col == 'W' :
+                            MyWindow.Label_list[int(row)][3].set_label('')
+                        elif col == 'Th' :
+                            MyWindow.Label_list[int(row)][4].set_label('')
+                        elif col == 'F' :
+                            MyWindow.Label_list[int(row)][5].set_label('')
+                        elif col == 'S' :
+                            MyWindow.Label_list[int(row)][6].set_label('')
+
+                remove_course_code = row_contents[0]
+                remove_section = row_contents[2]
+
+                count = 0
+                for strings in self.catalog_info :
+                    if remove_course_code in strings :
+                        count += 1
+
+                    if remove_course_code in strings \
+                    and remove_section in strings :
+                        self.catalog_info.remove(strings)
+                
+                if count == 1:
+                    MyWindow.added_courses.remove(remove_course_code)
+
+                self.add_to_catalog()
+
+            
+            elif response == Gtk.ResponseType.CANCEL:
+                pass
+
+            dialog.destroy()
+
+
+
+
     def add_to_catalog(self) :
-        if len(self.page02.get_children()) == 2 :
+        if self.page02_window.get_child() :
             self.catalog_store.clear()
-            self.page02.remove(
-                self.page02.get_children()[-1])
+            self.page02_window.remove(
+                self.page02_window.get_child())
     
 
         for row in self.catalog_info :
             self.catalog_store.append(row.split(';'))
 
+
         treeview = Gtk.TreeView(model = self.catalog_store)
+        selection = treeview.get_selection()
 
         for i, column_title in enumerate(['COURSE CODE', 'COURSE TITLE', \
             'SECTION', 'INSTRUCTOR', 'DAY', 'HOURS']) :
@@ -618,12 +688,9 @@ class MyWindow(Gtk.Window):
                 column_title, renderer, text = i)
             treeview.append_column(column)
 
-        self.page02.attach(child = treeview, left = 0,
-        top = 0, width = 1, height = 1)
-        #self.page02.attach_next_to(
-            #child = self.remove_button, sibling = treeview,
-            #side = Gtk.PositionType(3), width = 1, height = 1)
+        self.remove_button.connect('clicked', self.remove_course, selection)
 
+        self.page02_window.add(treeview)
         treeview.show_all()
 
         
