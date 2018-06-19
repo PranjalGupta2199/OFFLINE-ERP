@@ -43,6 +43,8 @@ class MyWindow(Gtk.Window):
                     
                     (Gtk layout containers)
 
+                    header_bar :                                Gtk.HeaderBar       
+
                     self.notebook :                             Gtk.NoteBook
     -------------------------------------------------------------------------------                
     YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow 
@@ -247,6 +249,13 @@ class MyWindow(Gtk.Window):
         self.set_size_request(width = 1000, height = 700)
         self.add(self.notebook)
         self.maximize()
+
+        self.set_icon_from_file('media/BITs.jpg')
+
+        header_bar = Gtk.HeaderBar()
+        header_bar.set_show_close_button(True)
+        header_bar.props.title = "OFFLINE ERP"
+        self.set_titlebar(header_bar)
 
         self.sobject = search.Searching()
         
