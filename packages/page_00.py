@@ -31,6 +31,7 @@ class FileChooser(Gtk.Window):
 					file_button :			Gtk.Button
 					okay_button :			Gtk.Button
 					self.spinner : 			Gtk.Spinner
+					self.status_label		Gtk.Label
 					next_button :			Gtk.Button
 
 				Other variables :
@@ -71,6 +72,7 @@ class FileChooser(Gtk.Window):
 		self.add(self.grid)
 		self.set_resizable(False)
 
+		self.set_icon_from_file('media/BITs.jpg')
 		self.grid.set_row_homogeneous(True)
 		self.grid.set_column_homogeneous(True)
 		self.grid.set_column_spacing(5)
@@ -126,6 +128,8 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 		next_button = Gtk.Button("Next")
 		next_button.connect("clicked", self.move_to_next_page)
 
+		self.status_label = Gtk.Label("Status :")
+
 		self.grid.attach(
 			child = self.about_page, left = 0,
 			top = 0, width = 8, height = 5)
@@ -150,6 +154,10 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 		
 		self.grid.attach_next_to(
 			child = self.spinner, sibling = self.entry,
+			side = Gtk.PositionType(3), width = 1, height = 1)
+
+		self.grid.attach_next_to(
+			child = self.status_label, sibling = self.spinner,
 			side = Gtk.PositionType(1), width = 1, height = 1)		
 
 
@@ -186,9 +194,10 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 		pdf_reader.to_database(
 			connection_object = self.database)
 		self.spinner.stop()
+		self.status_label.set_label("Status : Done")
 
 	def move_to_next_page(self, widget, data = None) :
-		self.flag = 1
+		self.flag += 1
 		self.destroy()
 		Gtk.main_quit()
 		return
