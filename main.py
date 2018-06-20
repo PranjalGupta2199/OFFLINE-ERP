@@ -8,18 +8,16 @@ from packages import search
 from gi.repository import Gtk
 
 if __name__ == "__main__" :
+	window0 = page_00.FileChooser()
+	window0.connect('delete-event', Gtk.main_quit)
 	try :
-		flag = 1
 		os.mkdir("Pages")
-		window0 = page_00.FileChooser()
-		window0.connect('delete-event', Gtk.main_quit)
 		window0.show_all()
 		Gtk.main()
 	except :
 		pass
-	
-	if flag == 1:
-		window1 = page_01.MyWindow()
-		window1.connect('delete-event', Gtk.main_quit)
-		window1.show_all()
-		Gtk.main()
+
+	window1 = page_01.MyWindow()
+	window1.connect('delete-event', Gtk.main_quit)
+	window1.show_all()
+	Gtk.main()
