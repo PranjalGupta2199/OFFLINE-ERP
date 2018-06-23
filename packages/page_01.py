@@ -292,7 +292,7 @@ class MyWindow(Gtk.Window):
                     sibling = self.SearchBar,
                     side = Gtk.PositionType(1), 
                     width = 1, height = 1)
-     	
+        
         self.page01_notebook = Gtk.Notebook()
         self.page01_course_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
         self.page01_lec_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
