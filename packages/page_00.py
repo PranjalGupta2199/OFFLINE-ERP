@@ -1,10 +1,14 @@
+import pandas
 import gi 
 import os
+import multiprocessing
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gtk, Gdk, GdkPixbuf
-from . import pdf_reader
+from gi.repository import Gtk, GObject, Gdk, GdkPixbuf
+import threading
 import sqlite3
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from tabula import read_pdf, convert_into
 
 class FileChooser(Gtk.Window):
     '''
@@ -17,7 +21,14 @@ class FileChooser(Gtk.Window):
 
     METHODS : 
         __init__(self) : 
-            Constructs the FileChooser instance
+        file_choose (self, widget, data = None)            
+        move_to_database(self, widget, data = None) :
+        move_to_next_page(self, widget, data = None) :
+.
+    '''
+    def __init__(self) :
+        '''
+        Constructs the FileChooser instance
 
             @variables :
 
@@ -34,38 +45,14 @@ class FileChooser(Gtk.Window):
                     self.status_label       Gtk.Label
                     next_button :           Gtk.Button
 
-                Other variables :
-                    self.flag : int
-                        Indicates wether the app has been used in the system before
-                        so that pdf is not parsed again.
+            other variables :
+                self.flag : int
+                    Indicates wether the app has been used in the system before
+                    so that pdf is not parsed again.
 
-        file_choose (self, widget, data = None):
-            Used for specifying the file location of the pdf 
-
-            @variables :
-                dialog : Gtk.FileChooserDialog 
-                    Creates a dialog box with action as OPEN.
-
-                self.file_path : str
-                    Contains the string value of the location of pdf file selected
-
-        move_to_database(self, widget, data = None) :
-            This method uses pdf_reader file and parses and stores information from 
-            the pdf file. This is a callback method used for Gtk.Button (okay_button).
-
-            @variables :
-                self.database : sqlite3 connection object
-                    Creates a database 'courses.db' in the packages directory of the repo.
-
-        move_to_next_page(self, widget, data = None) :
-            Destroys the current window returns the flow of execution to the main.py file.
-
-            @variables :
-                self.flag  : int
-                    Indicates that this window has succesfully worked.
-    '''
-    def __init__(self) :
+        '''
         super(Gtk.Window, self).__init__(title = 'OFFLINE ERP')
+        self.connect('delete-event', self.main_quit)
         self.flag = 0
         self.set_border_width(10)
         self.grid = Gtk.Grid()
@@ -91,15 +78,15 @@ class FileChooser(Gtk.Window):
 "<big>Say hello to your own <b> OFFLINE ERP  </b>!! </big>" + "\n" + 
 "\n" + "This Desktop Application is designed to \
 help you decide what courses (CDCs and Electives)\
-you wish to opt for in the coming semester." + "\n" + "\n" +
+ you wish to opt in the upcoming semester." + "\n" + "\n" +
 "You can search your desired course, add them to your catalog \
 or even remove them if you want. If you are unhappy with \
 your timetable you can clear all the enteries at once and start afresh. \
 To save your work, you can generate the pdf version of your timetable." + "\n" + "\n" + 
-"Well, for now you just need to specify the path of your pdf file. For that, \
-click on the folder icon, a window pops-up. Select your file and click OPEN. \
+"You need to specify the path of your pdf file. \
+Click on the folder icon, a window pops up. Select your file and click SELECT. \
 Then when you have verified the path, click on OKAY button. This process may take some time depending on your system,\
-so wait as long as the spinner shows on the pop-up window.Then click on NEXT to move onto the main page ... " + "\n" + "\n" +
+so wait as long as the spinner shows on the window.Then click on NEXT to move onto the main page ... " + "\n" + "\n" +
 "<b> Hope you enjoy my application. </b>"
             )
         self.about_page.add(self.about_label)
@@ -117,8 +104,8 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
         
         file_label = Gtk.Label("Location :")
         
-        okay_button = Gtk.Button("Okay")
-        okay_button.connect('clicked', self.move_to_pdf_reader)
+        self.okay_button = Gtk.Button("Okay")
+        self.okay_button.connect('clicked', self.pdf_parse)
 
         self.entry = Gtk.Entry()
         self.entry.set_editable(False)
@@ -127,8 +114,6 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 
         next_button = Gtk.Button("Next")
         next_button.connect("clicked", self.move_to_next_page)
-
-        self.status_label = Gtk.Label("Status :")
 
         self.grid.attach(
             child = self.about_page, left = 0,
@@ -148,7 +133,7 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
             side = Gtk.PositionType(1), width = 1, height = 1)
 
         self.grid.attach_next_to(
-            child = okay_button, sibling = file_label,
+            child = self.okay_button, sibling = file_label,
             side = Gtk.PositionType(3), width = 1, height = 1)
 
         
@@ -157,21 +142,26 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
             side = Gtk.PositionType(3), width = 1, height = 1)
 
         self.grid.attach_next_to(
-            child = self.status_label, sibling = self.spinner,
-            side = Gtk.PositionType(1), width = 1, height = 1)      
-
-
-        self.grid.attach_next_to(
             child = next_button, sibling = file_button, 
             side = Gtk.PositionType(3), width = 1, height = 1)
 
 
 
     def file_choose(self, widget, data = None) :
+        '''
+        Used for specifying the file location of the pdf 
+
+            @variables :
+                dialog : Gtk.FileChooserDialog 
+                    Creates a dialog box with action as OPEN.
+
+                self.file_path : str
+                    Contains the string value of the location of pdf file selected
+        '''
         dialog = Gtk.FileChooserDialog("Please Choose Your File : ", self, 
             Gtk.FileChooserAction.OPEN, 
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            'SELECT', Gtk.ResponseType.OK))
 
         response = dialog.run()
 
@@ -185,24 +175,92 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 
 
 
-    def move_to_pdf_reader(self, widget, data = None) :
+    def pdf_parse(self, widget, data = None) :
+        '''
+        Handles spinner events and multiprocessing when populating the database.
+        '''
+        
+        self.split_pdf(self.file_path)
         self.spinner.start()
-        self.database = sqlite3.connect(os.path.join(os.getcwd(), "packages/courses.db"))
-        pdf_reader.split_pdf(
-            file_path = self.file_path)
+        p3 = threading.Thread(target = self.to_database)
+        p3.start()
 
-        pdf_reader.to_database(
-            connection_object = self.database)
+
+
+
+    def split_pdf(self, file_path):
+        ''' Splits the timetable pdf into individual pages 
+        '''
+        infile = PdfFileReader(open(file_path, 'rb'))
+        
+
+        for i in range(infile.getNumPages()):
+            p = infile.getPage(i)
+            
+            outfile = PdfFileWriter()
+            outfile.addPage(p)
+            
+            split_page_path = os.path.join(os.getcwd(), 'Pages/page-%02d.pdf' % i)
+
+            with open(split_page_path, 'wb') as f:
+                outfile.write(f)
+
+    def to_database(self):
+        ''' 
+            Extracts table from the pdf and stores them in a database (courses.db)
+        '''
+        path = os.path.join(os.getcwd(), "Pages")
+        self.database = sqlite3.connect(os.path.join(os.getcwd(), "packages/courses.db"))
+
+        directory_files = os.listdir(path)
+        directory_files.sort()
+
+        for file in directory_files:
+            page_no = int (file.split('.')[0].split('-')[1]) 
+            
+            #print page_no
+            
+            if ( page_no >= 6 and page_no <= 45 ):
+                
+                data = read_pdf(
+                    input_path = os.path.join(path, file), 
+                    pandas_options = {
+                    'header' : None, 
+                    'skiprows' : [0,1,2,3,4,5], 
+                    'keep_default_na' : False,
+                    'usecols' : [1,2,4,5,7,8,10]})
+                
+                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'SECTION', 
+                'INSTRUCTOR', 'DAY', 'HOURS', 'COMPRE_DATE']
+                
+                data.to_sql(name = 'courses', con = self.database, 
+                    index = False, if_exists = 'append')
+
+                
         self.spinner.stop()
-        self.status_label.set_label("Status : Done")
+        self.okay_button.set_sensitive(False)
 
     def move_to_next_page(self, widget, data = None) :
-        self.flag += 1
+        '''
+        Destroys the current window returns the flow of execution to the main.py file.
+
+        '''
         self.destroy()
         Gtk.main_quit()
-        return
 
+    def main_quit (self, widget, data = None) : 
+        '''
+        Overrides the Gtk.main_quit. This method is called only when
+        the window is closed before going on to the next page.
 
+        '''
+        os.rmdir('Pages')
+        try :
+            os.remove(os.path.join(os.getcwd(),'packages/courses.db'))
+        except : 
+            pass
+        self.flag = 1
+        Gtk.main_quit()
 
 if __name__ == "__main__" :
     window = FileChooser()
