@@ -21,7 +21,14 @@ class FileChooser(Gtk.Window):
 
     METHODS : 
         __init__(self) : 
-            Constructs the FileChooser instance
+        file_choose (self, widget, data = None)            
+        move_to_database(self, widget, data = None) :
+        move_to_next_page(self, widget, data = None) :
+.
+    '''
+    def __init__(self) :
+        '''
+        Constructs the FileChooser instance
 
             @variables :
 
@@ -42,33 +49,7 @@ class FileChooser(Gtk.Window):
                     self.flag : int
                         Indicates wether the app has been used in the system before
                         so that pdf is not parsed again.
-
-        file_choose (self, widget, data = None):
-            Used for specifying the file location of the pdf 
-
-            @variables :
-                dialog : Gtk.FileChooserDialog 
-                    Creates a dialog box with action as OPEN.
-
-                self.file_path : str
-                    Contains the string value of the location of pdf file selected
-
-        move_to_database(self, widget, data = None) :
-            This method uses pdf_reader file and parses and stores information from 
-            the pdf file. This is a callback method used for Gtk.Button (okay_button).
-
-            @variables :
-                self.database : sqlite3 connection object
-                    Creates a database 'courses.db' in the packages directory of the repo.
-
-        move_to_next_page(self, widget, data = None) :
-            Destroys the current window returns the flow of execution to the main.py file.
-
-            @variables :
-                self.flag  : int
-                    Indicates that this window has succesfully worked.
-    '''
-    def __init__(self) :
+        '''
         super(Gtk.Window, self).__init__(title = 'OFFLINE ERP')
         self.flag = 0
         self.set_border_width(10)
@@ -122,7 +103,7 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
         file_label = Gtk.Label("Location :")
         
         self.okay_button = Gtk.Button("Okay")
-        self.okay_button.connect('clicked', self.move_to_pdf_reader)
+        self.okay_button.connect('clicked', self.pdf_parse)
 
         self.entry = Gtk.Entry()
         self.entry.set_editable(False)
@@ -131,8 +112,6 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 
         next_button = Gtk.Button("Next")
         next_button.connect("clicked", self.move_to_next_page)
-
-        #self.status_label = Gtk.Label("Status :")
 
         self.grid.attach(
             child = self.about_page, left = 0,
@@ -160,11 +139,6 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
             child = self.spinner, sibling = self.entry,
             side = Gtk.PositionType(3), width = 1, height = 1)
 
-        #self.grid.attach_next_to(
-        #    child = self.status_label, sibling = self.spinner,
-        #    side = Gtk.PositionType(1), width = 1, height = 1)      
-
-
         self.grid.attach_next_to(
             child = next_button, sibling = file_button, 
             side = Gtk.PositionType(3), width = 1, height = 1)
@@ -172,10 +146,20 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 
 
     def file_choose(self, widget, data = None) :
+        '''
+        Used for specifying the file location of the pdf 
+
+            @variables :
+                dialog : Gtk.FileChooserDialog 
+                    Creates a dialog box with action as OPEN.
+
+                self.file_path : str
+                    Contains the string value of the location of pdf file selected
+        '''
         dialog = Gtk.FileChooserDialog("Please Choose Your File : ", self, 
             Gtk.FileChooserAction.OPEN, 
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            'SELECT', Gtk.ResponseType.OK))
 
         response = dialog.run()
 
@@ -189,7 +173,10 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
 
 
 
-    def move_to_pdf_reader(self, widget, data = None) :
+    def pdf_parse(self, widget, data = None) :
+        '''
+        Handles spinner events and multiprocessing when populating the database.
+        '''
         
         self.split_pdf(self.file_path)
         self.spinner.start()
@@ -252,6 +239,13 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
         self.okay_button.set_sensitive(False)
 
     def move_to_next_page(self, widget, data = None) :
+        '''
+        Destroys the current window returns the flow of execution to the main.py file.
+
+            @variables :
+                self.flag  : int
+                    Indicates that this window has succesfully worked
+        '''
         self.flag += 1
         self.destroy()
         Gtk.main_quit()

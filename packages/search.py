@@ -8,31 +8,23 @@ class Searching:
 
         METHODS : 
             __init__(self) :
-                Constructs the Searching class instance
-
-                @variables :
-                    self.lecture, self.tutorial, self.practical : pandas.Dataframe
-                                Contains the details of all the available sections
-                    db : sqlite3 connection object
-
-                    self.cursor : sqlite3 cursor object.
-
             get_result (self, query) :
-                Searches for a match in the database from the given query.
-
             get_course_details (self, match_parameter) :
-                Retrives information (section details) from the database.
-
-                @parameter : 
-                    match_parameter : tuple
-                        contains tuple of strings having course_code and course_title as its 
-                        elements
-
             __str__(self) :
-                returns the string representation of the object. 
+ 
 
     '''
     def __init__(self):
+        '''
+        Constructs the Searching class instance
+
+            @variables :
+                self.lecture, self.tutorial, self.practical : pandas.Dataframe
+                            Contains the details of all the available sections
+                db : sqlite3 connection object
+
+                self.cursor : sqlite3 cursor object.
+        '''
         self.lecture, self.tutorial, self.practical = [],[],[]  
         
         dirname = os.path.join(os.getcwd(),'packages/courses.db')
@@ -41,6 +33,10 @@ class Searching:
 
 
     def get_result(self, query):
+        '''
+        Searches for a match in the database from the given query.
+
+        '''
 
         self.cursor.execute ( "SELECT COURSE_CODE, COURSE_TITLE FROM \
          courses WHERE COURSE_CODE  LIKE ? OR COURSE_TITLE LIKE ? AND COURSE_CODE != ''",\
@@ -48,7 +44,14 @@ class Searching:
         return self.cursor.fetchall()  #This will return all the matched strings 
 
     def get_course_details (self, match_parameter): #match_parameter is a tuple
+        '''
+        Retrives information (section details) from the database.
 
+            @parameter : 
+                match_parameter : tuple
+                    contains tuple of strings having course_code and course_title as its 
+                    elements
+        '''
         match_id = self.cursor.execute("SELECT _rowid_ FROM courses \
             WHERE COURSE_CODE = ? AND COURSE_TITLE = ?",\
          match_parameter).fetchall()[0] 
@@ -95,7 +98,10 @@ class Searching:
                 self.practical = details_df[prac_index : tut_index]
                 self.tutorial = details_df[tut_index : ]
 
-    def __str__ (self) : 
+    def __str__ (self) :
+        '''
+        returns the string representation of the object.
+        ''' 
 
         print self.lecture
         print self.practical
