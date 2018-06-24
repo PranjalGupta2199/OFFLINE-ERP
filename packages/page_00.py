@@ -45,12 +45,14 @@ class FileChooser(Gtk.Window):
                     self.status_label       Gtk.Label
                     next_button :           Gtk.Button
 
-                Other variables :
-                    self.flag : int
-                        Indicates wether the app has been used in the system before
-                        so that pdf is not parsed again.
+            other variables :
+                self.flag : int
+                    Indicates wether the app has been used in the system before
+                    so that pdf is not parsed again.
+
         '''
         super(Gtk.Window, self).__init__(title = 'OFFLINE ERP')
+        self.connect('delete-event', self.main_quit)
         self.flag = 0
         self.set_border_width(10)
         self.grid = Gtk.Grid()
@@ -76,15 +78,15 @@ class FileChooser(Gtk.Window):
 "<big>Say hello to your own <b> OFFLINE ERP  </b>!! </big>" + "\n" + 
 "\n" + "This Desktop Application is designed to \
 help you decide what courses (CDCs and Electives)\
-you wish to opt for in the coming semester." + "\n" + "\n" +
+ you wish to opt in the upcoming semester." + "\n" + "\n" +
 "You can search your desired course, add them to your catalog \
 or even remove them if you want. If you are unhappy with \
 your timetable you can clear all the enteries at once and start afresh. \
 To save your work, you can generate the pdf version of your timetable." + "\n" + "\n" + 
-"Well, for now you just need to specify the path of your pdf file. For that, \
-click on the folder icon, a window pops-up. Select your file and click OPEN. \
+"You need to specify the path of your pdf file. \
+Click on the folder icon, a window pops up. Select your file and click SELECT. \
 Then when you have verified the path, click on OKAY button. This process may take some time depending on your system,\
-so wait as long as the spinner shows on the pop-up window.Then click on NEXT to move onto the main page ... " + "\n" + "\n" +
+so wait as long as the spinner shows on the window.Then click on NEXT to move onto the main page ... " + "\n" + "\n" +
 "<b> Hope you enjoy my application. </b>"
             )
         self.about_page.add(self.about_label)
@@ -242,16 +244,23 @@ so wait as long as the spinner shows on the pop-up window.Then click on NEXT to 
         '''
         Destroys the current window returns the flow of execution to the main.py file.
 
-            @variables :
-                self.flag  : int
-                    Indicates that this window has succesfully worked
         '''
-        self.flag += 1
         self.destroy()
         Gtk.main_quit()
-        return
 
+    def main_quit (self, widget, data = None) : 
+        '''
+        Overrides the Gtk.main_quit. This method is called only when
+        the window is closed before going on to the next page.
 
+        '''
+        os.rmdir('Pages')
+        try :
+            os.remove(os.path.join(os.getcwd(),'packages/courses.db'))
+        except : 
+            pass
+        self.flag = 1
+        Gtk.main_quit()
 
 if __name__ == "__main__" :
     window = FileChooser()

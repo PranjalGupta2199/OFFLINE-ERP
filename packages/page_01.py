@@ -102,6 +102,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         '''
 
         super(MyWindow, self).__init__(title = "OFFLINE ERP")
+        self.connect('delete-event', self.main_quit)
         self.notebook = Gtk.Notebook()
         self.set_size_request(width = 1000, height = 700)
         self.add(self.notebook)
@@ -242,7 +243,8 @@ COURSE CATLOG       page02 :                                Gtk.Grid
                 MyWindow.Label_list[row] [col].set_label(self.schedule[row][col]) 
         
         self.catalog_info = []
-        self.catalog_store.clear()     
+        self.catalog_store.clear()  
+        MyWindow.added_courses = []   
 
     def gen_pdf(self, widget) :
         '''
@@ -293,6 +295,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
                                     ]))
             element.append(table)
             doc.build(element)
+            self.clear_timetable(None)
 
         elif response == Gtk.ResponseType.CANCEL : 
             dialog.destroy()
@@ -753,6 +756,33 @@ COURSE CATLOG       page02 :                                Gtk.Grid
 
         for row in self.catalog_info :
             self.catalog_store.append([False] + row.split(';'))
+
+    def main_quit(self, widget, event) :
+        '''
+        Adds custom quit method for the application. 
+        Shows a dialog box if there is unsaved work.
+        '''
+        if len(MyWindow.added_courses) != 0 :
+            dialog = Gtk.MessageDialog(self, 0,
+                Gtk.MessageType.QUESTION,
+                Gtk.ButtonsType.YES_NO,
+                'You have unsaved work.')
+
+            dialog.format_secondary_text(
+                'Press YES to Save or No to Quit')
+
+            response = dialog.run()
+
+            if response == Gtk.ResponseType.YES :
+                self.gen_pdf(None)
+            elif response == Gtk.ResponseType.NO :
+                pass
+
+            dialog.destroy()
+        else :
+            pass
+
+        Gtk.main_quit()
 
 
 
