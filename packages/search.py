@@ -43,7 +43,7 @@ class Searching:
     def get_result(self, query):
 
         self.cursor.execute ( "SELECT COURSE_CODE, COURSE_TITLE FROM \
-         courses WHERE COURSE_CODE  LIKE ? OR COURSE_TITLE LIKE ?",\
+         courses WHERE COURSE_CODE  LIKE ? OR COURSE_TITLE LIKE ? AND COURSE_CODE != ''",\
           ('%' + query + '%','%' + query + '%'))
         return self.cursor.fetchall()  #This will return all the matched strings 
 

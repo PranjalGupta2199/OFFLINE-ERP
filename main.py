@@ -1,7 +1,6 @@
 import gi
 import os
 gi.require_version("Gtk", "3.0")
-from packages import pdf_reader
 from packages import search
 from packages import page_01
 from packages import page_00
