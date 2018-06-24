@@ -52,6 +52,7 @@ class MyWindow(Gtk.Window):
         remove_course(self, widget, button) :
         set_active(self, widget, path, store, data) :
         add_to_catalog(self) :
+        main_quit(self) :
     '''
 
 

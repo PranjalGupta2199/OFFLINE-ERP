@@ -22,8 +22,11 @@ class FileChooser(Gtk.Window):
     METHODS : 
         __init__(self) : 
         file_choose (self, widget, data = None)            
-        move_to_database(self, widget, data = None) :
+        pdf_parse(self, widget, data = None) :
         move_to_next_page(self, widget, data = None) :
+        split_pdf(self, file_path) :
+        to_database(self) :
+        main_quit(self) :
 .
     '''
     def __init__(self) :
@@ -103,7 +106,8 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
         file_button.connect('clicked', self.file_choose)
         
         file_label = Gtk.Label("Location :")
-        
+        self.file_path = ''
+
         self.okay_button = Gtk.Button("Okay")
         self.okay_button.connect('clicked', self.pdf_parse)
 
@@ -179,12 +183,23 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
         '''
         Handles spinner events and multiprocessing when populating the database.
         '''
+        if self.file_path :
         
-        self.split_pdf(self.file_path)
-        self.spinner.start()
-        p3 = threading.Thread(target = self.to_database)
-        p3.start()
+            self.split_pdf(self.file_path)
+            self.spinner.start()
+            p3 = threading.Thread(target = self.to_database)
+            p3.start()
+        
+        else :
+            dialog = Gtk.MessageDialog(self, 0,
+                Gtk.MessageType.INFO,
+                Gtk.ButtonsType.OK, "You haven't selected any file ")
 
+            dialog.format_secondary_text(
+                'Please specify the path and then press Okay.')
+
+            dialog.run()
+            dialog.destroy()
 
 
 
@@ -245,8 +260,20 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
         Destroys the current window returns the flow of execution to the main.py file.
 
         '''
-        self.destroy()
-        Gtk.main_quit()
+        if self.okay_button.get_sensitive():
+            dialog = Gtk.MessageDialog(self, 0,
+                Gtk.MessageType.INFO, 
+                Gtk.ButtonsType.OK,
+                "You haven't created the database.")
+
+            dialog.format_secondary_text(
+                'Please select your file and then press Okay.')
+            dialog.run()
+            dialog.destroy()
+
+        else :            
+            self.destroy()
+            Gtk.main_quit()
 
     def main_quit (self, widget, data = None) : 
         '''
