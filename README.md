@@ -1,36 +1,44 @@
 # Offline ERP for BPHC 
-Tired of making your timetable on paper ? Offline ERP is here to help you. This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable.  
-You just need the pdf of the timetable booklet. Then you can 
-  - Search courses based on your course code/title
-  - Pop-up windows will appear in events of clashing time or when changing section
+Tired of making your timetable on paper ? Offline ERP is here to help you !!
+This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable.  
  
-
 ## Features
 It allows you to - 
 
   - Select your courses, and 
   - Save it in pdf format.
  
+##### Note :
+1. This app works only for python 2.x versions because tabula-py is not available for python 3.x versions
+2. Please install Java as tabula requires it. 
+    To verify if Java is installed , type 
+    ```
+    $ Java
+    ```
+    on your terminal/command prompt.
+    You can install it from this [link.](https://java.com/en/download/help/download_options.xml)
+
 ## Getting Started
 You are going to need :
-- _python_
+- _python_ 
 - _git_
-- _pip or Anaconda/Miniconda_
+- _pip_
+
 
 Download python depending on your os from the given links :
-- [Windows](https://www.python.org/downloads/windows)
 - [Linux/Unix](https://www.python.org/downloads/source/)
-- [MacOS](https://www.python.org/downloads/mac-osx/)
+
     
 To download the repo use : 
 ```
     git clone https://github.com/PranjalGupta2199/OFFLINE-ERP.git
 ```
+
 To download pip, use this [link.](https://pip.pypa.io/en/stable/installing/)
-To download Anaconda/Miniconda, use this [link.](https://conda.io/docs/user-guide/install/index.html)
+
 
 ##  Prerequisites
-You are going to need he following libraries :
+You are going to need the following libraries :
 - gi
 - pandas 
 - PyPDF2 
@@ -47,31 +55,23 @@ You are going to need he following libraries :
 - [Windows](http://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started)
 - [MacOS](http://pygobject.readthedocs.io/en/latest/getting_started.html#macosx-getting-started)
 
-##### Pandas
-Anaconda/Miniconda comes with this package installed. So you don't need to run this package.
+Run this command to install the remaining dependencies : 
 
-    pip install pandas
-
-##### PyPDF2
-    pip install PyPDF2
-
-##### Tabula 
-    pip install tabula-py
-
-##### Reportlab 
-    pip install reportlab
-
+    pip install -r requirements.txt --ignore-installed 
 
 ## Deployment 
 
-After completing the above steps,run this command : move to the directory where the git repo has been downloaded and run the following command on your terminal or command prompt : 
+After completing the above steps, move to the folder where repo has been downloaded.
+Then type these commands :-
+```git 
+git checkout Develop
+```
 
 ```python
 python main.py 
 ```
 Note :
-1. You need run the above command everytime you want to run the app
-2. Please add environment variable in your command line (Windows) if there is an error.
+1. You need run the above (python) command everytime you want to run the app.
 
 ## Author
 -  **Pranjal Gupta**

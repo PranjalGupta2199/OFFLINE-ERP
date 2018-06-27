@@ -1,12 +1,11 @@
 import pandas
-import gi 
 import os
-import multiprocessing
+import threading
+import sqlite3
+import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, GObject, Gdk, GdkPixbuf
-import threading
-import sqlite3
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from tabula import read_pdf, convert_into
 
