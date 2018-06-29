@@ -15,7 +15,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 class MyWindow(Gtk.Window):
     '''
     This class is for creating gui for the second page of the application.
-    The main window consists of 2 main pages (YOUR TIMETABLE , SEARCH). 
+    The main window consists of 2 main pages (YOUR TIMETABLE , SEARCH, COURSE CATALOG). 
 
     The variables for the the pages are : 
         page00_window, page01
@@ -32,211 +32,27 @@ class MyWindow(Gtk.Window):
     TUTORIAL tab : Displays the available tutorial sections for your desired course
         (all the above tabs will remain empty if there are no available sections)
 
+    The 3rd page shows all the details of the courses which you have selected for your timetable.
+    This page also allows you to delete some of them, if you don't want them in your timetable
+
 
 
     METHOS :
-        __init__ : 
-
-            Constructs a MyWindow instance . 
-                    
-                    @variables -
-                    
-                    (Gtk layout containers)
-
-                    header_bar :                                Gtk.HeaderBar       
-
-                    self.notebook :                             Gtk.NoteBook
-    -------------------------------------------------------------------------------                
-    YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow 
-                            page00 :                            Gtk.Grid
-                                self.clear_all_button :         Gtk.Button
-                                self.gen_pdf_button :           Gtk.Button
-    --------------------------------------------------------------------------------                            
-    SEARCH              page01 :                                Gtk.Grid
-                            self.SearchBar :                    Gtk.Entry
-                            self.SearchButton :                 Gtk.Button
-                            self.page01_notebook :              Gtk.NoteBook
-                                self.page01_courses_tab :       Gtk.ScrolledWindow
-                                self.page01_lecture_tab :       Gtk.ScrolledWindow
-                                self.page01_tutorial_tab :      Gtk.ScrolledWindow
-                                self.page01_practical_tab :     Gtk.ScrolledWindow
-    --------------------------------------------------------------------------------                            
-    COURSE CATLOG       page02 :                                Gtk.Grid
-                            self.page02_window :                Gtk.ScrolledWindow
-                            self.remove_button :                Gtk.Button
-    ---------------------------------------------------------------------------------
-                    
-                    Other variables : 
-                        self.sobject : search.Searching () instance
-                        self.lec_store, self.prac_store, self.tut_store  : Gtk.ListStore
-                            (all are liststore for storing available course sections)
-                        self.catalog_store : Gtk.Liststore 
-                                This liststore contains information about the catalog page.
-                        self.catalog_info : List
-                                This is a list which also contains the information about the 
-                                courses you are registered in.
-                
+        __init__ :               
         create_timetable (self, grid) : 
-            Creates the schedule and displays on the window 
-                    
-                    @variables :
-                        self.schedule : An array containing the basic 
-                                structure of your timetable
-
-                        MyWindow.Label_list : <class-variables>
-                                Stores Gtk.Label() objects which display 
-                                your schedule on the window
-
         clear_timetable(self, widget, data = None) :
-            Replaces your timetable to its initial state.
-            This is a callback method for a Gtk.Button widget (self.clear_all_button). 
-
-                @parameters :
-                    widget : Gtk widget object
-                    data : 
-                        default = None 
-                        Any additional data needed to be passed to the method.
-
         gen_pdf(self, widget) :
-            Saves your desired schedule in pdf format.
-            This is a callback method for Gtk.Button widget (self.gen_pdf_button).
-            
-            This method uses a special Python library known as 'reportlab' which is 
-            used for writing/reading in pdf files. For more information  :
-                
-                http://www.blog.pythonlibrary.org/2010/09/21/reportlab-tables-creating-tables-in-pdfs-with-python/
-                https://www.reportlab.com/opensource/installation/
-                https://www.reportlab.com/docs/reportlab-userguide.pdf
-
-        
         search(self, widget) :
-            Usses self.sobject to search for courses matching your query.
-            This is a callback method for a Gtk.Button widget (self.SearchButton).
-
-            @variables :
-                self.match_list : list 
-                    Contains a list of tuples having matching course_code and course_title as 
-                    tuple elements
-                    Returns self.match_list
-
         add_column_text(self, store, section_type, tab, callback_method, column_title_list ) :
-            This method adds column_title to the treeview object.
-
-                @parameters :
-                    store : Gtk.ListStore 
-                            Store objects which contains details of the section(s)
-                    section_type : str
-                            String value used for displaying the type of class of a class.
-                            Permitted values : LECTURE, PRACTICAL, TUTORIAL
-                    tab : Gtk.ScrolledWindow
-                            Layout container in which details of the course is to be displayed.
-                    callback_method : callable method
-                            The treeview contains a togglebutton (Gtk.CellRendererToggle), which when 
-                            activated calls this method.
-                    column_title_list : list 
-                            A list of strings containing the column_title for the tabular data to 
-                            be displayed.
-                @variables :
-                    treeview : Gtk.TreeView (model = store)
-                        Object which displays data on the window
-                    
-                    selection : Gtk.TreeSelection Object
-                        Allows you to the change selection_mode and get selected row(s) of the 
-                        treeview object
-                    
-                    renderer_toggle: Gtk.CellRendererToggle()
-                        Object for adding radiobutton on rows of the treeview
-                    
-                    radio_column : Gtk.TreevViewColumn(label, renderer_toggle)
-                                    label - text to be displayed on the columns
-                    
-                    renderer : Gtk.CellRendererText()
-                        Object for adding text object in the treeview.
-                    
-                    column :    Gtk.TreeViewColumn(label, renderer)
-                                    label - element of column_title_list
-
         display_course_code (self, tab) :
-            Method for displaying course code on course_code tab on page01. 
-                
-                @variables :
-                    self.course_store : Gtk.ListStore 
-                        store object for storing course details
-
         get_course_details (self, widget, path, data = None) :
-            Uses sobject to get lecture, tutorial and practical dataframe objects.
-            This is a callback method for Gtk.CellRendererToggle Object.
-
-                @variables :
-                    selected_path : Gtk.TreePath object
-                        Changes the state (True/False) of the selected row of treeview.
-
-                @parameters :
-                    path : int
-                        Integer whose value is the row index of the treeview object.
-
         display_sections (self, dataframe, store, section_type) :
-            This method is used for displaying all the data of a course.
-
-                @parameters :
-                    dataframe : pandas.DataFrame object
-                        Contains details of the all the available sections 
-                    store : Gtk.ListStore object
-
-                    section_type : str
-                        Contains the string value for type of section 
-
         update_timetable (self, widget, path, store, section_type) :
-            This is a callback method for Gtk.CellRendererToggle object. This 
-            method also adds dialog box if a course is clashing with other courses or 
-            when you change sections of a already selected course. 
-
-                @parameters :
-                    path : int
-                        Row index of the treeview object which is selected.
-                    store : Gtk.ListStore
-                        Contains the details of all the available choices.
-                    section_type : str
-                        Contains the string value of the type of section
-
-                @variables :
-                    self.selected_section : str 
-                        Contains selected section number
-                    self.selected_instructor : str 
-                        Contains selected instructor names
-                    self.selected_hour : list
-                        Contains a list of strings of times of the course section
-                    self.selected_day : list
-                        Contains a list of strings of days of the course section
-
-                    MyWindow.added_course : list
-                        Contains a list of all the course_code a user has opted for.    
-        
         add_to_timetable(self) :
-            Adds the selected section to the timetable.
-        
         remove_course(self, widget, button) :
-            This method is called to remove the courses selected in the catalog page. This 
-            is also a callback method for Gtk.Button (self.remove_button). This method also shows 
-            dialog box warning the user to confirm before removing a course.
-
         set_active(self, widget, path, store, data) :
-            This method activates the desired row in the catalog_store. This is a callback 
-            method for CellRendererToggle (in the Catalog page).
-
-                @parameters :
-                    path : int 
-                        Contains the index of the selected row from the catalog_store
-                    store : Gtk.ListStore
-                    data : default = None
-                        Other data can be passed to this parameter if the method needs it.
-
-                @variables :
-                    selected_path : Gtk.TreePath
-
         add_to_catalog(self) :
-            This method updates content present in the catalog_info list to 
-            catalog_store.
+        main_quit(self) :
     '''
 
 
@@ -244,7 +60,50 @@ class MyWindow(Gtk.Window):
     added_courses = []
 
     def __init__(self):
+        '''
+        Constructs a MyWindow instance . 
+                
+            @variables -
+                
+                (Gtk layout containers)
+
+                header_bar :                                Gtk.HeaderBar       
+
+                self.notebook :                             Gtk.NoteBook
+-------------------------------------------------------------------------------                
+YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow 
+                        page00 :                            Gtk.Grid
+                            self.clear_all_button :         Gtk.Button
+                            self.gen_pdf_button :           Gtk.Button
+--------------------------------------------------------------------------------                            
+SEARCH              page01 :                                Gtk.Grid
+                        self.SearchBar :                    Gtk.Entry
+                        self.SearchButton :                 Gtk.Button
+                        self.page01_notebook :              Gtk.NoteBook
+                            self.page01_courses_tab :       Gtk.ScrolledWindow
+                            self.page01_lecture_tab :       Gtk.ScrolledWindow
+                            self.page01_tutorial_tab :      Gtk.ScrolledWindow
+                            self.page01_practical_tab :     Gtk.ScrolledWindow
+--------------------------------------------------------------------------------                            
+COURSE CATLOG       page02 :                                Gtk.Grid
+                        self.page02_window :                Gtk.ScrolledWindow
+                        self.remove_button :                Gtk.Button
+---------------------------------------------------------------------------------
+                
+                Other variables : 
+                    self.sobject : search.Searching () instance
+                    self.lec_store, self.prac_store, self.tut_store  : Gtk.ListStore
+                        (all are liststore for storing available course sections)
+                    self.catalog_store : Gtk.Liststore 
+                            This liststore contains information about the catalog page.
+                    self.catalog_info : List
+                            This is a list which also contains the information about the 
+                            courses you are registered in.
+
+        '''
+
         super(MyWindow, self).__init__(title = "OFFLINE ERP")
+        self.connect('delete-event', self.main_quit)
         self.notebook = Gtk.Notebook()
         self.set_size_request(width = 1000, height = 700)
         self.add(self.notebook)
@@ -292,7 +151,7 @@ class MyWindow(Gtk.Window):
                     sibling = self.SearchBar,
                     side = Gtk.PositionType(1), 
                     width = 1, height = 1)
-     	
+        
         self.page01_notebook = Gtk.Notebook()
         self.page01_course_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
         self.page01_lec_tab = Gtk.ScrolledWindow(hexpand = True , vexpand = True)
@@ -338,6 +197,16 @@ class MyWindow(Gtk.Window):
         self.notebook.append_page(self.page02, Gtk.Label('COURSE CATALOG'))
 
     def create_timetable(self, grid) :
+        '''
+        Replaces your timetable to its initial state.
+        This is a callback method for a Gtk.Button widget (self.clear_all_button). 
+
+            @parameters :
+                widget : Gtk widget object
+                data : 
+                    default = None 
+                    Any additional data needed to be passed to the method.
+        '''
         self.schedule = [
         ['HOURS/DAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
         ['08 : 00 AM', '', '', '', '', '', ''],
@@ -360,41 +229,89 @@ class MyWindow(Gtk.Window):
             l = []
 
     def clear_timetable(self, widget, data = None) :
+        '''
+        Replaces your timetable to its initial state.
+        This is a callback method for a Gtk.Button widget (self.clear_all_button). 
+
+            @parameters :
+                widget : Gtk widget object
+                data : 
+                    default = None 
+                    Any additional data needed to be passed to the method.
+        '''
         for row in range (len(MyWindow.Label_list)) :
             for col in range (len(MyWindow.Label_list[row])) :
                 MyWindow.Label_list[row] [col].set_label(self.schedule[row][col]) 
         
         self.catalog_info = []
-        self.catalog_store.clear()     
+        self.catalog_store.clear()  
+        MyWindow.added_courses = []   
 
-    def gen_pdf(self, widget) : 
-        doc = SimpleDocTemplate("TIMETABLE.pdf", pagesize = letter)
-        element = []
+    def gen_pdf(self, widget) :
+        '''
+        Saves your desired schedule in pdf format.
+        This is a callback method for Gtk.Button widget (self.gen_pdf_button).
 
-        headline = "WEEKLY SCHEDULE"
-
-        style = getSampleStyleSheet()
-        normal = style["Heading1"]
-
-        para = Paragraph(headline, normal)
-        element.append(para)
-
-        user_data = copy.deepcopy(self.schedule)
-        
-        for row in range (len(MyWindow.Label_list)) :
-            for col in range (len(MyWindow.Label_list[row])) :
-                user_data[row][col] =  MyWindow.Label_list[row][col].get_label()
+        This method uses a special Python library known as 'reportlab' which is 
+        used for writing/reading in pdf files. For more information  :
             
+            http://www.blog.pythonlibrary.org/2010/09/21/reportlab-tables-creating-tables-in-pdfs-with-python/
+            https://www.reportlab.com/opensource/installation/
+            https://www.reportlab.com/docs/reportlab-userguide.pdf
+        ''' 
+        dialog = Gtk.FileChooserDialog("Choose your destination :", self,
+            Gtk.FileChooserAction.SAVE,
+            ('Cancel', Gtk.ResponseType.CANCEL,
+             'SAVE', Gtk.ResponseType.ACCEPT))
 
-        table = Table(data = user_data)
-        table.setStyle(TableStyle([
-                                ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
-                                ('BOX', (0,0), (-1,-1), 0.5, colors.black),
-                                ]))
-        element.append(table)
-        doc.build(element)
+        dialog.set_current_name('Untitled Document.pdf')
+        
+        response = dialog.run()
+        if response == Gtk.ResponseType.ACCEPT :
+
+            doc = SimpleDocTemplate(dialog.get_filename(), pagesize = letter)
+
+            dialog.destroy()
+            element = []
+
+            headline = "WEEKLY SCHEDULE"
+
+            style = getSampleStyleSheet()
+            normal = style["Heading1"]
+
+            para = Paragraph(headline, normal)
+            element.append(para)
+
+            user_data = copy.deepcopy(self.schedule)
+            
+            for row in range (len(MyWindow.Label_list)) :
+                for col in range (len(MyWindow.Label_list[row])) :
+                    user_data[row][col] =  MyWindow.Label_list[row][col].get_label()
+                
+
+            table = Table(data = user_data)
+            table.setStyle(TableStyle([
+                                    ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
+                                    ('BOX', (0,0), (-1,-1), 0.5, colors.black),
+                                    ]))
+            element.append(table)
+            doc.build(element)
+            self.clear_timetable(None)
+
+        elif response == Gtk.ResponseType.CANCEL : 
+            dialog.destroy()
 
     def search (self, widget) : 
+        '''
+        Usses self.sobject to search for courses matching your query.
+        This is a callback method for a Gtk.Button widget (self.SearchButton).
+
+        @variables :
+            self.match_list : list 
+                Contains a list of tuples having matching course_code and course_title as 
+                tuple elements
+                Returns self.match_list
+        '''
         self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
         self.display_course_code(self.page01_course_tab)
 
@@ -402,6 +319,43 @@ class MyWindow(Gtk.Window):
         self, store, 
         section_type, tab, 
         callback_method, column_title_list) :
+        '''
+    This method adds column_title to the treeview object.
+
+        @parameters :
+            store : Gtk.ListStore 
+                    Store objects which contains details of the section(s)
+            section_type : str
+                    String value used for displaying the type of class of a class.
+                    Permitted values : LECTURE, PRACTICAL, TUTORIAL
+            tab : Gtk.ScrolledWindow
+                    Layout container in which details of the course is to be displayed.
+            callback_method : callable method
+                    The treeview contains a togglebutton (Gtk.CellRendererToggle), which when 
+                    activated calls this method.
+            column_title_list : list 
+                    A list of strings containing the column_title for the tabular data to 
+                    be displayed.
+        @variables :
+            treeview : Gtk.TreeView (model = store)
+                Object which displays data on the window
+            
+            selection : Gtk.TreeSelection Object
+                Allows you to the change selection_mode and get selected row(s) of the 
+                treeview object
+            
+            renderer_toggle: Gtk.CellRendererToggle()
+                Object for adding radiobutton on rows of the treeview
+            
+            radio_column : Gtk.TreevViewColumn(label, renderer_toggle)
+                            label - text to be displayed on the columns
+            
+            renderer : Gtk.CellRendererText()
+                Object for adding text object in the treeview.
+            
+            column :    Gtk.TreeViewColumn(label, renderer)
+                            label - element of column_title_list
+        '''
         
         try:
             if tab.get_child() != None :
@@ -436,6 +390,13 @@ class MyWindow(Gtk.Window):
         tab.add(treeview)
 
     def display_course_code(self, tab):
+        '''
+        Method for displaying course code on course_code tab on page01. 
+            
+            @variables :
+                self.course_store : Gtk.ListStore 
+                    store object for storing course details
+        '''
         
         self.store = Gtk.ListStore(bool,str, str)
         self.add_column_text(
@@ -447,6 +408,18 @@ class MyWindow(Gtk.Window):
             self.store.append([False] + list(match))        
         
     def get_course_details(self, widget, path, *data) :
+        '''
+        Uses sobject to get lecture, tutorial and practical dataframe objects.
+        This is a callback method for Gtk.CellRendererToggle Object.
+
+            @variables :
+                selected_path : Gtk.TreePath object
+                    Changes the state (True/False) of the selected row of treeview.
+
+            @parameters :
+                path : int
+                    Integer whose value is the row index of the treeview object.
+        '''
         selected_path = Gtk.TreePath(path)
         for row in self.store:
             row[0] = (row.path == selected_path)
@@ -473,6 +446,18 @@ class MyWindow(Gtk.Window):
             section_type = 'TUT')
 
     def display_sections (self, dataframe, tab, store, section_type) :
+        '''
+        This method is used for displaying all the data of a course.
+
+            @parameters :
+                dataframe : pandas.DataFrame object
+                    Contains details of the all the available sections 
+                store : Gtk.ListStore object
+
+                section_type : str
+                    Contains the string value for type of section 
+        '''
+
         self.add_column_text(
             store, section_type, 
             tab, self.update_timetable, 
@@ -502,6 +487,32 @@ class MyWindow(Gtk.Window):
                     liststore_data_hours])
                 
     def update_timetable(self, widget, path, store, section_type) :
+        '''
+        This is a callback method for Gtk.CellRendererToggle object. This 
+        method also adds dialog box if a course is clashing with other courses or 
+        when you change sections of a already selected course. 
+
+            @parameters :
+                path : int
+                    Row index of the treeview object which is selected.
+                store : Gtk.ListStore
+                    Contains the details of all the available choices.
+                section_type : str
+                    Contains the string value of the type of section
+
+            @variables :
+                self.selected_section : str 
+                    Contains selected section number
+                self.selected_instructor : str 
+                    Contains selected instructor names
+                self.selected_hour : list
+                    Contains a list of strings of times of the course section
+                self.selected_day : list
+                    Contains a list of strings of days of the course section
+
+                MyWindow.added_course : list
+                    Contains a list of all the course_code a user has opted for.  
+        '''
         selected_path = Gtk.TreePath(path)
         for row in store:
             row[0] = (row.path == selected_path)
@@ -631,6 +642,9 @@ class MyWindow(Gtk.Window):
         self.add_to_catalog()
 
     def add_to_timetable(self) :
+        '''
+            Adds the selected section to the timetable.
+        '''
 
         for row in self.selected_hour : 
             for col in self.selected_day : 
@@ -649,6 +663,12 @@ class MyWindow(Gtk.Window):
 
 
     def remove_course(self, widget, data = None) :
+        '''
+        This method is called to remove the courses selected in the catalog page. This 
+        is also a callback method for Gtk.Button (self.remove_button). This method also shows 
+        dialog box warning the user to confirm before removing a course.
+        '''
+
         for row in self.catalog_store :
             if row[0] == True :
                 remove_course_code = row[1]
@@ -704,6 +724,20 @@ class MyWindow(Gtk.Window):
 
 
     def set_active(self, widget, path, store, *data) :
+        '''
+        This method activates the desired row in the catalog_store. This is a callback 
+        method for CellRendererToggle (in the Catalog page).
+
+            @parameters :
+                path : int 
+                    Contains the index of the selected row from the catalog_store
+                store : Gtk.ListStore
+                data : default = None
+                    Other data can be passed to this parameter if the method needs it.
+
+            @variables :
+                selected_path : Gtk.TreePath
+        '''
         selected_path = Gtk.TreePath(path)
         for row in store:
             row[0] = (row.path == selected_path)
@@ -711,6 +745,10 @@ class MyWindow(Gtk.Window):
 
 
     def add_to_catalog(self) :
+        '''
+        This method updates content present in the catalog_info list to 
+            catalog_store.
+        '''
         self.add_column_text(
             self.catalog_store, None,
             self.page02_window, self.set_active,
@@ -719,6 +757,33 @@ class MyWindow(Gtk.Window):
 
         for row in self.catalog_info :
             self.catalog_store.append([False] + row.split(';'))
+
+    def main_quit(self, widget, event) :
+        '''
+        Adds custom quit method for the application. 
+        Shows a dialog box if there is unsaved work.
+        '''
+        if len(MyWindow.added_courses) != 0 :
+            dialog = Gtk.MessageDialog(self, 0,
+                Gtk.MessageType.QUESTION,
+                Gtk.ButtonsType.YES_NO,
+                'You have unsaved work.')
+
+            dialog.format_secondary_text(
+                'Press YES to Save or No to Quit')
+
+            response = dialog.run()
+
+            if response == Gtk.ResponseType.YES :
+                self.gen_pdf(None)
+            elif response == Gtk.ResponseType.NO :
+                pass
+
+            dialog.destroy()
+        else :
+            pass
+
+        Gtk.main_quit()
 
 
 
