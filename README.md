@@ -13,20 +13,17 @@ It allows you to -
 2. Please install Java as tabula requires it. 
     To verify if Java is installed , type 
     ```
-    $ Java
+    $ java
     ```
     on your terminal/command prompt.
     You can install it from this [link.](https://java.com/en/download/help/download_options.xml)
 
 ## Getting Started
 You are going to need :
-- _python_ 
-- _git_
-- _pip_
+- [_python_](https://www.python.org/downloads/source/)
+- [_git_](https://git-scm.com/downloads/)
+- [_pip_](https://pip.pypa.io/en/stable/installing/)
 
-
-Download python depending on your os from the given links :
-- [Linux/Unix](https://www.python.org/downloads/source/)
 
     
 To download the repo use : 
@@ -34,7 +31,6 @@ To download the repo use :
     git clone https://github.com/PranjalGupta2199/OFFLINE-ERP.git
 ```
 
-To download pip, use this [link.](https://pip.pypa.io/en/stable/installing/)
 
 
 ##  Prerequisites
@@ -55,26 +51,34 @@ You are going to need the following libraries :
 - [Windows](http://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started)
 - [MacOS](http://pygobject.readthedocs.io/en/latest/getting_started.html#macosx-getting-started)
 
+ 
+Move to repo's directory for the following command.
+```
+    cd OFFLINE-ERP/
+ ```
+
 Run this command to install the remaining dependencies : 
 
     pip install -r requirements.txt --ignore-installed 
 
 ## Deployment 
-
-After completing the above steps, move to the folder where repo has been downloaded.
-Then type these commands :-
-```git 
-git checkout Develop
-```
+Run this command after following all the steps above.
 
 ```python
 python main.py 
 ```
 Note :
-1. You need run the above (python) command everytime you want to run the app.
+1. You need to run the above command everytime you want to use the app. 
+2. The app will take sometime when using it for the first time. If you close the window during the process, run these commands :
+    ```
+        $ rm -r Pages/
+        $ rm packages/courses.db
+    ```
+    Run the python command again.
+3. If you face any difficulty, please go through this [page.](https://github.com/chezou/tabula-py) If the problem persists, report it in the Issues Page.
 
 ## Author
--  **Pranjal Gupta**
+-  [**Pranjal Gupta**](https://github.com/PranjalGupta2199/)
 
 ## TODOs
 - Add compre and midsem schedule 
