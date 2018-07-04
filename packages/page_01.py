@@ -1,6 +1,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk, GdkPixbuf
 from . import search
 import pandas
 import copy
@@ -124,16 +125,6 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         page00.set_row_homogeneous(True)
         page00.set_column_homogeneous(True)
 
-        self.clear_all_button = Gtk.Button("Clear All")
-        self.clear_all_button.connect('clicked', self.clear_timetable)
-        page00.attach(child = self.clear_all_button, left = 0, 
-                    top = 11, width = 2, height = 1)
-
-        self.gen_pdf_button = Gtk.Button("Generate pdf")
-        self.gen_pdf_button.connect('clicked', self.gen_pdf)
-        page00.attach(child = self.gen_pdf_button, left = 6, 
-                    top = 11, width = 2, height = 1)
-
         page00_window.add(page00)
         self.create_timetable(page00)
         self.notebook.append_page(page00_window, Gtk.Label("YOUR TIMETABLE"))
@@ -195,6 +186,47 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         self.catalog_store = Gtk.ListStore(bool, str, str, str, str, str, str)
         self.catalog_info = []
         self.notebook.append_page(self.page02, Gtk.Label('COURSE CATALOG'))
+
+
+        self.menu = Gtk.Menu()
+
+        clear_all_menu = Gtk.MenuItem("Clear all enteries")
+        clear_all_menu.connect('activate', self.clear_timetable)
+
+        gen_pdf_menu = Gtk.MenuItem('Generate pdf')
+        gen_pdf_menu.connect('activate', self.gen_pdf)
+
+        open_previous_menu = Gtk.MenuItem('Open your last work')
+        open_previous_menu.connect('activate', self.open_last_work)
+
+        self.menu.append(open_previous_menu)
+        self.menu.attach(child = clear_all_menu,
+            left_attach = 0, right_attach = 1,
+            top_attach = 0, bottom_attach = 1)
+
+        self.menu.attach(child = gen_pdf_menu,
+            left_attach = 0, right_attach = 1,
+            top_attach = 1, bottom_attach = 2)
+
+        self.menu.attach(child = open_previous_menu,
+            left_attach = 0, right_attach = 1,
+            top_attach = 2, bottom_attach = 3)
+        self.menu.show_all()
+
+        self.menu_button = Gtk.MenuButton()
+        self.menu_button.set_popup(self.menu)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file('media/settings.png')
+        pixbuf = pixbuf.scale_simple(32, 32, 2)
+        
+        image = Gtk.Image()
+        image.set_from_pixbuf(pixbuf)
+        self.menu_button.set_image(image)
+
+        self.notebook.append_page(Gtk.Label(), self.menu_button)
+
+    def open_last_work(self, widget, *data) :
+        pass
+
 
     def create_timetable(self, grid) :
         '''
