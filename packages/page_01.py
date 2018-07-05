@@ -80,7 +80,7 @@ YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow
                         page00 :                            Gtk.Grid
 --------------------------------------------------------------------------------                            
 SEARCH              page01 :                                Gtk.Grid
-                        self.SearchBar :                    Gtk.Entry
+                        self.SearchBar :                    Gtk.SearchEntry
                         self.SearchButton :                 Gtk.Button
                         self.page01_notebook :              Gtk.NoteBook
                             self.page01_courses_tab :       Gtk.ScrolledWindow
@@ -140,7 +140,8 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
 
         
         page01 = Gtk.Grid()
-        self.SearchBar = Gtk.Entry()
+        self.SearchBar = Gtk.SearchEntry()
+        self.SearchBar.set_placeholder_text('Search your courses here')
         page01.attach(child = self.SearchBar, left = 1, 
                     top = 1, width = 4, height = 1)
      
