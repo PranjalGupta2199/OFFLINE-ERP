@@ -5,7 +5,7 @@ from gi.repository import Gtk, GdkPixbuf
 from . import search
 import pandas
 import copy
-
+import pickle
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, inch
 from reportlab.lib.styles import getSampleStyleSheet
@@ -174,7 +174,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
             left = 0, top = 0, width = 1, height = 1)
 
         self.remove_button = Gtk.Button(
-            "Select the coure you want to delete and press this button to continue")
+            "SELECT THE COURSE YOU WANT TO DELETE AND PRESS THIS BUTTON TO CONTINUE")
         self.page02.attach_next_to(child = self.remove_button, 
             sibling = self.page02_window, 
             side = Gtk.PositionType(3), 
@@ -225,7 +225,30 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         self.notebook.append_page(Gtk.Label(), self.menu_button)
 
     def open_last_work(self, widget, *data) :
-        pass
+        self.clear_timetable(None)
+        file = open('temp.txt', 'rb')
+
+        data = pickle.load(file)
+        for row in data :
+
+            self.catalog_info.append(row)
+            tt_info = row.split(';')
+
+            days = tt_info[-2].split()
+            hours = tt_info[-1].split()
+            section = tt_info[2]
+            course_code = tt_info[0]
+
+            for i in range (len(hours)) :
+                hours[i] = int(hours[i])
+
+            self.text_to_display = course_code + '\n' + section
+            self.add_to_timetable(hours, days)
+            self.add_to_catalog()
+            if course_code not in MyWindow.added_courses :
+                MyWindow.added_courses.append(course_code)
+            
+        
 
 
     def create_timetable(self, grid) :
@@ -328,6 +351,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
                                     ]))
             element.append(table)
             doc.build(element)
+            self.save_list()
             self.clear_timetable(None)
 
         elif response == Gtk.ResponseType.CANCEL : 
@@ -568,7 +592,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
          section_type + '-' + self.selected_section + ';' +\
          self.selected_instructor + ';' +\
          store[path][3] + ';' + store[path][4]
-  
+
 
         if self.selected_course_code not in MyWindow.added_courses :
             flag = 0
@@ -600,7 +624,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
 
                             if response == Gtk.ResponseType.YES :
                                 MyWindow.added_courses.append(self.selected_course_code)
-                                self.add_to_timetable()
+                                self.add_to_timetable(self.selected_hour, self.selected_day)
 
                                 for index in self.catalog_info :
                                     if text.split('\n')[0] in index \
@@ -616,7 +640,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
                             dialog.destroy()
                         else :
                             MyWindow.added_courses.append(self.selected_course_code)
-                            self.add_to_timetable()
+                            self.add_to_timetable(self.selected_hour, self.selected_day)
                             self.catalog_info.insert(0, self.info)
                             break
                     else :
@@ -652,7 +676,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
                             if self.selected_course_code in text \
                                 and section_type in text :
                                 MyWindow.Label_list[row][col].set_label(' ')
-                                self.add_to_timetable()
+                                self.add_to_timetable(self.selected_hour, self.selected_day)
 
                                 for index in self.catalog_info :
                                     if text.split('\n')[0] in index \
@@ -668,19 +692,18 @@ COURSE CATLOG       page02 :                                Gtk.Grid
                 dialog.destroy()
             
             else :
-                self.add_to_timetable()
+                self.add_to_timetable(self.selected_hour, self.selected_day)
                 self.catalog_info.insert(0, self.info)
 
         self.add_to_catalog()
 
-    def add_to_timetable(self) :
+    def add_to_timetable(self, hours, days) :
         '''
             Adds the selected section to the timetable.
         '''
-
-        for row in self.selected_hour : 
-            for col in self.selected_day : 
-                if col == "M" : 
+        for row in hours :
+            for col in days : 
+                if col == 'M' : 
                     MyWindow.Label_list[row][1].set_label(self.text_to_display)
                 elif col == 'T' : 
                     MyWindow.Label_list[row][2].set_label(self.text_to_display)
@@ -784,7 +807,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         self.add_column_text(
             self.catalog_store, None,
             self.page02_window, self.set_active,
-            ['COURSE CODE', 'COURSE TITLE', 'INSTRUCTOR', 'SECTION', 'DAYS', 'HOURS'])
+            ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'DAYS', 'HOURS'])
     
 
         for row in self.catalog_info :
@@ -809,13 +832,19 @@ COURSE CATLOG       page02 :                                Gtk.Grid
             if response == Gtk.ResponseType.YES :
                 self.gen_pdf(None)
             elif response == Gtk.ResponseType.NO :
-                pass
+                self.save_list()
 
             dialog.destroy()
         else :
             pass
 
         Gtk.main_quit()
+
+    def save_list(self) :
+        with open('temp.txt', 'wb') as f :
+            pickle.dump(self.catalog_info, f)                
+            f.close()
+
 
 
 
