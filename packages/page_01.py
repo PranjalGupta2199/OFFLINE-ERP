@@ -16,7 +16,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 class MyWindow(Gtk.Window):
     '''
     This class is for creating gui for the second page of the application.
-    The main window consists of 2 main pages (YOUR TIMETABLE , SEARCH, COURSE CATALOG). 
+    The main window consists of 2 main pages (YOUR TIMETABLE , SEARCH, COURSE CATALOG, SETTINGS). 
 
     The variables for the the pages are : 
         page00_window, page01
@@ -36,6 +36,9 @@ class MyWindow(Gtk.Window):
     The 3rd page shows all the details of the courses which you have selected for your timetable.
     This page also allows you to delete some of them, if you don't want them in your timetable
 
+    The 3rd tab in the window opens a dropdown menu with options such clear_all (if you want to 
+    start afresh), gen_pdf (if you want to save your work), open_last_work (if you plan to work on your
+    last timetable).
 
 
     METHOS :
@@ -54,6 +57,7 @@ class MyWindow(Gtk.Window):
         set_active(self, widget, path, store, data) :
         add_to_catalog(self) :
         main_quit(self) :
+        save_list(self) :
     '''
 
 
@@ -74,8 +78,6 @@ class MyWindow(Gtk.Window):
 -------------------------------------------------------------------------------                
 YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow 
                         page00 :                            Gtk.Grid
-                            self.clear_all_button :         Gtk.Button
-                            self.gen_pdf_button :           Gtk.Button
 --------------------------------------------------------------------------------                            
 SEARCH              page01 :                                Gtk.Grid
                         self.SearchBar :                    Gtk.Entry
@@ -90,6 +92,13 @@ COURSE CATLOG       page02 :                                Gtk.Grid
                         self.page02_window :                Gtk.ScrolledWindow
                         self.remove_button :                Gtk.Button
 ---------------------------------------------------------------------------------
+SETTINGS            self.menu_button :                      Gtk.MenuButton
+                        self.menu :                         Gtk.Menu
+                            clear_all_menu :                Gtk.MenuItem
+                            gen_pdf_menu :                  Gtk.MenuItem
+                            open_previous_menu :            Gtk.MenuItem
+---------------------------------------------------------------------------------
+
                 
                 Other variables : 
                     self.sobject : search.Searching () instance
@@ -199,18 +208,9 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         open_previous_menu = Gtk.MenuItem('Open your last work')
         open_previous_menu.connect('activate', self.open_last_work)
 
+        self.menu.append(clear_all_menu)
+        self.menu.append(gen_pdf_menu)
         self.menu.append(open_previous_menu)
-        self.menu.attach(child = clear_all_menu,
-            left_attach = 0, right_attach = 1,
-            top_attach = 0, bottom_attach = 1)
-
-        self.menu.attach(child = gen_pdf_menu,
-            left_attach = 0, right_attach = 1,
-            top_attach = 1, bottom_attach = 2)
-
-        self.menu.attach(child = open_previous_menu,
-            left_attach = 0, right_attach = 1,
-            top_attach = 2, bottom_attach = 3)
         self.menu.show_all()
 
         self.menu_button = Gtk.MenuButton()
@@ -225,29 +225,46 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         self.notebook.append_page(Gtk.Label(), self.menu_button)
 
     def open_last_work(self, widget, *data) :
+        '''
+        Method for loading the data from 'temp.txt' file in the directory.
+        Uses pickle module which is used for serializing/de-serializing an
+        object in a file. This is also a callback method for Gtk.MenuItem 
+        (open_previous_menu).
+
+            @variables :
+                file : file object
+                    Used for reading/writing in a file.
+                data : 2D array
+                    Contains the values of self.catalog_info (of your last work.)
+
+        '''
         self.clear_timetable(None)
-        file = open('temp.txt', 'rb')
+        try :
+        
+            file = open('temp.txt', 'rb')
 
-        data = pickle.load(file)
-        for row in data :
+            data = pickle.load(file)
+            for row in data :
 
-            self.catalog_info.append(row)
-            tt_info = row.split(';')
+                self.catalog_info.append(row)
+                tt_info = row.split(';')
 
-            days = tt_info[-2].split()
-            hours = tt_info[-1].split()
-            section = tt_info[2]
-            course_code = tt_info[0]
+                days = tt_info[-2].split()
+                hours = tt_info[-1].split()
+                section = tt_info[2]
+                course_code = tt_info[0]
 
-            for i in range (len(hours)) :
-                hours[i] = int(hours[i])
+                for i in range (len(hours)) :
+                    hours[i] = int(hours[i])
 
-            self.text_to_display = course_code + '\n' + section
-            self.add_to_timetable(hours, days)
-            self.add_to_catalog()
-            if course_code not in MyWindow.added_courses :
-                MyWindow.added_courses.append(course_code)
-            
+                self.text_to_display = course_code + '\n' + section
+                self.add_to_timetable(hours, days)
+                self.add_to_catalog()
+                if course_code not in MyWindow.added_courses :
+                    MyWindow.added_courses.append(course_code)
+        
+        except IOError :
+            pass
         
 
 
@@ -272,7 +289,8 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         ['01 : 00 PM', '', '', '', '', '', ''],
         ['02 : 00 PM', '', '', '', '', '', ''],
         ['03 : 00 PM', '', '', '', '', '', ''],
-        ['04 : 00 PM', '', '', '', '', '', '']]
+        ['04 : 00 PM', '', '', '', '', '', ''],
+        ['05 : 00 PM', '', '', '', '', '', '']]
 
         l = []
         for row in range (len(self.schedule)) :
@@ -700,6 +718,12 @@ COURSE CATLOG       page02 :                                Gtk.Grid
     def add_to_timetable(self, hours, days) :
         '''
             Adds the selected section to the timetable.
+                @variables :
+                    hours : list 
+                        Contains a list of integers 
+                    days : list 
+                        Contains a list of string objects.
+                            (M, T, W, Th, F, S)
         '''
         for row in hours :
             for col in days : 
@@ -816,7 +840,7 @@ COURSE CATLOG       page02 :                                Gtk.Grid
     def main_quit(self, widget, event) :
         '''
         Adds custom quit method for the application. 
-        Shows a dialog box if there is unsaved work.
+        Shows a dialog box if there is any unsaved work.
         '''
         if len(MyWindow.added_courses) != 0 :
             dialog = Gtk.MessageDialog(self, 0,
@@ -841,6 +865,10 @@ COURSE CATLOG       page02 :                                Gtk.Grid
         Gtk.main_quit()
 
     def save_list(self) :
+        '''
+        Creates a file (if it doesn't exist) and writes the data in the 
+        self.catalog_info for future use.
+        '''
         with open('temp.txt', 'wb') as f :
             pickle.dump(self.catalog_info, f)                
             f.close()
