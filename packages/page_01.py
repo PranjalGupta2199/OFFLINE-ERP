@@ -588,133 +588,139 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                 MyWindow.added_course : list
                     Contains a list of all the course_code a user has opted for.  
         '''
-        selected_path = Gtk.TreePath(path)
-        for row in store:
-            row[0] = (row.path == selected_path)
+        try :
+            selected_path = Gtk.TreePath(path)
+            for row in store:
+                row[0] = (row.path == selected_path)
         
-        self.selected_section = store[path][1]
-        if not self.selected_section :
-            self.selected_section = '1' 
+            self.selected_section = store[path][1]
+            if not self.selected_section :
+                self.selected_section = '1' 
 
-        self.selected_instructor = store[path][2]
-        self.selected_day = store[path][3].split()
-        self.selected_hour = store[path][4].split()
+            self.selected_instructor = store[path][2]
+            self.selected_day = store[path][3].split()
+            self.selected_hour = store[path][4].split()
 
-        for i in range (len(self.selected_hour)) :
-            self.selected_hour[i] = int(self.selected_hour[i])
-
-
-        self.text_to_display = self.selected_course_code + '\n' + section_type + '-' + self.selected_section
-
-        self.info = self.selected_course_code + ';' + \
-         self.selected_course_title + ';' + \
-         section_type + '-' + self.selected_section + ';' +\
-         self.selected_instructor + ';' +\
-         store[path][3] + ';' + store[path][4]
+            for i in range (len(self.selected_hour)) :
+                self.selected_hour[i] = int(self.selected_hour[i])
 
 
-        if self.selected_course_code not in MyWindow.added_courses :
+            self.text_to_display = self.selected_course_code + '\n' + \
+            section_type + '-' + self.selected_section
+
+            self.info = self.selected_course_code + ';' + \
+             self.selected_course_title + ';' + \
+             section_type + '-' + self.selected_section + ';' +\
+             self.selected_instructor + ';' +\
+             store[path][3] + ';' + store[path][4]
+        
+        except :
+            pass
+
+        for row in self.catalog_info :
+            list_ = row.split(';')
+
             flag = 0
-            for row in self.selected_hour :
-                for col in self.selected_day :
-                    if col == 'M' : 
-                        text = MyWindow.Label_list[row][1].get_label() 
-                    elif col == 'T' :
-                        text = MyWindow.Label_list[row][2].get_label() 
-                    elif col == 'W' :
-                        text = MyWindow.Label_list[row][3].get_label() 
-                    elif col == 'Th' :
-                        text = MyWindow.Label_list[row][4].get_label() 
-                    elif col == 'F' :
-                        text = MyWindow.Label_list[row][5].get_label() 
-                    elif col == 'S' :
-                        text = MyWindow.Label_list[row][6].get_label() 
-                    if flag == 0 :
-                        if text :
-                            dialog = Gtk.MessageDialog(self, 0, 
-                            Gtk.MessageType.QUESTION,
-                            Gtk.ButtonsType.YES_NO, 
-                            "Warning : You cannot have 2 classes at the same time !!")
-
-                            dialog.format_secondary_text(
-                                "Do you want to replace this course ?")
-
-                            response = dialog.run()
-
-                            if response == Gtk.ResponseType.YES :
-                                MyWindow.added_courses.append(self.selected_course_code)
-                                self.add_to_timetable(self.selected_hour, self.selected_day)
-
-                                for index in self.catalog_info :
-                                    if text.split('\n')[0] in index \
-                                    and text.split('\n')[1] in index :
-                                        self.catalog_info.remove(index)
-                                        self.catalog_info.insert(0, self.info)
-                                        break
-
-                            elif response == Gtk.ResponseType.NO :
-                                pass
-
-                            flag = 1                            
-                            dialog.destroy()
-                        else :
-                            MyWindow.added_courses.append(self.selected_course_code)
-                            self.add_to_timetable(self.selected_hour, self.selected_day)
-                            self.catalog_info.insert(0, self.info)
-                            break
-                    else :
-                        break
-
-        else :
-            flag = 0
-            for row in range (len(MyWindow.Label_list)) :
-                for col in range (len(MyWindow.Label_list[row])) :
-                    
-                    text = MyWindow.Label_list[row][col].get_label()
-                    
-                    if self.selected_course_code in text \
-                        and section_type in text :
-
+            for hr in self.selected_hour :
+                for dy in self.selected_day :
+                    if str(hr) in list_[-1].split()  \
+                    and dy in list_[-2].split() \
+                    and self.selected_course_code != list_[0]:
+                        self.handle_clash_time(row)
                         flag = 1
-                        break
-
+                        break 
+                if flag == 1 :
+                    break
+            
             if flag == 1 :
-                dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.QUESTION,
-                    Gtk.ButtonsType.YES_NO, 
-                    "Warning : You are about to change a section !")
-                dialog.format_secondary_text("Do you wish to continue ?")
+                break
 
-                response = dialog.run()
+            if self.selected_course_code in MyWindow.added_courses :
 
-                if response == Gtk.ResponseType.YES :
+                if section_type in list_[2] :
+                    self.handle_section_change(row, section_type)
+                    break
                     
-                    for row in range (len(MyWindow.Label_list)) :
-                        for col in range (len(MyWindow.Label_list[row])) :
-                            text = MyWindow.Label_list[row][col].get_label()
-
-                            if self.selected_course_code in text \
-                                and section_type in text :
-                                MyWindow.Label_list[row][col].set_label(' ')
-                                self.add_to_timetable(self.selected_hour, self.selected_day)
-
-                                for index in self.catalog_info :
-                                    if text.split('\n')[0] in index \
-                                    and text.split('\n')[1] in index :
-                                        self.catalog_info.remove(index)
-                                        self.catalog_info.insert(0, self.info)
-                                        break
-
-                elif response == Gtk.ResponseType.NO :
+                else :
                     pass
 
-
-                dialog.destroy()
-            
             else :
                 self.add_to_timetable(self.selected_hour, self.selected_day)
-                self.catalog_info.insert(0, self.info)
+                MyWindow.added_courses.append(self.selected_course_code)
+                break               
 
-        self.add_to_catalog()
+        else :
+            self.add_to_timetable(self.selected_hour, self.selected_day)
+            MyWindow.added_courses.append(self.selected_course_code)
+        self.add_to_catalog()       
+                
+    def handle_section_change(self, row, section_type) :
+        section_list = row.split(';')
+        dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.QUESTION,
+            Gtk.ButtonsType.YES_NO, 
+            "Warning : You are about to change a section !")
+        dialog.format_secondary_text("Do you wish to continue ?")
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.YES :
+            self.catalog_info.remove(row)
+            for row in section_list[-1].split() :
+                for col in section_list[-2].split() :
+                    if col == 'M' : 
+                        MyWindow.Label_list[int(row)][1].set_label('')
+                    elif col == 'T' : 
+                        MyWindow.Label_list[int(row)][2].set_label('')
+                    elif col == 'W' : 
+                        MyWindow.Label_list[int(row)][3].set_label('')
+                    elif col == 'Th' : 
+                        MyWindow.Label_list[int(row)][4].set_label('')
+                    elif col == 'F' : 
+                        MyWindow.Label_list[int(row)][5].set_label('')
+                    elif col == 'S' : 
+                        MyWindow.Label_list[int(row)][6].set_label('')
+
+            self.update_timetable(None, None, None, section_type)
+            self.add_to_timetable(self.selected_hour, self.selected_day)
+            
+        elif response == Gtk.ResponseType.NO :
+            pass    
+        dialog.destroy()
+
+        
+
+    def handle_clash_time(self, row) :
+        section_list = row.split(';')
+        dialog = Gtk.MessageDialog(self, 0, 
+            Gtk.MessageType.QUESTION,
+            Gtk.ButtonsType.YES_NO, 
+            "Warning : You cannot have 2 classes at the same time !!")
+        dialog.format_secondary_text(
+                "Do you want to replace this course ?")
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.YES :
+            self.catalog_info.remove(row)
+            for row in section_list[-1].split() :
+                for col in section_list[-2].split() :
+                    if col == 'M' : 
+                        MyWindow.Label_list[int(row)][1].set_label('')
+                    elif col == 'T' : 
+                        MyWindow.Label_list[int(row)][2].set_label('')
+                    elif col == 'W' : 
+                        MyWindow.Label_list[int(row)][3].set_label('')
+                    elif col == 'Th' : 
+                        MyWindow.Label_list[int(row)][4].set_label('')
+                    elif col == 'F' : 
+                        MyWindow.Label_list[int(row)][5].set_label('')
+                    elif col == 'S' : 
+                        MyWindow.Label_list[int(row)][6].set_label('')
+            self.add_to_timetable(self.selected_hour, self.selected_day)
+
+        else :
+            pass
+        dialog.destroy()
 
     def add_to_timetable(self, hours, days) :
         '''
@@ -740,6 +746,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                     MyWindow.Label_list[row][5].set_label(self.text_to_display)
                 elif col == 'S' : 
                     MyWindow.Label_list[row][6].set_label(self.text_to_display)
+        self.catalog_info.insert(0, self.info)
 
 
     def remove_course(self, widget, data = None) :
