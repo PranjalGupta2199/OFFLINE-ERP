@@ -538,8 +538,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
             tab, self.update_timetable, 
             ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
         if dataframe.empty :
-            pass
-            #store.append([False, ' ', ' ', ' ', ' '])
+            store.append([False, 'NA', 'NA', 'NA', '0'])
 
         else :
             count = 0   
@@ -613,12 +612,16 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
              section_type + '-' + self.selected_section + ';' +\
              self.selected_instructor + ';' +\
              store[path][3] + ';' + store[path][4]
-        
+
         except :
             pass
 
+    
         for row in self.catalog_info :
             list_ = row.split(';')
+
+            if 'NA' in self.info :
+                break
 
             flag = 0
             for hr in self.selected_hour :
@@ -646,12 +649,15 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
 
             else :
                 self.add_to_timetable(self.selected_hour, self.selected_day)
+                self.catalog_info.insert(0, self.info)
                 MyWindow.added_courses.append(self.selected_course_code)
                 break               
 
         else :
-            self.add_to_timetable(self.selected_hour, self.selected_day)
-            MyWindow.added_courses.append(self.selected_course_code)
+            if 'NA' not in self.info:
+                self.add_to_timetable(self.selected_hour, self.selected_day)
+                self.catalog_info.insert(0, self.info)
+                MyWindow.added_courses.append(self.selected_course_code)
         self.add_to_catalog()       
                 
     def handle_section_change(self, row, section_type) :
@@ -681,7 +687,6 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                         MyWindow.Label_list[int(row)][6].set_label('')
 
             self.update_timetable(None, None, None, section_type)
-            self.add_to_timetable(self.selected_hour, self.selected_day)
             
         elif response == Gtk.ResponseType.NO :
             pass    
@@ -700,6 +705,9 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
 
         response = dialog.run()
 
+        if section_list[0] == self.selected_course_code :
+            response = Gtk.ResponseType.YES 
+
         if response == Gtk.ResponseType.YES :
             self.catalog_info.remove(row)
             for row in section_list[-1].split() :
@@ -717,6 +725,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                     elif col == 'S' : 
                         MyWindow.Label_list[int(row)][6].set_label('')
             self.add_to_timetable(self.selected_hour, self.selected_day)
+            self.catalog_info.insert(0, self.info)
 
         else :
             pass
@@ -746,7 +755,6 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                     MyWindow.Label_list[row][5].set_label(self.text_to_display)
                 elif col == 'S' : 
                     MyWindow.Label_list[row][6].set_label(self.text_to_display)
-        self.catalog_info.insert(0, self.info)
 
 
     def remove_course(self, widget, data = None) :
