@@ -36,7 +36,7 @@ class MyWindow(Gtk.Window):
     The 3rd page shows all the details of the courses which you have selected for your timetable.
     This page also allows you to delete some of them, if you don't want them in your timetable
 
-    The 3rd tab in the window opens a dropdown menu with options such clear_all (if you want to 
+    The 4th page in the window opens a dropdown menu with options such clear_all (if you want to 
     start afresh), gen_pdf (if you want to save your work), open_last_work (if you plan to work on your
     last timetable).
 
@@ -52,12 +52,16 @@ class MyWindow(Gtk.Window):
         get_course_details (self, widget, path, data = None) :
         display_sections (self, dataframe, store, section_type) :
         update_timetable (self, widget, path, store, section_type) :
+        handle_section_change(self, row, section_type) :
+        handle_clash_change(self, row)
         add_to_timetable(self) :
         remove_course(self, widget, button) :
         set_active(self, widget, path, store, data) :
         add_to_catalog(self) :
         main_quit(self) :
         save_list(self) :
+        open_last_work(self, widget, data) :
+
     '''
 
 
@@ -224,49 +228,6 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         self.menu_button.set_image(image)
 
         self.notebook.append_page(Gtk.Label(), self.menu_button)
-
-    def open_last_work(self, widget, *data) :
-        '''
-        Method for loading the data from 'temp.txt' file in the directory.
-        Uses pickle module which is used for serializing/de-serializing an
-        object in a file. This is also a callback method for Gtk.MenuItem 
-        (open_previous_menu).
-
-            @variables :
-                file : file object
-                    Used for reading/writing in a file.
-                data : 2D array
-                    Contains the values of self.catalog_info (of your last work.)
-
-        '''
-        self.clear_timetable(None)
-        try :
-        
-            file = open('temp.txt', 'rb')
-
-            data = pickle.load(file)
-            for row in data :
-
-                self.catalog_info.append(row)
-                tt_info = row.split(';')
-
-                days = tt_info[-2].split()
-                hours = tt_info[-1].split()
-                section = tt_info[2]
-                course_code = tt_info[0]
-
-                for i in range (len(hours)) :
-                    hours[i] = int(hours[i])
-
-                self.text_to_display = course_code + '\n' + section
-                self.add_to_timetable(hours, days)
-                self.add_to_catalog()
-                if course_code not in MyWindow.added_courses :
-                    MyWindow.added_courses.append(course_code)
-        
-        except IOError :
-            pass
-        
 
 
     def create_timetable(self, grid) :
@@ -661,6 +622,17 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         self.add_to_catalog()       
                 
     def handle_section_change(self, row, section_type) :
+        '''
+        This method is called when you try to change section of a course 
+        you took.
+            @parameters :
+                row : string 
+                    A string from self.catalog_info
+                section_type : string 
+                    A string which tells the type of class 
+                    ('LEC', 'PRAC', 'TUT')
+        '''
+
         section_list = row.split(';')
         dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.QUESTION,
             Gtk.ButtonsType.YES_NO, 
@@ -695,6 +667,19 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         
 
     def handle_clash_time(self, row) :
+        '''
+        This method is called when there are two courses 
+        occurring at the same time. This method shows a dialog box
+        which asks you to either continue or cancel the replacement 
+        of the course you want with the one already present in your timetable 
+        at that same time slot.
+
+            @parameter :
+                row : string
+                    A string from self.catalog_info
+
+        '''
+
         section_list = row.split(';')
         dialog = Gtk.MessageDialog(self, 0, 
             Gtk.MessageType.QUESTION,
@@ -733,13 +718,13 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
 
     def add_to_timetable(self, hours, days) :
         '''
-            Adds the selected section to the timetable.
-                @variables :
-                    hours : list 
-                        Contains a list of integers 
-                    days : list 
-                        Contains a list of string objects.
-                            (M, T, W, Th, F, S)
+        Adds the selected section to the timetable.
+            @variables :
+                hours : list 
+                    Contains a list of integers 
+                days : list 
+                    Contains a list of string objects.
+                        (M, T, W, Th, F, S)
         '''
         for row in hours :
             for col in days : 
@@ -888,6 +873,49 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         with open('temp.txt', 'wb') as f :
             pickle.dump(self.catalog_info, f)                
             f.close()
+
+    def open_last_work(self, widget, *data) :
+        '''
+        Method for loading the data from 'temp.txt' file in the directory.
+        Uses pickle module which is used for serializing/de-serializing an
+        object in a file. This is also a callback method for Gtk.MenuItem 
+        (open_previous_menu).
+
+            @variables :
+                file : file object
+                    Used for reading/writing in a file.
+                data : 2D array
+                    Contains the values of self.catalog_info (of your last work.)
+
+        '''
+        self.clear_timetable(None)
+        try :
+        
+            file = open('temp.txt', 'rb')
+
+            data = pickle.load(file)
+            for row in data :
+
+                self.catalog_info.append(row)
+                tt_info = row.split(';')
+
+                days = tt_info[-2].split()
+                hours = tt_info[-1].split()
+                section = tt_info[2]
+                course_code = tt_info[0]
+
+                for i in range (len(hours)) :
+                    hours[i] = int(hours[i])
+
+                self.text_to_display = course_code + '\n' + section
+                self.add_to_timetable(hours, days)
+                self.add_to_catalog()
+                if course_code not in MyWindow.added_courses :
+                    MyWindow.added_courses.append(course_code)
+        
+        except IOError :
+            pass
+        
 
 
 

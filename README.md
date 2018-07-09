@@ -5,8 +5,9 @@ This is a basic desktop application made using python which allows you to select
 ## Features
 It allows you to - 
 
-  - Select your courses, and 
-  - Save it in pdf format.
+  - Select your courses 
+  - Save it in pdf format
+  - Open your last saved/unsaved work
  
 ##### Note :
 1. This app works only for python 2.x versions because tabula-py is not available for python 3.x versions
