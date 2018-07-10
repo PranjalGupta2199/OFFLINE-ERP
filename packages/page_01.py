@@ -1,9 +1,10 @@
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gtk, GdkPixbuf
+from gi.repository import Gtk, Gdk, GdkPixbuf
 from . import search
 import pandas
+import time
 import copy
 import pickle
 from reportlab.lib import colors
@@ -16,38 +17,46 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 class MyWindow(Gtk.Window):
     '''
     This class is for creating gui for the second page of the application.
-    The main window consists of 2 main pages (YOUR TIMETABLE , SEARCH, COURSE CATALOG, SETTINGS). 
+    The main window consists of 5 main pages 
+    (YOUR TIMETABLE , COURSE CATALOG, SEARCH, MY COURSES, OPTIONS). 
 
     The variables for the the pages are : 
         page00_window, page01
 
-    The 1st page displays your timetable and two buttons (CLear All, Generate pdf). The clear all button 
-    removes all the enteries from the timetable and Generate pdf saves your work in pdf format.
+    The 1st page displays your timetable and two buttons (CLear All, Generate pdf). 
+    The clear all button removes all the enteries from the timetable and 
+    Generate pdf saves your work in pdf format.
 
-    The 2nd page allows you to search and select courses for your timetable. It contains 
-    a SearchBar, a Search Button and another notebook which has 4 pages (COURSES, LECTURE, 
-    PRACTICAL, TUTORIAL). 
+    The 2nd page shows all the courses available, i.e. all the courses offered
+    to students this sem.
+
+    The 3rd page allows you to search and select courses for your timetable.
+    It contains a SearchBar, a Search Button and another notebook which has 
+    4 pages (COURSES, LECTURE, PRACTICAL, TUTORIAL). 
     COURSES tab : Displays your matching results
     LECTURE tab : Displays the available lecture sections for your desired course
     PRACTICAL tab : Displays the availabe practical sections for your desired course 
     TUTORIAL tab : Displays the available tutorial sections for your desired course
         (all the above tabs will remain empty if there are no available sections)
+    
+    The 4th page shows all the details of the courses which you have selected
+    for your timetable. This page also allows you to delete some of them, if 
+    you don't want them in your timetable
 
-    The 3rd page shows all the details of the courses which you have selected for your timetable.
-    This page also allows you to delete some of them, if you don't want them in your timetable
-
-    The 4th page in the window opens a dropdown menu with options such clear_all (if you want to 
-    start afresh), gen_pdf (if you want to save your work), open_last_work (if you plan to work on your
-    last timetable).
+    The 5th page in the window opens a dropdown menu with options such clear_all 
+    (if you want to start afresh), gen_pdf (if you want to save your work), 
+    open_last_work (if you plan to work on your last timetable).
 
 
     METHOS :
-        __init__ :               
+        __init__ :
+        display_all_courses(self, column_title_list) :               
         create_timetable (self, grid) : 
         clear_timetable(self, widget, data = None) :
         gen_pdf(self, widget) :
         search(self, widget) :
-        add_column_text(self, store, section_type, tab, callback_method, column_title_list ) :
+        add_column_text(self, store, section_type, tab, 
+            callback_method, column_title_list ) :
         display_course_code (self, tab) :
         get_course_details (self, widget, path, data = None) :
         display_sections (self, dataframe, store, section_type) :
@@ -83,6 +92,9 @@ class MyWindow(Gtk.Window):
 YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow 
                         page00 :                            Gtk.Grid
 --------------------------------------------------------------------------------                            
+COURSE CATALOG      self.all_courses_window :               Gtk.ScrolledWindow
+                        self.all_course_store :             Gtk.ListStore
+---------------------------------------------------------------------------------
 SEARCH              page01 :                                Gtk.Grid
                         self.SearchBar :                    Gtk.SearchEntry
                         self.SearchButton :                 Gtk.Button
@@ -92,11 +104,11 @@ SEARCH              page01 :                                Gtk.Grid
                             self.page01_tutorial_tab :      Gtk.ScrolledWindow
                             self.page01_practical_tab :     Gtk.ScrolledWindow
 --------------------------------------------------------------------------------                            
-COURSE CATLOG       page02 :                                Gtk.Grid
+MY COURSES       page02 :                                Gtk.Grid
                         self.page02_window :                Gtk.ScrolledWindow
                         self.remove_button :                Gtk.Button
----------------------------------------------------------------------------------
-SETTINGS            self.menu_button :                      Gtk.MenuButton
+--------------------------------------------------------------------------------
+OPTIONS             self.menu_button :                      Gtk.MenuButton
                         self.menu :                         Gtk.Menu
                             clear_all_menu :                Gtk.MenuItem
                             gen_pdf_menu :                  Gtk.MenuItem
@@ -113,6 +125,8 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                     self.catalog_info : List
                             This is a list which also contains the information about the 
                             courses you are registered in.
+                    self.all_course_list : List 
+                            This is a list containing tuples (COURSE CODE, COURSE TITLE)
 
         '''
 
@@ -129,6 +143,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         header_bar.set_show_close_button(True)
         header_bar.props.title = "OFFLINE ERP"
         self.set_titlebar(header_bar)
+        self.connect('key-press-event', self.search)
 
         self.sobject = search.Searching()
         
@@ -142,7 +157,12 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         self.create_timetable(page00)
         self.notebook.append_page(page00_window, Gtk.Label("YOUR TIMETABLE"))
 
+        self.all_course_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
+        self.all_course_store = Gtk.ListStore(str, str)
+        self.display_all_courses(['COURSE CODE', 'COURSE TITLE'])
+        self.notebook.append_page(self.all_course_window, Gtk.Label('COURSE CATALOG'))
         
+
         page01 = Gtk.Grid()
         self.SearchBar = Gtk.SearchEntry()
         self.SearchBar.set_placeholder_text('Search your courses here')
@@ -199,8 +219,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         self.remove_button.connect('clicked', self.remove_course)        
         self.catalog_store = Gtk.ListStore(bool, str, str, str, str, str, str)
         self.catalog_info = []
-        self.notebook.append_page(self.page02, Gtk.Label('COURSE CATALOG'))
-
+        self.notebook.append_page(self.page02, Gtk.Label('MY COURSES'))
 
         self.menu = Gtk.Menu()
 
@@ -229,7 +248,45 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
 
         self.notebook.append_page(Gtk.Label(), self.menu_button)
 
+    def display_all_courses(self, column_title_list) :
+        '''
+        Displays all the available courses this semester. 
+        The list consists only of course code and course title. 
+            
+            @parameter:
+                column_title_list : List 
+                    A list of string containing all the column names.
+            
+            @variables :
+                self.all_course_list : List 
+                    A list of tuples containing all course codes and titles
+                
+                self.all_course_store : Gtk.ListStore
+                    A Gtk.ListStore containing items from all_course_list 
 
+                treeview : Gtk.TreeView 
+                    Gtk.TreeView with model as all_course_store to display 
+                    the results.
+
+                self.all_course_window : Gtk.ScrolledWindow 
+                    Parent widget to which the treeview object is added.
+                    This widget is visible as the 3rd page on the GUI.
+        '''
+
+
+        self.all_course_list = self.sobject.get_result(query = ' ')
+
+        for course_code, course_title in self.all_course_list :
+            self.all_course_store.append([course_code, course_title])
+
+        treeview = Gtk.TreeView(model = self.all_course_store)
+        for i, column_title in enumerate(column_title_list) :
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(
+                column_title, renderer, text=i)
+            treeview.append_column(column)
+        self.all_course_window.add(treeview)
+        
     def create_timetable(self, grid) :
         '''
         Replaces your timetable to its initial state.
@@ -337,7 +394,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         elif response == Gtk.ResponseType.CANCEL : 
             dialog.destroy()
 
-    def search (self, widget) : 
+    def search (self, widget, event = None) : 
         '''
         Usses self.sobject to search for courses matching your query.
         This is a callback method for a Gtk.Button widget (self.SearchButton).
@@ -348,8 +405,9 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                 tuple elements
                 Returns self.match_list
         '''
-        self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
-        self.display_course_code(self.page01_course_tab)
+        if self.SearchBar.get_text() != '':   
+            self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
+            self.display_course_code(self.page01_course_tab)
 
     def add_column_text(
         self, store, 
@@ -402,7 +460,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         
         treeview = Gtk.TreeView(model = store)
         selection = treeview.get_selection()
-        selection.set_mode(0)
+        #selection.set_mode(0)
 
         renderer_toggle = Gtk.CellRendererToggle()
         renderer_toggle.set_radio(False)
@@ -466,11 +524,6 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         self.sobject.get_course_details(match_parameter)
 
         self.display_sections(
-            dataframe = self.sobject.lecture, 
-            tab = self.page01_lec_tab, 
-            store = self.lec_store, 
-            section_type = 'LEC')
-        self.display_sections(
             dataframe = self.sobject.practical, 
             tab = self.page01_prac_tab, 
             store = self.prac_store, 
@@ -480,6 +533,15 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
             tab = self.page01_tut_tab, 
             store = self.tut_store, 
             section_type = 'TUT')
+        self.display_sections(
+            dataframe = self.sobject.lecture, 
+            tab = self.page01_lec_tab, 
+            store = self.lec_store, 
+            section_type = 'LEC')
+
+        self.page01_notebook.prev_page()
+        self.page01_notebook.prev_page()
+    
 
     def display_sections (self, dataframe, tab, store, section_type) :
         '''
@@ -520,6 +582,8 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                     liststore_data_Instructor, 
                     liststore_data_days, 
                     liststore_data_hours])
+    
+        self.page01_notebook.next_page()
                 
     def update_timetable(self, widget, path, store, section_type) :
         '''
@@ -581,7 +645,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
         for row in self.catalog_info :
             list_ = row.split(';')
 
-            if 'NA' in self.info :
+            if 0 in self.selected_day :
                 break
 
             flag = 0
@@ -601,7 +665,7 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
 
             if self.selected_course_code in MyWindow.added_courses :
 
-                if section_type in list_[2] :
+                if section_type == list_[2].split('-') :
                     self.handle_section_change(row, section_type)
                     break
                     
@@ -615,12 +679,14 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
                 break               
 
         else :
-            if 'NA' not in self.info:
+            if 0 not in self.selected_hour:
                 self.add_to_timetable(self.selected_hour, self.selected_day)
                 self.catalog_info.insert(0, self.info)
                 MyWindow.added_courses.append(self.selected_course_code)
         self.add_to_catalog()       
-                
+        self.page01_notebook.next_page()
+    
+
     def handle_section_change(self, row, section_type) :
         '''
         This method is called when you try to change section of a course 
@@ -895,23 +961,23 @@ SETTINGS            self.menu_button :                      Gtk.MenuButton
 
             data = pickle.load(file)
             for row in data :
+                if 'NA' not in row :
+                    self.catalog_info.append(row)
+                    tt_info = row.split(';')
 
-                self.catalog_info.append(row)
-                tt_info = row.split(';')
+                    days = tt_info[-2].split()
+                    hours = tt_info[-1].split()
+                    section = tt_info[2]
+                    course_code = tt_info[0]
 
-                days = tt_info[-2].split()
-                hours = tt_info[-1].split()
-                section = tt_info[2]
-                course_code = tt_info[0]
+                    for i in range (len(hours)) :
+                        hours[i] = int(hours[i])
 
-                for i in range (len(hours)) :
-                    hours[i] = int(hours[i])
-
-                self.text_to_display = course_code + '\n' + section
-                self.add_to_timetable(hours, days)
-                self.add_to_catalog()
-                if course_code not in MyWindow.added_courses :
-                    MyWindow.added_courses.append(course_code)
+                    self.text_to_display = course_code + '\n' + section
+                    self.add_to_timetable(hours, days)
+                    self.add_to_catalog()
+                    if course_code not in MyWindow.added_courses :
+                        MyWindow.added_courses.append(course_code)
         
         except IOError :
             pass

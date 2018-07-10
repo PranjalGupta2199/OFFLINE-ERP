@@ -43,14 +43,7 @@ You are going to need the following libraries :
 - reportlab
 
 ## Installation
-
-##### gi 
-- Linux 
-    - [Ubuntu](http://pygobject.readthedocs.io/en/latest/getting_started.html#ubuntu-getting-started)
-    - [Fedora](http://pygobject.readthedocs.io/en/latest/getting_started.html#fedora-getting-started)
-    - [OpenSUSE](http://pygobject.readthedocs.io/en/latest/getting_started.html#opensuse-getting-started) 
-- [Windows](http://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started)
-- [MacOS](http://pygobject.readthedocs.io/en/latest/getting_started.html#macosx-getting-started)
+gi - Click on this [link](http://pygobject.readthedocs.io/en/latest/getting_started.html) to install the package for your os.
 
  
 Move to repo's directory for the following command.
@@ -82,6 +75,8 @@ Note :
 -  [**Pranjal Gupta**](https://github.com/PranjalGupta2199/)
 
 ## TODOs
+
 - Add compre and midsem schedule 
+- Add credits to your timetable
 - Extend support for other campuses 
 
