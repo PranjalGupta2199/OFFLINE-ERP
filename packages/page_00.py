@@ -120,7 +120,7 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
 
         self.grid.attach(
             child = self.about_page, left = 0,
-            top = 0, width = 8, height = 5)
+            top = 0, width = 8, height = 9)
 
 
         self.grid.attach_next_to(
