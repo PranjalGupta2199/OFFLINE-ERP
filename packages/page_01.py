@@ -8,9 +8,9 @@ import time
 import copy
 import pickle
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter, inch
+from reportlab.lib.pagesizes import landscape, letter, inch
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
 
 
 
@@ -21,7 +21,7 @@ class MyWindow(Gtk.Window):
     (YOUR TIMETABLE , COURSE CATALOG, SEARCH, MY COURSES, OPTIONS). 
 
     The variables for the the pages are : 
-        page00_window, page01
+        page00_weekly_window, page01
 
     The 1st page displays your timetable and two buttons (CLear All, Generate pdf). 
     The clear all button removes all the enteries from the timetable and 
@@ -51,7 +51,7 @@ class MyWindow(Gtk.Window):
     METHOS :
         __init__ :
         display_all_courses(self, column_title_list) :               
-        create_timetable (self, grid) : 
+        create_timetable (self) : 
         clear_timetable(self, widget, data = None) :
         gen_pdf(self, widget) :
         search(self, widget) :
@@ -74,8 +74,9 @@ class MyWindow(Gtk.Window):
     '''
 
 
-    Label_list = []
+    Label_list_weekly = []
     added_courses = []
+    Label_list_compre = []
 
     def __init__(self):
         '''
@@ -146,16 +147,26 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.connect('key-press-event', self.search)
 
         self.sobject = search.Searching()
-        
-        page00_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
-        page00 = Gtk.Grid()
 
-        page00.set_row_homogeneous(True)
-        page00.set_column_homogeneous(True)
+        page00_notebook = Gtk.Notebook()
 
-        page00_window.add(page00)
-        self.create_timetable(page00)
-        self.notebook.append_page(page00_window, Gtk.Label("YOUR TIMETABLE"))
+        self.page00_weekly = Gtk.Grid()
+        self.page00_weekly.set_row_homogeneous(True)
+        self.page00_weekly.set_column_homogeneous(True)
+        page00_notebook.append_page(self.page00_weekly, Gtk.Label('WEEKLY SCHEDULE'))
+
+        self.page00_compre = Gtk.Grid()
+        self.page00_compre.set_row_homogeneous(True)
+        self.page00_compre.set_column_homogeneous(True)
+
+        page00_notebook.append_page(self.page00_compre, Gtk.Label('COMPRE SCHEDULE'))
+
+
+        self.page00_midsem = Gtk.Grid()
+
+        self.notebook.append_page(page00_notebook, Gtk.Label("MY SCHEDULE"))
+        self.create_timetable()
+
 
         self.all_course_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
         self.all_course_store = Gtk.ListStore(str, str, str)
@@ -287,7 +298,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             treeview.append_column(column)
         self.all_course_window.add(treeview)
         
-    def create_timetable(self, grid) :
+    def create_timetable(self) :
         '''
         Replaces your timetable to its initial state.
         This is a callback method for a Gtk.Button widget (self.clear_all_button). 
@@ -315,10 +326,37 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         for row in range (len(self.weekly_schedule)) :
             for col in range (len(self.weekly_schedule[row])) :
                 label = Gtk.Label(label = self.weekly_schedule[row][col])
-                grid.attach(child = label, left = col, top = row, width = 1, height = 1)
+                self.page00_weekly.attach(child = label, left = col, top = row,\
+                width = 1, height = 1)
                 l.append(label)
-            MyWindow.Label_list.append(l)
+            MyWindow.Label_list_weekly.append(l)
+            l = []        
+
+
+        compre_label = Gtk.Label()
+        compre_label.set_markup(
+            "<big> <b> COMPREHENSIVE EXAMINATION </b> </big>")
+        self.page00_compre.attach(child = compre_label,
+            left = 0, top = 0, width = 15, height = 1)
+
+        self.compre_schedule = [
+        ['Sessions','01/05', '02/05', '03/05','04/05', '05/05', '06/05', \
+        '07/05', '08/05' ,'09/05', '10/05', '11/05', '12/05', '13/05', '14/05'],
+        ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',],
+        ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]]
+
+        for row in range(len(self.compre_schedule)) :
+            for col in range (len(self.compre_schedule[row])) :
+                label = Gtk.Label(label = self.compre_schedule[row][col])
+                self.page00_compre.attach(child = label, left = col, top = row + 3,\
+                    width = 1 , height = 1)
+                l.append(label)
+            MyWindow.Label_list_compre.append(l)
             l = []
+
+        #self.midsem_schedule = [
+        #['TIME/DATES']]
+
 
     def clear_timetable(self, widget, data = None) :
         '''
@@ -331,13 +369,17 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     default = None 
                     Any additional data needed to be passed to the method.
         '''
-        for row in range (len(MyWindow.Label_list)) :
-            for col in range (len(MyWindow.Label_list[row])) :
-                MyWindow.Label_list[row] [col].set_label(self.weekly_schedule[row][col]) 
+        for row in range (len(MyWindow.Label_list_weekly)) :
+            for col in range (len(MyWindow.Label_list_weekly[row])) :
+                MyWindow.Label_list_weekly[row] [col].set_label(self.weekly_schedule[row][col]) 
         
+        for row in range(len(MyWindow.Label_list_compre)) :
+            for col in range(len(MyWindow.Label_list_compre[row])) :
+                MyWindow.Label_list_compre[row][col].set_label(self.compre_schedule[row][col])
+
         self.catalog_info = []
         self.catalog_store.clear()  
-        MyWindow.added_courses = []   
+        MyWindow.added_courses = []
 
     def gen_pdf(self, widget) :
         '''
@@ -361,24 +403,24 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         response = dialog.run()
         if response == Gtk.ResponseType.ACCEPT :
 
-            doc = SimpleDocTemplate(dialog.get_filename(), pagesize = letter)
+            doc = SimpleDocTemplate(dialog.get_filename(), pagesize = landscape(letter))
 
             dialog.destroy()
             element = []
 
-            headline = "WEEKLY SCHEDULE"
+            headline1 = "WEEKLY SCHEDULE"
 
             style = getSampleStyleSheet()
             normal = style["Heading1"]
 
-            para = Paragraph(headline, normal)
+            para = Paragraph(headline1, normal)
             element.append(para)
 
             user_data = copy.deepcopy(self.weekly_schedule)
             
-            for row in range (len(MyWindow.Label_list)) :
-                for col in range (len(MyWindow.Label_list[row])) :
-                    user_data[row][col] =  MyWindow.Label_list[row][col].get_label()
+            for row in range (len(MyWindow.Label_list_weekly)) :
+                for col in range (len(MyWindow.Label_list_weekly[row])) :
+                    user_data[row][col] =  MyWindow.Label_list_weekly[row][col].get_label()
                 
 
             table = Table(data = user_data)
@@ -387,7 +429,26 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                                     ('BOX', (0,0), (-1,-1), 0.5, colors.black),
                                     ]))
             element.append(table)
-            doc.build(element)
+
+            element.append(PageBreak())
+            headline2 = "COMPREHENSIVE EXAMINATION"
+            para = Paragraph(headline2, normal)
+
+            element.append(para)
+
+            user_data = copy.deepcopy(self.compre_schedule)
+            for row in range (len(MyWindow.Label_list_compre)) :
+                for col in range (len(MyWindow.Label_list_compre[row])) :
+                    user_data[row][col] =  MyWindow.Label_list_compre[row][col].get_label()
+
+            table = Table(data = user_data)
+            table.setStyle(TableStyle([
+                                    ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
+                                    ('BOX', (0,0), (-1,-1), 0.5, colors.black),
+                                    ]))
+            element.append(table)
+
+            doc.multiBuild(element)
             self.save_list()
             self.clear_timetable(None)
 
@@ -524,25 +585,46 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         match_parameter = (self.selected_course_code, self.selected_course_title)
         self.sobject.get_course_details(match_parameter)
 
-        self.display_sections(
-            dataframe = self.sobject.practical, 
-            tab = self.page01_prac_tab, 
-            store = self.prac_store, 
-            section_type = 'PRAC')
-        self.display_sections(
-            dataframe = self.sobject.tutorial, 
-            tab = self.page01_tut_tab, 
-            store = self.tut_store, 
-            section_type = 'TUT')
-        self.display_sections(
-            dataframe = self.sobject.lecture, 
-            tab = self.page01_lec_tab, 
-            store = self.lec_store, 
-            section_type = 'LEC')
+        for row in self.catalog_store :
+            compre_date = row[-1]
+            if compre_date == self.selected_compre_date :
+                self.handle_compre_date()
+                break
 
-        self.page01_notebook.prev_page()
-        self.page01_notebook.prev_page()
-    
+        else :  
+            self.display_sections(
+                dataframe = self.sobject.practical, 
+                tab = self.page01_prac_tab, 
+                store = self.prac_store, 
+                section_type = 'PRAC')
+            self.display_sections(
+                dataframe = self.sobject.tutorial, 
+                tab = self.page01_tut_tab, 
+                store = self.tut_store, 
+                section_type = 'TUT')
+            self.display_sections(
+                dataframe = self.sobject.lecture, 
+                tab = self.page01_lec_tab, 
+                store = self.lec_store, 
+                section_type = 'LEC')
+
+        self.page01_notebook.next_page()
+
+
+    def handle_compre_date(self) : 
+        dialog = Gtk.MessageDialog(self, 0,
+            Gtk.MessageType.WARNING,
+            Gtk.ButtonsType.OK,
+            "You have selected a course having same compre date !!" )
+
+        dialog.format_secondary_text(
+            "Please remove that course from your schedule to add this one.")
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK :
+            pass
+        dialog.destroy()
+
 
     def display_sections (self, dataframe, tab, store, section_type) :
         '''
@@ -583,9 +665,24 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     liststore_data_Instructor, 
                     liststore_data_days, 
                     liststore_data_hours])
-    
-        self.page01_notebook.next_page()
                 
+    def update_compre_schedule(self, compre_date, course_code) :
+        date = compre_date.split()[0].split('/')
+        session = compre_date.split()[-1]
+        if session == 'AN' : session = 2
+        elif session == 'FN' : session = 1
+
+        try :
+            self.text_to_display = course_code
+            MyWindow.Label_list_compre[session][int(date[0])].set_label(
+                self.text_to_display)
+        except : 
+            pass
+
+
+
+
+
     def update_timetable(self, widget, path, store, section_type) :
         '''
         This is a callback method for Gtk.CellRendererToggle object. This 
@@ -687,8 +784,9 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 MyWindow.added_courses.append(self.selected_course_code)
         self.add_to_catalog()       
         self.page01_notebook.next_page()
-    
+        self.update_compre_schedule(self.selected_compre_date, self.selected_course_code)
 
+    
     def handle_section_change(self, row, section_type) :
         '''
         This method is called when you try to change section of a course 
@@ -714,17 +812,17 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             for row in section_list[-1].split() :
                 for col in section_list[-2].split() :
                     if col == 'M' : 
-                        MyWindow.Label_list[int(row)][1].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][1].set_label('')
                     elif col == 'T' : 
-                        MyWindow.Label_list[int(row)][2].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][2].set_label('')
                     elif col == 'W' : 
-                        MyWindow.Label_list[int(row)][3].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][3].set_label('')
                     elif col == 'Th' : 
-                        MyWindow.Label_list[int(row)][4].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][4].set_label('')
                     elif col == 'F' : 
-                        MyWindow.Label_list[int(row)][5].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][5].set_label('')
                     elif col == 'S' : 
-                        MyWindow.Label_list[int(row)][6].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][6].set_label('')
 
             self.update_timetable(None, None, None, section_type)
             
@@ -766,17 +864,17 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             for row in section_list[-1].split() :
                 for col in section_list[-2].split() :
                     if col == 'M' : 
-                        MyWindow.Label_list[int(row)][1].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][1].set_label('')
                     elif col == 'T' : 
-                        MyWindow.Label_list[int(row)][2].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][2].set_label('')
                     elif col == 'W' : 
-                        MyWindow.Label_list[int(row)][3].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][3].set_label('')
                     elif col == 'Th' : 
-                        MyWindow.Label_list[int(row)][4].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][4].set_label('')
                     elif col == 'F' : 
-                        MyWindow.Label_list[int(row)][5].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][5].set_label('')
                     elif col == 'S' : 
-                        MyWindow.Label_list[int(row)][6].set_label('')
+                        MyWindow.Label_list_weekly[int(row)][6].set_label('')
             self.add_to_timetable(self.selected_hour, self.selected_day)
             self.catalog_info.insert(0, self.info)
 
@@ -797,17 +895,17 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         for row in hours :
             for col in days : 
                 if col == 'M' : 
-                    MyWindow.Label_list[row][1].set_label(self.text_to_display)
+                    MyWindow.Label_list_weekly[row][1].set_label(self.text_to_display)
                 elif col == 'T' : 
-                    MyWindow.Label_list[row][2].set_label(self.text_to_display)
+                    MyWindow.Label_list_weekly[row][2].set_label(self.text_to_display)
                 elif col == 'W' : 
-                    MyWindow.Label_list[row][3].set_label(self.text_to_display)
+                    MyWindow.Label_list_weekly[row][3].set_label(self.text_to_display)
                 elif col == 'Th' : 
-                    MyWindow.Label_list[row][4].set_label(self.text_to_display)
+                    MyWindow.Label_list_weekly[row][4].set_label(self.text_to_display)
                 elif col == 'F' : 
-                    MyWindow.Label_list[row][5].set_label(self.text_to_display)
+                    MyWindow.Label_list_weekly[row][5].set_label(self.text_to_display)
                 elif col == 'S' : 
-                    MyWindow.Label_list[row][6].set_label(self.text_to_display)
+                    MyWindow.Label_list_weekly[row][6].set_label(self.text_to_display)
 
 
     def remove_course(self, widget, data = None) :
@@ -821,8 +919,9 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             if row[0] == True :
                 remove_course_code = row[1]
                 remove_section = row[3]
-                remove_hour = row[-1]
-                remove_day = row[-2]
+                remove_hour = row[-2]
+                remove_day = row[-3]
+                remove_compre= row[-1]
 
                 dialog = Gtk.MessageDialog(self, 0, 
                     Gtk.MessageType.WARNING,
@@ -838,17 +937,17 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     for col in remove_day.split() :
                         for row in remove_hour.split() :
                             if col == 'M' :
-                                MyWindow.Label_list[int(row)][1].set_label('')
+                                MyWindow.Label_list_weekly[int(row)][1].set_label('')
                             elif col == 'T' :
-                                MyWindow.Label_list[int(row)][2].set_label('')
+                                MyWindow.Label_list_weekly[int(row)][2].set_label('')
                             elif col == 'W' :
-                                MyWindow.Label_list[int(row)][3].set_label('')
+                                MyWindow.Label_list_weekly[int(row)][3].set_label('')
                             elif col == 'Th' :
-                                MyWindow.Label_list[int(row)][4].set_label('')
+                                MyWindow.Label_list_weekly[int(row)][4].set_label('')
                             elif col == 'F' :
-                                MyWindow.Label_list[int(row)][5].set_label('')
+                                MyWindow.Label_list_weekly[int(row)][5].set_label('')
                             elif col == 'S' :
-                                MyWindow.Label_list[int(row)][6].set_label('')
+                                MyWindow.Label_list_weekly[int(row)][6].set_label('')
 
 
                     count = 0
@@ -869,6 +968,16 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 
                 elif response == Gtk.ResponseType.CANCEL:
                     dialog.destroy()
+
+        if remove_course_code not in MyWindow.added_courses :
+            session = remove_compre.split()[-1]
+            date = remove_compre.split()[0].split('/')[0]
+
+            if session == 'AN' : session = 2
+            elif session == 'FN' : session = 1
+
+            MyWindow.Label_list_compre[session][int(date)].set_label('')
+
 
 
     def set_active(self, widget, path, store, *data) :
@@ -963,23 +1072,26 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
             data = pickle.load(file)
             for row in data :
-                if 'NA' not in row :
-                    self.catalog_info.append(row)
-                    tt_info = row.split(';')
 
-                    days = tt_info[-3].split()
-                    hours = tt_info[-2].split()
-                    section = tt_info[2]
-                    course_code = tt_info[0]
+                self.catalog_info.append(row)
+                tt_info = row.split(';')
 
-                    for i in range (len(hours)) :
-                        hours[i] = int(hours[i])
+                days = tt_info[-3].split()
+                hours = tt_info[-2].split()
+                section = tt_info[2]
+                course_code = tt_info[0]
+                compre_date = tt_info[-1]
 
-                    self.text_to_display = course_code + '\n' + section
-                    self.add_to_timetable(hours, days)
-                    self.add_to_catalog()
-                    if course_code not in MyWindow.added_courses :
-                        MyWindow.added_courses.append(course_code)
+                for i in range (len(hours)) :
+                    hours[i] = int(hours[i])
+
+                self.text_to_display = course_code + '\n' + section
+                self.add_to_timetable(hours, days)
+                self.add_to_catalog()
+                self.update_compre_schedule(compre_date, course_code)
+                if course_code not in MyWindow.added_courses :
+                    MyWindow.added_courses.append(course_code)
+
         
         except IOError :
             pass
