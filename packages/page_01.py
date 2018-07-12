@@ -158,8 +158,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.notebook.append_page(page00_window, Gtk.Label("YOUR TIMETABLE"))
 
         self.all_course_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
-        self.all_course_store = Gtk.ListStore(str, str)
-        self.display_all_courses(['COURSE CODE', 'COURSE TITLE'])
+        self.all_course_store = Gtk.ListStore(str, str, str)
+        self.display_all_courses(['COURSE CODE', 'COURSE TITLE', 'COMPRE DATES'])
         self.notebook.append_page(self.all_course_window, Gtk.Label('COURSE CATALOG'))
         
 
@@ -217,7 +217,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         
         self.remove_button.connect('clicked', self.remove_course)        
-        self.catalog_store = Gtk.ListStore(bool, str, str, str, str, str, str)
+        self.catalog_store = Gtk.ListStore(bool, str, str, str, str, str, str, str)
         self.catalog_info = []
         self.notebook.append_page(self.page02, Gtk.Label('MY COURSES'))
 
@@ -276,8 +276,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         self.all_course_list = self.sobject.get_result(query = ' ')
 
-        for course_code, course_title in self.all_course_list :
-            self.all_course_store.append([course_code, course_title])
+        for course_code, course_title, compre_date in self.all_course_list :
+            self.all_course_store.append([course_code, course_title, compre_date])
 
         treeview = Gtk.TreeView(model = self.all_course_store)
         for i, column_title in enumerate(column_title_list) :
@@ -298,7 +298,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     default = None 
                     Any additional data needed to be passed to the method.
         '''
-        self.schedule = [
+        self.weekly_schedule = [
         ['HOURS/DAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
         ['08 : 00 AM', '', '', '', '', '', ''],
         ['09 : 00 AM', '', '', '', '', '', ''],
@@ -312,9 +312,9 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         ['05 : 00 PM', '', '', '', '', '', '']]
 
         l = []
-        for row in range (len(self.schedule)) :
-            for col in range (len(self.schedule[row])) :
-                label = Gtk.Label(label = self.schedule[row][col])
+        for row in range (len(self.weekly_schedule)) :
+            for col in range (len(self.weekly_schedule[row])) :
+                label = Gtk.Label(label = self.weekly_schedule[row][col])
                 grid.attach(child = label, left = col, top = row, width = 1, height = 1)
                 l.append(label)
             MyWindow.Label_list.append(l)
@@ -333,7 +333,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         '''
         for row in range (len(MyWindow.Label_list)) :
             for col in range (len(MyWindow.Label_list[row])) :
-                MyWindow.Label_list[row] [col].set_label(self.schedule[row][col]) 
+                MyWindow.Label_list[row] [col].set_label(self.weekly_schedule[row][col]) 
         
         self.catalog_info = []
         self.catalog_store.clear()  
@@ -374,7 +374,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             para = Paragraph(headline, normal)
             element.append(para)
 
-            user_data = copy.deepcopy(self.schedule)
+            user_data = copy.deepcopy(self.weekly_schedule)
             
             for row in range (len(MyWindow.Label_list)) :
                 for col in range (len(MyWindow.Label_list[row])) :
@@ -488,15 +488,15 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         Method for displaying course code on course_code tab on page01. 
             
             @variables :
-                self.course_store : Gtk.ListStore 
+                self.store : Gtk.ListStore 
                     store object for storing course details
         '''
         
-        self.store = Gtk.ListStore(bool,str, str)
+        self.store = Gtk.ListStore(bool,str, str, str)
         self.add_column_text(
             self.store, ' ', tab, 
             self.get_course_details, 
-            ["COURSE CODE", "COURSE TITLE"])
+            ["COURSE CODE", "COURSE TITLE", "COMPRE DATES"])
         
         for match in self.match_list :
             self.store.append([False] + list(match))        
@@ -520,6 +520,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         self.selected_course_code = self.store[path][1]
         self.selected_course_title = self.store[path][2]
+        self.selected_compre_date = self.store[path][3]
         match_parameter = (self.selected_course_code, self.selected_course_title)
         self.sobject.get_course_details(match_parameter)
 
@@ -636,7 +637,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
              self.selected_course_title + ';' + \
              section_type + '-' + self.selected_section + ';' +\
              self.selected_instructor + ';' +\
-             store[path][3] + ';' + store[path][4]
+             store[path][3] + ';' + store[path][4] +\
+             ';' + self.selected_compre_date
 
         except :
             pass
@@ -898,7 +900,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.add_column_text(
             self.catalog_store, None,
             self.page02_window, self.set_active,
-            ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'DAYS', 'HOURS'])
+            ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'DAYS', 'HOURS', 'COMPRE DATE'])
     
 
         for row in self.catalog_info :
@@ -965,8 +967,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     self.catalog_info.append(row)
                     tt_info = row.split(';')
 
-                    days = tt_info[-2].split()
-                    hours = tt_info[-1].split()
+                    days = tt_info[-3].split()
+                    hours = tt_info[-2].split()
                     section = tt_info[2]
                     course_code = tt_info[0]
 

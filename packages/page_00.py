@@ -203,7 +203,8 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
 
 
     def split_pdf(self, file_path):
-        ''' Splits the timetable pdf into individual pages 
+        ''' 
+        Splits the timetable pdf into individual pages 
         '''
         infile = PdfFileReader(open(file_path, 'rb'))
         
@@ -250,7 +251,30 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                 data.to_sql(name = 'courses', con = self.database, 
                     index = False, if_exists = 'append')
 
-                
+            if (page_no >= 46  and page_no <= 58 ) :
+                data = read_pdf(
+                    input_path = os.path.join(path, file),
+                    pandas_options = {
+                    'header' : None,
+                    'skiprows' : [0],
+                    'keep_default_na' : True,
+                    'usecols' : [1,2,3,4],
+                    })
+
+                if (len(data.columns)) == 6 :
+                    data = read_pdf(
+                        input_path = os.path.join(path, file),
+                        pandas_options = {
+                        'header' : None,
+                        'skiprows' : [0], 
+                        'keep_default_na' : True, 
+                        'usecols' : [1,2,4,5],
+                        })
+
+                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATE(S)', 'TIME']
+                data.to_sql(name = 'midsem', con = self.database,
+                    index = False, if_exists = 'append')
+              
         self.spinner.stop()
         self.okay_button.set_sensitive(False)
 
