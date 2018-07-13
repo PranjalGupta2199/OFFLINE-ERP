@@ -7,9 +7,10 @@ class Searching:
         Searches a match for the given query for the parameter
 
         METHODS : 
-            __init__(self) :
-            get_result (self, query) :
-            get_course_details (self, match_parameter) :
+            __init__(self) 
+            get_result (self, query) 
+            get_course_details (self, match_parameter) 
+            get_midsem_details (self, match_paramter) 
             __str__(self) :
  
 
@@ -64,10 +65,9 @@ class Searching:
             while (not next_record[0]):
                 result_list.append(next_record)
                 next_record = self.cursor.fetchone()          
-        except: ##add exception type
+        except: 
             pass
         finally:
-            #self.Print_(result_list)
             pass
 
         details_df = pandas.DataFrame(result_list)
@@ -99,6 +99,23 @@ class Searching:
                 self.tutorial = details_df[tut_index : ]
 
     def get_midsem_details(self, match_parameter) :
+        '''
+        Searches for the midsem details of the course from 
+        the 'midsem' table in courses database.
+        
+            @parameter : 
+                match_paramter : tuple
+                    A tuple of strings (course code, course title)
+
+            @variables : 
+                midsem_info : tuple 
+                     A tuple of sting
+                midsem_date : string
+                    Of the form "DD/MM" or "*" (if unavailable in the pdf)
+                midsem_time : string
+                    A string giving the time details.
+
+        '''
 
         midsem_info = self.cursor.execute(
             "SELECT * FROM midsem WHERE COURSE_CODE == ? \
@@ -109,7 +126,7 @@ class Searching:
 
     def __str__ (self) :
         '''
-        returns the string representation of the object.
+        Returns the string representation of the object.
         ''' 
 
         print self.lecture

@@ -18,14 +18,13 @@ class MyWindow(Gtk.Window):
     '''
     This class is for creating gui for the second page of the application.
     The main window consists of 5 main pages 
-    (YOUR TIMETABLE , COURSE CATALOG, SEARCH, MY COURSES, OPTIONS). 
+    (YOUR SCHEDULE , COURSE CATALOG, SEARCH, MY COURSES, OPTIONS). 
 
     The variables for the the pages are : 
         page00_weekly_window, page01
 
-    The 1st page displays your timetable and two buttons (CLear All, Generate pdf). 
-    The clear all button removes all the enteries from the timetable and 
-    Generate pdf saves your work in pdf format.
+    The 1st page displays your schedule. This page has threE tabs - 
+    WEEKLY, COMPRE AND MISEM, containing their respective schedules.
 
     The 2nd page shows all the courses available, i.e. all the courses offered
     to students this sem.
@@ -49,27 +48,30 @@ class MyWindow(Gtk.Window):
 
 
     METHOS :
-        __init__ :
-        display_all_courses(self, column_title_list) :               
-        create_timetable (self) : 
-        clear_timetable(self, widget, data = None) :
-        gen_pdf(self, widget) :
-        search(self, widget) :
+        __init__ 
+        display_all_courses(self, column_title_list)                
+        create_timetable (self) 
+        clear_timetable(self, widget, data = None) 
+        gen_pdf(self, widget) 
+        search(self, widget) 
         add_column_text(self, store, section_type, tab, 
-            callback_method, column_title_list ) :
-        display_course_code (self, tab) :
-        get_course_details (self, widget, path, data = None) :
-        display_sections (self, dataframe, store, section_type) :
-        update_timetable (self, widget, path, store, section_type) :
-        handle_section_change(self, row, section_type) :
+            callback_method, column_title_list ) 
+        display_course_code (self, tab) 
+        get_course_details (self, widget, path, data = None)
+        handle_compre_date (self) 
+        display_sections (self, dataframe, store, section_type) 
+        update_timetable (self, widget, path, store, section_type)
+        update_compre_schedule (self, compre_date, label)
+        update_midsem_schedule (self, match_parameter, label) 
+        handle_section_change(self, row, section_type) 
         handle_clash_change(self, row)
-        add_to_timetable(self) :
-        remove_course(self, widget, button) :
-        set_active(self, widget, path, store, data) :
-        add_to_catalog(self) :
-        main_quit(self) :
-        save_list(self) :
-        open_last_work(self, widget, data) :
+        add_to_timetable(self) 
+        remove_course(self, widget, button) 
+        set_active(self, widget, path, store, data) 
+        add_to_catalog(self) 
+        main_quit(self) 
+        save_list(self) 
+        open_last_work(self, widget, data) 
 
     '''
 
@@ -91,8 +93,12 @@ class MyWindow(Gtk.Window):
 
                 self.notebook :                             Gtk.NoteBook
 -------------------------------------------------------------------------------                
-YOUR TIMETABLE      page00_window :                         Gtk.ScrolledWindow 
-                        page00 :                            Gtk.Grid
+YOUR SCHEDULE       page00_notebook :                       Gtk.Notebook
+                        self.page00_weekly :                Gtk.Grid
+                        self.page00_compre :                Gtk.Grid
+                            compre_label   :                Gtk.Label
+                        self.page00_midsem :                Gtk.Grid
+                            midsem_label   :                Gtk.Label
 --------------------------------------------------------------------------------                            
 COURSE CATALOG      self.all_courses_window :               Gtk.ScrolledWindow
                         self.all_course_store :             Gtk.ListStore
@@ -118,15 +124,22 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 ---------------------------------------------------------------------------------
 
                 
-                Other variables : 
+                Other variables : \
                     self.sobject : search.Searching () instance
+                    
+                    self.save_count : int
+                        Int value which acts a flag for using save_list method.
+
                     self.lec_store, self.prac_store, self.tut_store  : Gtk.ListStore
                         (all are liststore for storing available course sections)
+                    
                     self.catalog_store : Gtk.Liststore 
                             This liststore contains information about the catalog page.
+                    
                     self.catalog_info : List
                             This is a list which also contains the information about the 
                             courses you are registered in.
+                    
                     self.all_course_list : List 
                             This is a list containing tuples (COURSE CODE, COURSE TITLE)
 
@@ -303,14 +316,20 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         
     def create_timetable(self) :
         '''
-        Replaces your timetable to its initial state.
-        This is a callback method for a Gtk.Button widget (self.clear_all_button). 
+        Replaces your timetable to its initial state. 
+            
+            @variables :
+                self.weekly_schedule : List
+                    Labels in the weekly timetable
+                compre_label : Gtk.Label
+                    Displays "COMPREHENSIVE EXAMINATION"
+                self.compre_schedule : List
+                    Label in the compre schedule
+                midsem_label : Gtk.Label
+                    Displays "MID SEMESTER EXAMINATION"
+                self.midsem_schedule : List
+                    Label in the midsem schedule
 
-            @parameters :
-                widget : Gtk widget object
-                data : 
-                    default = None 
-                    Any additional data needed to be passed to the method.
         '''
         self.weekly_schedule = [
         ['HOURS/DAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
@@ -385,13 +404,24 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
     def clear_timetable(self, widget, data = None) :
         '''
         Replaces your timetable to its initial state.
-        This is a callback method for a Gtk.Button widget (self.clear_all_button). 
+        This is a callback method for a Gtk.MenuItem widget (clear_all_menu). 
 
             @parameters :
                 widget : Gtk widget object
-                data : 
-                    default = None 
+                data : default = None 
                     Any additional data needed to be passed to the method.
+
+            @variables :
+                Label_list_weekly : List 
+                    List of Gtk.Labels
+                Label_list_compre : List
+                    List of Gtk.Labels
+                Label_list_midsem : List
+                    List of Gtk.Labels
+                added_courses : List
+                    List of str containing course codes (distinct) in your timetable.
+                save_count : int
+                    Determines whether to use self.save_list method.
         '''
         for row in range (len(MyWindow.Label_list_weekly)) :
             for col in range (len(MyWindow.Label_list_weekly[row])) :
@@ -416,7 +446,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
     def gen_pdf(self, widget) :
         '''
         Saves your desired schedule in pdf format.
-        This is a callback method for Gtk.Button widget (self.gen_pdf_button).
+        This is a callback method for Gtk.MenuItem widget (gen_pdf_menu).
 
         This method uses a special Python library known as 'reportlab' which is 
         used for writing/reading in pdf files. For more information  :
@@ -508,13 +538,16 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
     def search (self, widget, event = None) : 
         '''
         Usses self.sobject to search for courses matching your query.
-        This is a callback method for a Gtk.Button widget (self.SearchButton).
+        This is a callback method for a Gtk.Button widget (self.SearchButton). This method
+        is also activated when any key is pressed and the SearchBar is active.
 
         @variables :
+            self.SearchBar : Gtk.Entry 
             self.match_list : list 
                 Contains a list of tuples having matching course_code and course_title as 
                 tuple elements
-                Returns self.match_list
+        
+        Returns self.match_list
         '''
         if self.SearchBar.get_text() != '':   
             self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
@@ -532,10 +565,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     Store objects which contains details of the section(s)
             section_type : str
                     String value used for displaying the type of class of a class.
-                    Permitted values : LECTURE, PRACTICAL, TUTORIAL
+                    Permitted values : LEC, PRAC, TUT
             tab : Gtk.ScrolledWindow
                     Layout container in which details of the course is to be displayed.
-            callback_method : callable method
+            callback_method : callable object
                     The treeview contains a togglebutton (Gtk.CellRendererToggle), which when 
                     activated calls this method.
             column_title_list : list 
@@ -626,7 +659,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     Integer whose value is the row index of the treeview object.
         '''
         selected_path = Gtk.TreePath(path)
-        for row in self.store:
+        for row in self.store: #displays the tick in the checkbox
             row[0] = (row.path == selected_path)
 
         self.selected_course_code = self.store[path][1]
@@ -662,6 +695,13 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
 
     def handle_compre_date(self) : 
+        '''
+        This method is called when there are courses in your catalog 
+        having same compre date. You need to remove the course whose 
+        date is clashing with this one and then add this course.
+
+        '''
+
         dialog = Gtk.MessageDialog(self, 0,
             Gtk.MessageType.WARNING,
             Gtk.ButtonsType.OK,
@@ -716,21 +756,40 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     liststore_data_days, 
                     liststore_data_hours])
                 
-    def update_compre_schedule(self, compre_date, course_code) :
+    def update_compre_schedule(self, compre_date, label) :
+        '''
+        Adds entry to compre schedule.
+            @parameter : 
+                compre_date : str
+                    str value of the form "DD/MM AN" or "DD/MM FN", 
+                    where AN and FN are the afternoon and forenoon 
+                    sessions respectively.
+            
+        '''
+
         date = compre_date.split()[0].split('/')
         session = compre_date.split()[-1]
         if session == 'AN' : session = 2
         elif session == 'FN' : session = 1
 
         try :
-            self.text_to_display = course_code
             MyWindow.Label_list_compre[session][int(date[0])].set_label(
-                self.text_to_display)
+            label)
+            #these statements will catch an exception when, there is either
+            #a null value or '*' in date or session variables. 
+
         except : 
             pass
 
 
     def update_midsem_schedule(self, match_parameter, label) :
+        '''
+        Adds entry to midsem schedule.
+            @parameter :
+                match_paramter : tuple
+                    tuple of strings (course code, course title)
+                label : The text to be displayed in the schedule.
+        '''
         self.sobject.get_midsem_details(match_parameter)
         
         date = self.sobject.midsem_date.split('/')[0]
@@ -744,6 +803,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         try :
             MyWindow.Label_list_midsem[time][int(date) - 4].set_label(
                 label)
+            #these statements will catch an exception when, there is either
+            #a null value or '*' in date or session variables. 
         except :
             pass
  
@@ -833,7 +894,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
                 if section_type == list_[2].split('-')[0]\
                     and self.selected_course_code == list_[0] :
-                    print list_[2].split('-')[0] 
                     self.handle_section_change(row, section_type)
                     break
                     
@@ -854,7 +914,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         
         self.add_to_catalog()       
         self.page01_notebook.next_page()
-        self.update_compre_schedule(self.selected_compre_date, self.selected_course_code)
+        self.update_compre_schedule(self.selected_compre_date, \
+                label = self.selected_course_code)
         self.update_midsem_schedule(
             match_parameter = (self.selected_course_code, \
                 self.selected_course_title),
@@ -873,7 +934,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         '''
 
         section_list = row.split(';')
-        print section_list
         dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.QUESTION,
             Gtk.ButtonsType.YES_NO, 
             "Warning : You are about to change a section !")
@@ -1168,7 +1228,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 self.text_to_display = course_code + '\n' + section
                 self.add_to_timetable(hours, days)
                 self.add_to_catalog()
-                self.update_compre_schedule(compre_date, course_code)
+                self.update_compre_schedule(compre_date, 
+                    label = course_code)
                 
                 self.update_midsem_schedule(
                     match_parameter = (course_code, course_title),

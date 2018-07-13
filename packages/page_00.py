@@ -233,7 +233,6 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
         for file in directory_files:
             page_no = int (file.split('.')[0].split('-')[1]) 
             
-            #print page_no
             
             if ( page_no >= 6 and page_no <= 45 ):
                 
@@ -261,6 +260,9 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                     'usecols' : [1,2,3,4],
                     })
 
+                #This if statement is called only because of the 
+                #errors caused when converting the pdf in dataframe
+                #on same pages.
                 if (len(data.columns)) == 6 :
                     data = read_pdf(
                         input_path = os.path.join(path, file),
