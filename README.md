@@ -8,7 +8,14 @@ It allows you to -
   - Select your courses 
   - Save it in pdf format
   - Open your last saved/unsaved work
- 
+
+You can view your :
+  - Weekly Schedule
+  - Compre Schedule
+  - Midsem Schedule
+  - List of all the available courses 
+  - Opted courses.
+
 ##### Note :
 1. This app works only for python 2.x versions because tabula-py is not available for python 3.x versions
 2. Please install Java as tabula requires it. 
@@ -70,13 +77,13 @@ Note :
     ```
     Run the python command again.
 3. If you face any difficulty, please go through this [page.](https://github.com/chezou/tabula-py) If the problem persists, report it in the Issues Page.
+4. If you want to run this app with a new pdf, follow Note pt 2.
 
 ## Author
 -  [**Pranjal Gupta**](https://github.com/PranjalGupta2199/)
 
 ## TODOs
-
-- Add compre and midsem schedule 
+ 
 - Add credits to your timetable
 - Extend support for other campuses 
 
