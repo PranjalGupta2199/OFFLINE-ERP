@@ -203,7 +203,8 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
 
 
     def split_pdf(self, file_path):
-        ''' Splits the timetable pdf into individual pages 
+        ''' 
+        Splits the timetable pdf into individual pages 
         '''
         infile = PdfFileReader(open(file_path, 'rb'))
         
@@ -232,7 +233,6 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
         for file in directory_files:
             page_no = int (file.split('.')[0].split('-')[1]) 
             
-            #print page_no
             
             if ( page_no >= 6 and page_no <= 45 ):
                 
@@ -243,14 +243,35 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                     'skiprows' : [0,1,2,3,4,5], 
                     'keep_default_na' : False,
                     'usecols' : [1,2,4,5,7,8,10]})
-                
+               
                 data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'SECTION', 
                 'INSTRUCTOR', 'DAY', 'HOURS', 'COMPRE_DATE']
                 
                 data.to_sql(name = 'courses', con = self.database, 
                     index = False, if_exists = 'append')
 
+            if (page_no >= 46  and page_no <= 58 ) :
+                data = read_pdf(
+                    input_path = os.path.join(path, file),
+                    pandas_options = {
+                    'header' : None,
+                    'skiprows' : [0],
+                    'keep_default_na' : True,
+                    })
+
+
+                if len(data.columns) != 6 :
+                    data = data.loc[:, [1,2,3,4]]
+                else : 
+                    data = data.loc[:, [1,2,4,5]]
+                #This if statement is called only because of the 
+                #errors caused when converting the pdf in dataframe
+                #on same pages.
                 
+                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
+                data.to_sql(name = 'midsem', con = self.database,
+                    index = False, if_exists = 'append')
+              
         self.spinner.stop()
         self.okay_button.set_sensitive(False)
 
