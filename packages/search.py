@@ -98,6 +98,15 @@ class Searching:
                 self.practical = details_df[prac_index : tut_index]
                 self.tutorial = details_df[tut_index : ]
 
+    def get_midsem_details(self, match_parameter) :
+
+        midsem_info = self.cursor.execute(
+            "SELECT * FROM midsem WHERE COURSE_CODE == ? \
+            AND COURSE_TITLE == ?", match_parameter).fetchone()
+
+        self.midsem_date, self.midsem_time = midsem_info[-2], midsem_info[-1]
+
+
     def __str__ (self) :
         '''
         returns the string representation of the object.
