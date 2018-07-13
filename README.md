@@ -83,8 +83,7 @@ Note :
 -  [**Pranjal Gupta**](https://github.com/PranjalGupta2199/)
 
 ## TODOs
-
-- Add compre and midsem schedule 
+ 
 - Add credits to your timetable
 - Extend support for other campuses 
 

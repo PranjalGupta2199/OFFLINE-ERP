@@ -43,7 +43,7 @@ class MyWindow(Gtk.Window):
     you don't want them in your timetable
 
     The 5th page in the window opens a dropdown menu with options such clear_all 
-    (if you want to start afresh), gen_pdf (if you want to save your work), 
+    (if you want to start afresh), save_pdf (if you want to save your work), 
     open_last_work (if you plan to work on your last timetable).
 
 
@@ -52,7 +52,7 @@ class MyWindow(Gtk.Window):
         display_all_courses(self, column_title_list)                
         create_timetable (self) 
         clear_timetable(self, widget, data = None) 
-        gen_pdf(self, widget) 
+        save_pdf(self, widget) 
         search(self, widget) 
         add_column_text(self, store, section_type, tab, 
             callback_method, column_title_list ) 
@@ -119,7 +119,7 @@ MY COURSES       page02 :                                Gtk.Grid
 OPTIONS             self.menu_button :                      Gtk.MenuButton
                         self.menu :                         Gtk.Menu
                             clear_all_menu :                Gtk.MenuItem
-                            gen_pdf_menu :                  Gtk.MenuItem
+                            save_pdf_menu :                  Gtk.MenuItem
                             open_previous_menu :            Gtk.MenuItem
 ---------------------------------------------------------------------------------
 
@@ -162,6 +162,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         self.sobject = search.Searching()
         self.save_count = 0
+        self.element = []
 
         page00_notebook = Gtk.Notebook()
 
@@ -253,14 +254,14 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         clear_all_menu = Gtk.MenuItem("Clear all enteries")
         clear_all_menu.connect('activate', self.clear_timetable)
 
-        gen_pdf_menu = Gtk.MenuItem('Generate pdf')
-        gen_pdf_menu.connect('activate', self.gen_pdf)
+        save_pdf_menu = Gtk.MenuItem('Generate pdf')
+        save_pdf_menu.connect('activate', self.save_pdf)
 
         open_previous_menu = Gtk.MenuItem('Open your last work')
         open_previous_menu.connect('activate', self.open_last_work)
 
         self.menu.append(clear_all_menu)
-        self.menu.append(gen_pdf_menu)
+        self.menu.append(save_pdf_menu)
         self.menu.append(open_previous_menu)
         self.menu.show_all()
 
@@ -443,10 +444,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.save_count = 0
         MyWindow.added_courses = []
 
-    def gen_pdf(self, widget) :
+    def save_pdf(self, widget) :
         '''
         Saves your desired schedule in pdf format.
-        This is a callback method for Gtk.MenuItem widget (gen_pdf_menu).
+        This is a callback method for Gtk.MenuItem widget (save_pdf_menu).
 
         This method uses a special Python library known as 'reportlab' which is 
         used for writing/reading in pdf files. For more information  :
@@ -463,77 +464,89 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         dialog.set_current_name('Untitled Document.pdf')
         
         response = dialog.run()
+
+        doc = SimpleDocTemplate(dialog.get_filename(), \
+            pagesize = landscape(letter))
+
         if response == Gtk.ResponseType.ACCEPT :
+            self.write (
+                doc, "WEEKLY SCHEDULE", \
+                self.weekly_schedule, MyWindow.Label_list_weekly)
+            
+            self.write (
+                doc, "COMPREHENSIVE EXAMINATION", \
+                self.compre_schedule, MyWindow.Label_list_compre)
 
-            doc = SimpleDocTemplate(dialog.get_filename(), pagesize = landscape(letter))
-
-            dialog.destroy()
-            element = []
-
-            headline1 = "WEEKLY SCHEDULE"
-
+            self.element.append(PageBreak())
+            
+            self.write (
+                doc, "MID SEMESTER SCHEDULE", \
+                self.midsem_schedule, MyWindow.Label_list_midsem)
+        
             style = getSampleStyleSheet()
             normal = style["Heading1"]
 
-            para = Paragraph(headline1, normal)
-            element.append(para)
-
-            user_data = copy.deepcopy(self.weekly_schedule)
-            
-            for row in range (len(MyWindow.Label_list_weekly)) :
-                for col in range (len(MyWindow.Label_list_weekly[row])) :
-                    user_data[row][col] =  MyWindow.Label_list_weekly[row][col].get_label()
-                
-
+            para = Paragraph("LEGENDS", normal)
+            self.element.append(para)
+            user_data = [['COURSE CODE', 'COURSE TITLE', 'INSTRUCTOR']]
+            for row in self.catalog_info :
+                data = row.split(';')
+                user_data.append([data[0], data[1], data[3]])
             table = Table(data = user_data)
             table.setStyle(TableStyle([
                                     ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
                                     ('BOX', (0,0), (-1,-1), 0.5, colors.black),
-                                    ]))
-            element.append(table)
+                                    ]))     
+            self.element.append(table)
 
-            headline2 = "COMPREHENSIVE EXAMINATION"
-            para = Paragraph(headline2, normal)
-
-            element.append(para)
-
-            user_data = copy.deepcopy(self.compre_schedule)
-            for row in range (len(MyWindow.Label_list_compre)) :
-                for col in range (len(MyWindow.Label_list_compre[row])) :
-                    user_data[row][col] =  MyWindow.Label_list_compre[row][col].get_label()
-
-            table = Table(data = user_data)
-            table.setStyle(TableStyle([
-                                    ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
-                                    ('BOX', (0,0), (-1,-1), 0.5, colors.black),
-                                    ]))
-            element.append(table)
-            element.append(PageBreak())
-            headline2 = "MID SEMESTER EXAMINATION"
-            para = Paragraph(headline2, normal)
-
-            element.append(para)
-
-            user_data = copy.deepcopy(self.midsem_schedule)
-            for row in range (len(MyWindow.Label_list_midsem)) :
-                for col in range (len(MyWindow.Label_list_midsem[row])) :
-                    user_data[row][col] =  MyWindow.Label_list_midsem[row][col].get_label()
-
-            table = Table(data = user_data)
-            table.setStyle(TableStyle([
-                                    ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
-                                    ('BOX', (0,0), (-1,-1), 0.5, colors.black),
-                                    ]))
-            element.append(table)
-
-
-
-            doc.multiBuild(element)
+            doc.multiBuild(self.element)
             self.save_list()
             self.save_count = 1
             
         elif response == Gtk.ResponseType.CANCEL : 
-            dialog.destroy()
+            pass
+
+        dialog.destroy()
+
+    def write(self, doc, headline, schedule, class_label_list) :        
+        '''
+        Writes data to a pdf file.
+            @paramter :
+                doc : 
+                    reportlab.platypus.doctemplate.SimpleDocTemplate instance
+                headline : string
+                    string which to be written as a heading
+                schedule : list 
+                    list of strings containing labels for the timetable
+                class_label_list : list 
+                    list of Gtk.Label objects 
+            @variables : 
+                user_data : list
+                    list of string to be written on the pdf
+                table : 
+                    reportlab.platypus.doctemplate.Table instance
+        '''
+
+        style = getSampleStyleSheet()
+        normal = style["Heading1"]
+
+        para = Paragraph(headline, normal)
+        self.element.append(para)
+
+        user_data = copy.deepcopy(schedule)
+        
+        for row in range (len(class_label_list)) :
+            for col in range (len(class_label_list[row])) :
+                user_data[row][col] =  class_label_list[row][col].get_label()
+            
+
+        table = Table(data = user_data)
+        table.setStyle(TableStyle([
+                                ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
+                                ('BOX', (0,0), (-1,-1), 0.5, colors.black),
+                                ]))
+        self.element.append(table)
+
 
     def search (self, widget, event = None) : 
         '''
@@ -1170,7 +1183,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             response = dialog.run()
 
             if response == Gtk.ResponseType.YES :
-                self.gen_pdf(None)
+                self.save_pdf(None)
             elif response == Gtk.ResponseType.NO :
                 self.save_list()
 
