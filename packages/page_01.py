@@ -508,7 +508,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                                     ('BOX', (0,0), (-1,-1), 0.5, colors.black),
                                     ]))
             element.append(table)
-
+            element.append(PageBreak())
             headline2 = "MID SEMESTER EXAMINATION"
             para = Paragraph(headline2, normal)
 
@@ -528,7 +528,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
 
 
-            doc.build(element)
+            doc.multiBuild(element)
             self.save_list()
             self.save_count = 1
             
@@ -791,11 +791,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 label : The text to be displayed in the schedule.
         '''
         self.sobject.get_midsem_details(match_parameter)
-        
         date = self.sobject.midsem_date.split('/')[0]
         time = self.sobject.midsem_time
 
-        if time == '9.00 - 10:30AM' : time = 1
+        if time == '9.00 - 10.30AM' : time = 1
         elif time == '11.00 - 12.30 PM' : time = 2
         elif time == '1.30 -3.00 PM' : time = 3
         elif time == '3.30 - 5.00 PM' : time = 4
@@ -804,7 +803,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             MyWindow.Label_list_midsem[time][int(date) - 4].set_label(
                 label)
             #these statements will catch an exception when, there is either
-            #a null value or '*' in date or session variables. 
+                #a null value or '*' in date or session variables. 
         except :
             pass
  

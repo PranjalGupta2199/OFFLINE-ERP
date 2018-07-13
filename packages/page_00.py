@@ -243,7 +243,7 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                     'skiprows' : [0,1,2,3,4,5], 
                     'keep_default_na' : False,
                     'usecols' : [1,2,4,5,7,8,10]})
-                
+               
                 data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'SECTION', 
                 'INSTRUCTOR', 'DAY', 'HOURS', 'COMPRE_DATE']
                 
@@ -257,23 +257,18 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                     'header' : None,
                     'skiprows' : [0],
                     'keep_default_na' : True,
-                    'usecols' : [1,2,3,4],
                     })
 
+
+                if len(data.columns) != 6 :
+                    data = data.loc[:, [1,2,3,4]]
+                else : 
+                    data = data.loc[:, [1,2,4,5]]
                 #This if statement is called only because of the 
                 #errors caused when converting the pdf in dataframe
                 #on same pages.
-                if (len(data.columns)) == 6 :
-                    data = read_pdf(
-                        input_path = os.path.join(path, file),
-                        pandas_options = {
-                        'header' : None,
-                        'skiprows' : [0], 
-                        'keep_default_na' : True, 
-                        'usecols' : [1,2,4,5],
-                        })
-
-                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATE(S)', 'TIME']
+                
+                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
                 data.to_sql(name = 'midsem', con = self.database,
                     index = False, if_exists = 'append')
               
