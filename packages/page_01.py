@@ -488,10 +488,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
             para = Paragraph("LEGENDS", normal)
             self.element.append(para)
-            user_data = [['COURSE CODE', 'COURSE TITLE', 'INSTRUCTOR']]
+            user_data = [['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR']]
             for row in self.catalog_info :
                 data = row.split(';')
-                user_data.append([data[0], data[1], data[3]])
+                user_data.append([data[0], data[1], data[2], data[3]])
             table = Table(data = user_data)
             table.setStyle(TableStyle([
                                     ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
