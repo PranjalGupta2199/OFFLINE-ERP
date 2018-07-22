@@ -166,22 +166,30 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         page00_notebook = Gtk.Notebook()
 
+        self.pane = Gtk.Paned()
+
+        page00_weekly_window = Gtk.ScrolledWindow(hexpand=True)
         self.page00_weekly = Gtk.Grid()
         self.page00_weekly.set_row_homogeneous(True)
         self.page00_weekly.set_column_homogeneous(True)
-        page00_notebook.append_page(self.page00_weekly, Gtk.Label('WEEKLY SCHEDULE'))
+        page00_weekly_window.add(self.page00_weekly)
+        page00_notebook.append_page(page00_weekly_window, Gtk.Label('WEEKLY SCHEDULE'))
 
+        page00_compre_window = Gtk.ScrolledWindow(hexpand=True)
         self.page00_compre = Gtk.Grid()
         self.page00_compre.set_row_homogeneous(True)
         self.page00_compre.set_column_homogeneous(True)
-        page00_notebook.append_page(self.page00_compre, Gtk.Label('COMPRE SCHEDULE'))
+        page00_compre_window.add(self.page00_compre)
+        page00_notebook.append_page(page00_compre_window, Gtk.Label('COMPRE SCHEDULE'))
 
+        page00_midsem_window = Gtk.ScrolledWindow(hexpand=True)
         self.page00_midsem = Gtk.Grid()
         self.page00_midsem.set_row_homogeneous(True)
         self.page00_midsem.set_column_homogeneous(True)
-        page00_notebook.append_page(self.page00_midsem, Gtk.Label('MIDSEM SCHEDULE'))
+        page00_midsem_window.add(self.page00_midsem)
+        page00_notebook.append_page(page00_midsem_window, Gtk.Label('MIDSEM SCHEDULE'))
 
-        self.notebook.append_page(page00_notebook, Gtk.Label("MY SCHEDULE"))
+        self.notebook.append_page(self.pane, Gtk.Label("MY SCHEDULE"))
         self.create_timetable()
 
 
@@ -214,10 +222,12 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         page01.attach_next_to(child = self.page01_notebook, sibling = self.SearchBar, 
                     side = Gtk.PositionType(3), width = 1, height = 1)
 
+        self.pane.pack1(page00_notebook, True, False)
+        self.pane.pack2(page01, True, False)
         
-        self.lec_store = Gtk.ListStore(bool, str, str, str, str)
-        self.prac_store = Gtk.ListStore(bool, str, str, str, str)
-        self.tut_store = Gtk.ListStore(bool, str, str, str, str)
+        self.lec_store = Gtk.ListStore(str, str, str, str)
+        self.prac_store = Gtk.ListStore(str, str, str, str)
+        self.tut_store = Gtk.ListStore(str, str, str, str)
 
         self.page01_notebook.append_page(
             self.page01_course_tab, Gtk.Label("COURSE"))
@@ -228,7 +238,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.page01_notebook.append_page(
             self.page01_tut_tab, Gtk.Label("TUTORIAL"))
 
-        self.notebook.append_page(page01, Gtk.Label("SEARCH"))
+#        self.notebook.append_page(page01, Gtk.Label("SEARCH"))
 
         self.page02 = Gtk.Grid()
         self.page02_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
@@ -617,27 +627,19 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         
         treeview = Gtk.TreeView(model = store)
         selection = treeview.get_selection()
-        selection.set_mode(0)
-
-        renderer_toggle = Gtk.CellRendererToggle()
-        renderer_toggle.set_radio(False)
-        renderer_toggle.connect("toggled", 
-            callback_method, 
-            store, section_type)
-
-
-        radio_column  = Gtk.TreeViewColumn(" ", renderer_toggle)
-        radio_column.add_attribute(renderer_toggle, 'active', 0)
-        treeview.append_column(radio_column) 
+        selection.set_mode(1)
 
         
         for i, column_title in enumerate(column_title_list) :
             renderer = Gtk.CellRendererText()
             column = Gtk.TreeViewColumn(
-                column_title, renderer, text=i+1)
+                column_title, renderer, text=i)
             treeview.append_column(column)
         
         treeview.show_all()
+        treeview.connect("row-activated", 
+            callback_method, 
+            store, section_type)
         tab.add(treeview)
 
     def display_course_code(self, tab):
@@ -649,14 +651,14 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     store object for storing course details
         '''
         
-        self.store = Gtk.ListStore(bool,str, str, str)
+        self.store = Gtk.ListStore(str, str, str)
         self.add_column_text(
             self.store, ' ', tab, 
             self.get_course_details, 
             ["COURSE CODE", "COURSE TITLE", "COMPRE DATES"])
         
         for match in self.match_list :
-            self.store.append([False] + list(match))        
+            self.store.append(list(match))        
         
     def get_course_details(self, widget, path, *data) :
         '''
@@ -671,13 +673,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 path : int
                     Integer whose value is the row index of the treeview object.
         '''
-        selected_path = Gtk.TreePath(path)
-        for row in self.store: #displays the tick in the checkbox
-            row[0] = (row.path == selected_path)
 
-        self.selected_course_code = self.store[path][1]
-        self.selected_course_title = self.store[path][2]
-        self.selected_compre_date = self.store[path][3]
+        self.selected_course_code = self.store[path][0]
+        self.selected_course_title = self.store[path][1]
+        self.selected_compre_date = self.store[path][2]
         match_parameter = (self.selected_course_code, self.selected_course_title)
         self.sobject.get_course_details(match_parameter)
 
@@ -747,7 +746,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             tab, self.update_timetable, 
             ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
         if dataframe.empty :
-            store.append([False, 'NA', 'NA', 'NA', '0'])
+            store.append(['NA', 'NA', 'NA', '0'])
 
         else :
             count = 0   
@@ -764,7 +763,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     count += 1
 
                 store.append([
-                    False, liststore_data_Section, 
+                    liststore_data_Section, 
                     liststore_data_Instructor, 
                     liststore_data_days, 
                     liststore_data_hours])
@@ -807,10 +806,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         date = self.sobject.midsem_date.split('/')[0]
         time = self.sobject.midsem_time
 
-        if time == '9.00 - 10.30AM' : time = 1
-        elif time == '11.00 - 12.30 PM' : time = 2
-        elif time == '1.30 -3.00 PM' : time = 3
-        elif time == '3.30 - 5.00 PM' : time = 4
+        if time == '9.00 -- 10.30 AM' : time = 1
+        elif time == '11.00 -- 12.30 PM' : time = 2
+        elif time == '1.30 -- 3.00 PM' : time = 3
+        elif time == '3.30 -- 5.00 PM' : time = 4
         
         try :
             MyWindow.Label_list_midsem[time][int(date) - 7].set_label(
@@ -820,7 +819,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         except :
             pass
  
-    def update_timetable(self, widget, path, store, section_type) :
+    def update_timetable(self, widget, path, treeview, store, section_type) :
         '''
         This is a callback method for Gtk.CellRendererToggle object. This 
         method also adds dialog box if a course is clashing with other courses or 
@@ -848,17 +847,13 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     Contains a list of all the course_code a user has opted for.  
         '''
         try :
-            selected_path = Gtk.TreePath(path)
-            for row in store:
-                row[0] = (row.path == selected_path)
-        
-            self.selected_section = store[path][1]
+            self.selected_section = store[path][0]
             if not self.selected_section :
                 self.selected_section = '1' 
 
-            self.selected_instructor = store[path][2]
-            self.selected_day = store[path][3].split()
-            self.selected_hour = store[path][4].split()
+            self.selected_instructor = store[path][1]
+            self.selected_day = store[path][2].split()
+            self.selected_hour = store[path][3].split()
 
             for i in range (len(self.selected_hour)) :
                 self.selected_hour[i] = int(self.selected_hour[i])
@@ -871,10 +866,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
              self.selected_course_title + ';' + \
              section_type + '-' + self.selected_section + ';' +\
              self.selected_instructor + ';' +\
-             store[path][3] + ';' + store[path][4] +\
+             store[path][2] + ';' + store[path][3] +\
              ';' + self.selected_compre_date
-
-
 
         except :
             pass
@@ -970,7 +963,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     elif col == 'S' : 
                         MyWindow.Label_list_weekly[int(row)][6].set_label('')
 
-            self.update_timetable(None, None, None, section_type)
+            self.update_timetable(None, None, None, None, section_type)
             
         elif response == Gtk.ResponseType.NO :
             pass    
