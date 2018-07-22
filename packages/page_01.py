@@ -363,8 +363,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 15, height = 1)
 
         self.compre_schedule = [
-        ['Sessions','01/05', '02/05', '03/05','04/05', '05/05', '06/05', \
-        '07/05', '08/05' ,'09/05', '10/05', '11/05', '12/05', '13/05', '14/05'],
+        ['Sessions','01/12', '02/12', '03/12','04/12', '05/12', '06/12', \
+        '07/12', '08/12' ,'09/12', '10/12', '11/12', '12/12', '13/12', '14/12'],
         ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',],
         ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]]
 
@@ -385,7 +385,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 7, height = 1)
 
         self.midsem_schedule = [
-        ['TIME/DATES', '05/03', '06/03', '07/03', '08/03', '09/03', '10/03'],
+        ['TIME/DATES', '08/10', '09/10', '10/10', '11/10', '12/10', '13/10'],
         ['9:00 - 10:30 AM', '', '', '', '', '', ''],
         ['11:00 - 12:30 AM', '', '', '', '', '', ''],
         ['1:30 - 3:00 PM', '', '', '', '', '', ''],
@@ -813,7 +813,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         elif time == '3.30 - 5.00 PM' : time = 4
         
         try :
-            MyWindow.Label_list_midsem[time][int(date) - 4].set_label(
+            MyWindow.Label_list_midsem[time][int(date) - 7].set_label(
                 label)
             #these statements will catch an exception when, there is either
                 #a null value or '*' in date or session variables. 

@@ -234,7 +234,7 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
             page_no = int (file.split('.')[0].split('-')[1]) 
             
             
-            if ( page_no >= 6 and page_no <= 45 ):
+            if ( page_no >= 6 and page_no <= 50 ):
                 
                 data = read_pdf(
                     input_path = os.path.join(path, file), 
@@ -250,7 +250,7 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                 data.to_sql(name = 'courses', con = self.database, 
                     index = False, if_exists = 'append')
 
-            if (page_no >= 46  and page_no <= 58 ) :
+            if (page_no >= 51  and page_no <= 64 ) :
                 data = read_pdf(
                     input_path = os.path.join(path, file),
                     pandas_options = {
