@@ -234,7 +234,7 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
             page_no = int (file.split('.')[0].split('-')[1]) 
             
             
-            if ( page_no >= 6 and page_no <= 45 ):
+            if ( page_no >= 6 and page_no <= 50 ):
                 
                 data = read_pdf(
                     input_path = os.path.join(path, file), 
@@ -250,7 +250,7 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                 data.to_sql(name = 'courses', con = self.database, 
                     index = False, if_exists = 'append')
 
-            if (page_no >= 46  and page_no <= 58 ) :
+            if (page_no >= 51  and page_no <= 64 ) :
                 data = read_pdf(
                     input_path = os.path.join(path, file),
                     pandas_options = {
@@ -264,9 +264,9 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                     data = data.loc[:, [1,2,3,4]]
                 else : 
                     data = data.loc[:, [1,2,4,5]]
-                #This if statement is called only because of the 
-                #errors caused when converting the pdf in dataframe
-                #on same pages.
+                # This if statement is called only because of the 
+                # errors caused when converting the pdf in dataframe
+                # on same pages.
                 
                 data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
                 data.to_sql(name = 'midsem', con = self.database,
