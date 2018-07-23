@@ -114,7 +114,7 @@ SEARCH              page01 :                                Gtk.Grid
 --------------------------------------------------------------------------------                            
 MY COURSES       page02 :                                Gtk.Grid
                         self.page02_window :                Gtk.ScrolledWindow
-                        self.remove_button :                Gtk.Button
+                        self.remove_label :                Gtk.Button
 --------------------------------------------------------------------------------
 OPTIONS             self.menu_button :                      Gtk.MenuButton
                         self.menu :                         Gtk.Menu
@@ -242,20 +242,23 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         self.page02 = Gtk.Grid()
         self.page02_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
-        self.page02.attach(child = self.page02_window, 
+
+        self.remove_label = Gtk.Label(
+            "DOUBLE CLICK ON THE COURSE YOU WANT TO DELETE")
+
+        self.page02.attach(child = self.remove_label, 
             left = 0, top = 0, width = 1, height = 1)
 
-        self.remove_button = Gtk.Button(
-            "SELECT THE COURSE YOU WANT TO DELETE AND PRESS THIS BUTTON TO CONTINUE")
-        self.page02.attach_next_to(child = self.remove_button, 
-            sibling = self.page02_window, 
+        self.page02.attach_next_to(child = self.page02_window, 
+            sibling = self.remove_label, 
             side = Gtk.PositionType(3), 
             width = 1, height = 1)
 
 
+
         
-        self.remove_button.connect('clicked', self.remove_course)        
-        self.catalog_store = Gtk.ListStore(bool, str, str, str, str, str, str, str)
+        #self.remove_label.connect('clicked', self.remove_course)        
+        self.catalog_store = Gtk.ListStore(str, str, str, str, str, str, str)
         self.catalog_info = []
         self.notebook.append_page(self.page02, Gtk.Label('MY COURSES'))
 
@@ -682,7 +685,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         for row in self.catalog_store :
             compre_date = row[-1]
-            if compre_date == self.selected_compre_date :
+            if compre_date == self.selected_compre_date\
+            and self.selected_course_code != row[0] :
                 self.handle_compre_date()
                 break
 
@@ -1047,67 +1051,64 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     MyWindow.Label_list_weekly[row][6].set_label(self.text_to_display)
 
 
-    def remove_course(self, widget, data = None) :
+    def remove_course(self, widget, path, treeview, store, section_type) :
         '''
         This method is called to remove the courses selected in the catalog page. This 
-        is also a callback method for Gtk.Button (self.remove_button). This method also shows 
+        is also a callback method for Gtk.Button (self.remove_label). This method also shows 
         dialog box warning the user to confirm before removing a course.
         '''
+        row = store[path]
+        remove_course_title = row[1]
+        remove_course_code = row[0]
+        remove_section = row[2]
+        remove_hour = row[-2]
+        remove_day = row[-3]
+        remove_compre= row[-1]
 
-        for row in self.catalog_store :
-            if row[0] == True :
-                remove_course_title = row[2]
-                remove_course_code = row[1]
-                remove_section = row[3]
-                remove_hour = row[-2]
-                remove_day = row[-3]
-                remove_compre= row[-1]
-
-                dialog = Gtk.MessageDialog(self, 0, 
-                    Gtk.MessageType.WARNING,
-                    Gtk.ButtonsType.OK_CANCEL, 
-                    "You are about to remove the selected course")
-                
-                dialog.format_secondary_text(
-                    "Press OK to continue or CANCEL to abort")
-                
-                response = dialog.run()
-                
-                if response == Gtk.ResponseType.OK:
-                    for col in remove_day.split() :
-                        for row in remove_hour.split() :
-                            if col == 'M' :
-                                MyWindow.Label_list_weekly[int(row)][1].set_label('')
-                            elif col == 'T' :
-                                MyWindow.Label_list_weekly[int(row)][2].set_label('')
-                            elif col == 'W' :
-                                MyWindow.Label_list_weekly[int(row)][3].set_label('')
-                            elif col == 'Th' :
-                                MyWindow.Label_list_weekly[int(row)][4].set_label('')
-                            elif col == 'F' :
-                                MyWindow.Label_list_weekly[int(row)][5].set_label('')
-                            elif col == 'S' :
-                                MyWindow.Label_list_weekly[int(row)][6].set_label('')
+        dialog = Gtk.MessageDialog(self, 0, 
+            Gtk.MessageType.WARNING,
+            Gtk.ButtonsType.OK_CANCEL, 
+            "You are about to remove the selected course")
+        
+        dialog.format_secondary_text(
+            "Press OK to continue or CANCEL to abort")
+        
+        response = dialog.run()
+        
+        if response == Gtk.ResponseType.OK:
+            for col in remove_day.split() :
+                for row in remove_hour.split() :
+                    if col == 'M' :
+                        MyWindow.Label_list_weekly[int(row)][1].set_label('')
+                    elif col == 'T' :
+                        MyWindow.Label_list_weekly[int(row)][2].set_label('')
+                    elif col == 'W' :
+                        MyWindow.Label_list_weekly[int(row)][3].set_label('')
+                    elif col == 'Th' :
+                        MyWindow.Label_list_weekly[int(row)][4].set_label('')
+                    elif col == 'F' :
+                        MyWindow.Label_list_weekly[int(row)][5].set_label('')
+                    elif col == 'S' :
+                        MyWindow.Label_list_weekly[int(row)][6].set_label('')
 
 
-                    count = 0
-                    for strings in self.catalog_info :
-                        if remove_course_code in strings :
-                            count += 1
+            count = 0
+            for strings in self.catalog_info :
+                if remove_course_code in strings :
+                    count += 1
 
-                        if remove_course_code in strings \
-                        and remove_section in strings :
-                            self.catalog_info.remove(strings)
-                    
-                    if count == 1:
-                        MyWindow.added_courses.remove(remove_course_code)
+                if remove_course_code in strings \
+                and remove_section in strings :
+                    self.catalog_info.remove(strings)
+            
+            if count == 1:
+                MyWindow.added_courses.remove(remove_course_code)
 
-                    self.add_to_catalog()
-                    dialog.destroy()
-                    break
-                
-                elif response == Gtk.ResponseType.CANCEL:
-                    dialog.destroy()
+            self.add_to_catalog()
+            dialog.destroy()
+
+        elif response == Gtk.ResponseType.CANCEL:
+            dialog.destroy()
 
         if remove_course_code not in MyWindow.added_courses :
             session = remove_compre.split()[-1]
@@ -1151,12 +1152,12 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         '''
         self.add_column_text(
             self.catalog_store, None,
-            self.page02_window, self.set_active,
+            self.page02_window, self.remove_course,
             ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'DAYS', 'HOURS', 'COMPRE DATE'])
-    
 
+        self.catalog_info.sort()
         for row in self.catalog_info :
-            self.catalog_store.append([False] + row.split(';'))
+            self.catalog_store.append(row.split(';'))
 
     def main_quit(self, widget, event) :
         '''
