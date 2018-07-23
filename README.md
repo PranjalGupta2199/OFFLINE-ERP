@@ -1,6 +1,7 @@
 # Offline ERP for BPHC 
 Tired of making your timetable on paper ? Offline ERP is here to help you !!
-This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable.  
+This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable. 
+**_Note : This App has been tested for linux systems only._**
 
 ## Features
 It allows you to - 
@@ -50,7 +51,7 @@ You are going to need the following libraries :
 - reportlab
 
 ## Installation
-gi - Click on this [link](http://pygobject.readthedocs.io/en/latest/getting_started.html) to install the package for your os.
+**GI** - Click on this [link](http://pygobject.readthedocs.io/en/latest/getting_started.html) to install the package for your os.
 
  
 Move to repo's directory for the following command.
@@ -80,9 +81,9 @@ Note :
 4. If you want to run this app with a new pdf, follow Note pt 2.
 
 
-##### Help :
+### Help :
 1. If there are no sections available for a particular course, the list will display NA. You can select NA to automatically move onto the next page or
-  you can manually select the same.
+  you can manually select the class type.
 2. You need to remove all the section(s) associated with a particular course to delete it from exam timetable.
 3. If you want to change a section of a course which you have already opted, search the course and directly select the section you want.
 
