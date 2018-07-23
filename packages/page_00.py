@@ -264,9 +264,9 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
                     data = data.loc[:, [1,2,3,4]]
                 else : 
                     data = data.loc[:, [1,2,4,5]]
-                #This if statement is called only because of the 
-                #errors caused when converting the pdf in dataframe
-                #on same pages.
+                # This if statement is called only because of the 
+                # errors caused when converting the pdf in dataframe
+                # on same pages.
                 
                 data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
                 data.to_sql(name = 'midsem', con = self.database,

@@ -16,20 +16,18 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 
 class MyWindow(Gtk.Window):
     '''
-    This class is for creating gui for the second page of the application.
-    The main window consists of 5 main pages 
-    (YOUR SCHEDULE , COURSE CATALOG, SEARCH, MY COURSES, OPTIONS). 
+    This class is for creating UI for the second page of the application.
+    The main window consists of 4 main pages 
+    (YOUR SCHEDULE , COURSE CATALOG, MY COURSES, OPTIONS). 
 
     The variables for the the pages are : 
-        page00_weekly_window, page01
+        self.pane, page01
 
-    The 1st page displays your schedule. This page has threE tabs - 
+    The 1st page displays your schedule and lets you search your courses. 
+    This page contains 2 panes.The 1st pane has three tabs -
     WEEKLY, COMPRE AND MISEM, containing their respective schedules.
 
-    The 2nd page shows all the courses available, i.e. all the courses offered
-    to students this sem.
-
-    The 3rd page allows you to search and select courses for your timetable.
+    The 2nd pane allows you to search and select courses for your timetable.
     It contains a SearchBar, a Search Button and another notebook which has 
     4 pages (COURSES, LECTURE, PRACTICAL, TUTORIAL). 
     COURSES tab : Displays your matching results
@@ -38,11 +36,15 @@ class MyWindow(Gtk.Window):
     TUTORIAL tab : Displays the available tutorial sections for your desired course
         (all the above tabs will remain empty if there are no available sections)
     
-    The 4th page shows all the details of the courses which you have selected
+
+    The 2nd page shows all the courses available, i.e. all the courses offered
+    to students this sem.
+
+    The 3rd page shows all the details of the courses which you have selected
     for your timetable. This page also allows you to delete some of them, if 
     you don't want them in your timetable
 
-    The 5th page in the window opens a dropdown menu with options such clear_all 
+    The 4th page in the window opens a dropdown menu with options such clear_all 
     (if you want to start afresh), save_pdf (if you want to save your work), 
     open_last_work (if you plan to work on your last timetable).
 
@@ -60,14 +62,13 @@ class MyWindow(Gtk.Window):
         get_course_details (self, widget, path, data = None)
         handle_compre_date (self) 
         display_sections (self, dataframe, store, section_type) 
-        update_timetable (self, widget, path, store, section_type)
+        update_timetable (self, widget, path, treecolumn, store, section_type)
         update_compre_schedule (self, compre_date, label)
         update_midsem_schedule (self, match_parameter, label) 
         handle_section_change(self, row, section_type) 
         handle_clash_change(self, row)
         add_to_timetable(self) 
-        remove_course(self, widget, button) 
-        set_active(self, widget, path, store, data) 
+        remove_course(self, widget, path, treecolumn, store, *data) 
         add_to_catalog(self) 
         main_quit(self) 
         save_list(self) 
@@ -93,16 +94,19 @@ class MyWindow(Gtk.Window):
 
                 self.notebook :                             Gtk.NoteBook
 -------------------------------------------------------------------------------                
-YOUR SCHEDULE       page00_notebook :                       Gtk.Notebook
-                        self.page00_weekly :                Gtk.Grid
-                        self.page00_compre :                Gtk.Grid
-                            compre_label   :                Gtk.Label
-                        self.page00_midsem :                Gtk.Grid
-                            midsem_label   :                Gtk.Label
---------------------------------------------------------------------------------                            
-COURSE CATALOG      self.all_courses_window :               Gtk.ScrolledWindow
-                        self.all_course_store :             Gtk.ListStore
----------------------------------------------------------------------------------
+YOUR SCHEDULE   self.pane :                                 Gtk.Paned            
+                    page00_notebook :                       Gtk.Notebook
+                        page00_weekly_window :              Gtk.ScrolledWindow
+                            self.page00_weekly :                Gtk.Grid
+                        page00_weekly_window :              Gtk.ScrolledWindow
+                            self.page00_compre :                Gtk.Grid
+                                compre_label   :                Gtk.Label
+                        page00_weekly_window :              Gtk.ScrolledWindow
+                            self.page00_midsem :                Gtk.Grid
+                                midsem_label   :                Gtk.Label
+
+                        x-x-x-x-x-x-x HORIZONTAL PANE x-x-x-x-x-x-x
+
 SEARCH              page01 :                                Gtk.Grid
                         self.SearchBar :                    Gtk.SearchEntry
                         self.SearchButton :                 Gtk.Button
@@ -112,6 +116,9 @@ SEARCH              page01 :                                Gtk.Grid
                             self.page01_tutorial_tab :      Gtk.ScrolledWindow
                             self.page01_practical_tab :     Gtk.ScrolledWindow
 --------------------------------------------------------------------------------                            
+COURSE CATALOG      self.all_courses_window :               Gtk.ScrolledWindow
+                        self.all_course_store :             Gtk.ListStore
+---------------------------------------------------------------------------------                          
 MY COURSES       page02 :                                Gtk.Grid
                         self.page02_window :                Gtk.ScrolledWindow
                         self.remove_label :                Gtk.Button
@@ -124,7 +131,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 ---------------------------------------------------------------------------------
 
                 
-                Other variables : \
+                Other variables : 
                     self.sobject : search.Searching () instance
                     
                     self.save_count : int
@@ -164,40 +171,37 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.save_count = 0
         self.element = []
 
-        page00_notebook = Gtk.Notebook()
-
         self.pane = Gtk.Paned()
+        page00_notebook = Gtk.Notebook()
 
         page00_weekly_window = Gtk.ScrolledWindow(hexpand=True)
         self.page00_weekly = Gtk.Grid()
         self.page00_weekly.set_row_homogeneous(True)
         self.page00_weekly.set_column_homogeneous(True)
         page00_weekly_window.add(self.page00_weekly)
-        page00_notebook.append_page(page00_weekly_window, Gtk.Label('WEEKLY SCHEDULE'))
 
         page00_compre_window = Gtk.ScrolledWindow(hexpand=True)
         self.page00_compre = Gtk.Grid()
         self.page00_compre.set_row_homogeneous(True)
         self.page00_compre.set_column_homogeneous(True)
         page00_compre_window.add(self.page00_compre)
-        page00_notebook.append_page(page00_compre_window, Gtk.Label('COMPRE SCHEDULE'))
 
         page00_midsem_window = Gtk.ScrolledWindow(hexpand=True)
         self.page00_midsem = Gtk.Grid()
         self.page00_midsem.set_row_homogeneous(True)
         self.page00_midsem.set_column_homogeneous(True)
         page00_midsem_window.add(self.page00_midsem)
-        page00_notebook.append_page(page00_midsem_window, Gtk.Label('MIDSEM SCHEDULE'))
+
+
+        page00_notebook.append_page(page00_weekly_window, 
+            Gtk.Label('WEEKLY SCHEDULE'))
+        page00_notebook.append_page(page00_compre_window, 
+            Gtk.Label('COMPRE SCHEDULE'))
+        page00_notebook.append_page(page00_midsem_window, 
+            Gtk.Label('MIDSEM SCHEDULE'))
 
         self.notebook.append_page(self.pane, Gtk.Label("MY SCHEDULE"))
         self.create_timetable()
-
-
-        self.all_course_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
-        self.all_course_store = Gtk.ListStore(str, str, str)
-        self.display_all_courses(['COURSE CODE', 'COURSE TITLE', 'COMPRE DATES'])
-        self.notebook.append_page(self.all_course_window, Gtk.Label('COURSE CATALOG'))
-        
 
         page01 = Gtk.Grid()
         self.SearchBar = Gtk.SearchEntry()
@@ -238,8 +242,11 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.page01_notebook.append_page(
             self.page01_tut_tab, Gtk.Label("TUTORIAL"))
 
-#        self.notebook.append_page(page01, Gtk.Label("SEARCH"))
-
+        self.all_course_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
+        self.all_course_store = Gtk.ListStore(str, str, str)
+        self.display_all_courses(['COURSE CODE', 'COURSE TITLE', 'COMPRE DATES'])
+        self.notebook.append_page(self.all_course_window, Gtk.Label('COURSE CATALOG'))
+        
         self.page02 = Gtk.Grid()
         self.page02_window = Gtk.ScrolledWindow(hexpand = True, vexpand = True)
 
@@ -255,13 +262,11 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             width = 1, height = 1)
 
 
-
-        
-        #self.remove_label.connect('clicked', self.remove_course)        
         self.catalog_store = Gtk.ListStore(str, str, str, str, str, str, str)
         self.catalog_info = []
         self.notebook.append_page(self.page02, Gtk.Label('MY COURSES'))
 
+        
         self.menu = Gtk.Menu()
 
         clear_all_menu = Gtk.MenuItem("Clear all enteries")
@@ -791,8 +796,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         try :
             MyWindow.Label_list_compre[session][int(date[0])].set_label(
             label)
-            #these statements will catch an exception when, there is either
-            #a null value or '*' in date or session variables. 
+            # these statements will catch an exception when, there is either
+            # a null value or '*' in date or session variables. 
 
         except : 
             pass
@@ -818,12 +823,12 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         try :
             MyWindow.Label_list_midsem[time][int(date) - 7].set_label(
                 label)
-            #these statements will catch an exception when, there is either
-                #a null value or '*' in date or session variables. 
+            # these statements will catch an exception when, there is either
+                # a null value or '*' in date or session variables. 
         except :
             pass
  
-    def update_timetable(self, widget, path, treeview, store, section_type) :
+    def update_timetable(self, widget, path, treecolumn, store, section_type) :
         '''
         This is a callback method for Gtk.CellRendererToggle object. This 
         method also adds dialog box if a course is clashing with other courses or 
@@ -832,6 +837,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             @parameters :
                 path : int
                     Row index of the treeview object which is selected.
+                treecolumn : Gtk.TreeViewColumn
                 store : Gtk.ListStore
                     Contains the details of all the available choices.
                 section_type : str
@@ -1051,12 +1057,13 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     MyWindow.Label_list_weekly[row][6].set_label(self.text_to_display)
 
 
-    def remove_course(self, widget, path, treeview, store, section_type) :
+    def remove_course(self, widget, path, treeview, store, *data) :
         '''
         This method is called to remove the courses selected in the catalog page. This 
         is also a callback method for Gtk.Button (self.remove_label). This method also shows 
         dialog box warning the user to confirm before removing a course.
         '''
+
         row = store[path]
         remove_course_title = row[1]
         remove_course_code = row[0]
@@ -1093,16 +1100,20 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
 
             count = 0
+            remove_string = ''
             for strings in self.catalog_info :
                 if remove_course_code in strings :
                     count += 1
 
                 if remove_course_code in strings \
                 and remove_section in strings :
-                    self.catalog_info.remove(strings)
-            
+                    remove_string = strings
+
+
             if count == 1:
                 MyWindow.added_courses.remove(remove_course_code)
+            
+            self.catalog_info.remove(remove_string)
 
             self.add_to_catalog()
             dialog.destroy()
@@ -1113,7 +1124,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         if remove_course_code not in MyWindow.added_courses :
             session = remove_compre.split()[-1]
             date = remove_compre.split()[0].split('/')[0]
-
             if session == 'AN' : session = 2
             elif session == 'FN' : session = 1
 
@@ -1122,28 +1132,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             self.update_midsem_schedule(
                 match_parameter = (remove_course_code, remove_course_title),
                 label = '')
-
-
-    def set_active(self, widget, path, store, *data) :
-        '''
-        This method activates the desired row in the catalog_store. This is a callback 
-        method for CellRendererToggle (in the Catalog page).
-
-            @parameters :
-                path : int 
-                    Contains the index of the selected row from the catalog_store
-                store : Gtk.ListStore
-                data : default = None
-                    Other data can be passed to this parameter if the method needs it.
-
-            @variables :
-                selected_path : Gtk.TreePath
-        '''
-        selected_path = Gtk.TreePath(path)
-        for row in store:
-            row[0] = (row.path == selected_path)
-        
-
 
     def add_to_catalog(self) :
         '''
@@ -1169,10 +1157,11 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             dialog = Gtk.MessageDialog(self, 0,
                 Gtk.MessageType.QUESTION,
                 Gtk.ButtonsType.YES_NO,
-                'You have unsaved work.')
+                'Your Timetable has been saved. You can resume this' +\
+               ' work again next time.')
 
             dialog.format_secondary_text(
-                'Press YES to Save or No to Quit')
+                'Do you want to save it in pdf format ?')
 
             response = dialog.run()
 
@@ -1247,15 +1236,3 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         
         except IOError :
             pass
-        
-
-
-
-
-        
-
-
-
-
-        
-
