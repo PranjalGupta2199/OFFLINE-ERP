@@ -301,7 +301,9 @@ so wait as long as the spinner shows on the window.Then click on NEXT to move on
         the window is closed before going on to the next page.
 
         '''
-        os.rmdir('Pages')
+        for file in os.listdir('Pages') :
+            os.remove(os.path.join('Pages', file))
+        os.rmdir("Pages")        
         try :
             os.remove(os.path.join(os.getcwd(),'packages/courses.db'))
         except : 
