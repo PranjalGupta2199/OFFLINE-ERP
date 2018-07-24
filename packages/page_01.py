@@ -378,7 +378,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         compre_label.set_markup(
             "<big> <b> COMPREHENSIVE EXAMINATION </b> </big>")
         self.page00_compre.attach(child = compre_label,
-            left = 0, top = 0, width = 15, height = 1)
+            left = 0, top = 0, width = 3, height = 1)
 
         self.compre_schedule = [
         ['Sessions','01/12', '02/12', '03/12','04/12', '05/12', '06/12', \
@@ -389,7 +389,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         for row in range(len(self.compre_schedule)) :
             for col in range (len(self.compre_schedule[row])) :
                 label = Gtk.Label(label = self.compre_schedule[row][col])
-                self.page00_compre.attach(child = label, left = col, top = row + 1,\
+                self.page00_compre.attach(child = label, left = row, top = col + 1,\
                     width = 1 , height = 1)
                 l.append(label)
             MyWindow.Label_list_compre.append(l)
@@ -400,7 +400,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         midsem_label.set_markup(
             "<big> <b> MID SEMESTER EXAMINATION </b> </big>")
         self.page00_midsem.attach(child = midsem_label,
-            left = 0, top = 0, width = 7, height = 1)
+            left = 0, top = 0, width = 5, height = 1)
 
         self.midsem_schedule = [
         ['TIME/DATES', '08/10', '09/10', '10/10', '11/10', '12/10', '13/10'],
@@ -409,11 +409,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         ['1:30 - 3:00 PM', '', '', '', '', '', ''],
         ['3:30 - 5:00 PM', '', '', '', '', '', '']]
 
-
         for row in range(len(self.midsem_schedule)) :
             for col in range (len(self.midsem_schedule[row])) :
                 label = Gtk.Label(label = self.midsem_schedule[row][col])
-                self.page00_midsem.attach(child = label, left = col, top = row + 1,\
+                self.page00_midsem.attach(child = label, left = row, top = col + 1,\
                     width = 1 , height = 1)
                 l.append(label)
             MyWindow.Label_list_midsem.append(l)
