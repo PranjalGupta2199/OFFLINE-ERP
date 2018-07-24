@@ -807,13 +807,14 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         Adds entry to midsem schedule.
             @parameter :
                 match_paramter : tuple
-                    tuple of strings (course code, course title)
+                    tuple of string (course code,)
                 label : The text to be displayed in the schedule.
         '''
         self.sobject.get_midsem_details(match_parameter)
         date = self.sobject.midsem_date.split('/')[0]
         time = self.sobject.midsem_time
 
+        print date, time
         if time == '9.00 -- 10.30 AM' : time = 1
         elif time == '11.00 -- 12.30 PM' : time = 2
         elif time == '1.30 -- 3.00 PM' : time = 3
@@ -931,8 +932,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.update_compre_schedule(self.selected_compre_date, \
                 label = self.selected_course_code)
         self.update_midsem_schedule(
-            match_parameter = (self.selected_course_code, \
-                self.selected_course_title),
+            match_parameter = (self.selected_course_code,),\
             label = self.selected_course_code)
     
     def handle_section_change(self, row, section_type) :
@@ -1129,7 +1129,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             MyWindow.Label_list_compre[session][int(date)].set_label('')
 
             self.update_midsem_schedule(
-                match_parameter = (remove_course_code, remove_course_title),
+                match_parameter = (remove_course_code,),\
                 label = '')
 
     def add_to_catalog(self) :
@@ -1226,7 +1226,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     label = course_code)
                 
                 self.update_midsem_schedule(
-                    match_parameter = (course_code, course_title),
+                    match_parameter = (course_code,),
                     label = course_code)
 
                 if course_code not in MyWindow.added_courses :

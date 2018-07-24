@@ -105,7 +105,7 @@ class Searching:
         
             @parameter : 
                 match_paramter : tuple
-                    A tuple of strings (course code, course title)
+                    A tuple of strings (course code,),
 
             @variables : 
                 midsem_info : tuple 
@@ -118,9 +118,9 @@ class Searching:
         '''
 
         midsem_info = self.cursor.execute(
-            "SELECT * FROM midsem WHERE COURSE_CODE == ? \
-            AND COURSE_TITLE == ?", match_parameter).fetchone()
-
+            "SELECT * FROM midsem WHERE COURSE_CODE == ?", \
+            match_parameter).fetchone()
+        
         self.midsem_date, self.midsem_time = midsem_info[-2], midsem_info[-1]
 
 
