@@ -61,24 +61,33 @@ Move to repo's directory using the following command.
 
 Run this command to install the remaining dependencies : 
 
-    pip install -r requirements.txt --ignore-installed 
+    pip install --user -r requirements.txt --ignore-installed 
 
 ## Deployment 
 Run this command after following all the steps above.
 
 ```python
-python main.py 
+python2 main.py 
 ```
 Note :
 1. You need to run the above command everytime you want to use the app. 
-2. The app will take sometime when using it for the first time. If you close the window during the process, run these commands :
-    ```bash
-        $ rm -r Pages/
-        $ rm packages/courses.db
-    ```
-    Run the python command again.
-3. If you face any difficulty, please go through this [page.](https://github.com/chezou/tabula-py) If the problem persists, report it in the Issues Page.
-4. If you want to run this app with a new pdf, follow Note pt 2.
+2. The app will take sometime when using it for the first time. If you close the window during the process. Run the python command again.
+3. If you face any difficulty related to tabula, please go through this [page.](https://github.com/chezou/tabula-py) If the problem persists, report it in the Issues Page.
+4. If you want to run this app with a new pdf, run these commands : 
+```bash
+    $ rm -r Pages/
+    $ rm packages/courses.db
+    $ python2 main.py
+```
+5. Use only pip2 (for python 2.x version).
+6. If you come across the error below, try this [link.](https://stackoverflow.com/questions/49836676/error-after-upgrading-pip-cannot-import-name-main)
+```bash
+  File "usr/bin/pip", line 9, in <module>
+    from pip import main
+  ImportError : cannot import name 'main'
+
+```
+
 
 
 ## Help :
