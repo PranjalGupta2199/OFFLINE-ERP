@@ -17,15 +17,6 @@ You can view your :
   - List of all the available courses 
   - Opted courses.
 
-##### Note :
-1. This app works only for python 2.x versions because tabula-py is not available for python 3.x versions
-2. Please install Java as tabula requires it. 
-    To verify if Java is installed , type 
-    ```bash
-    $ java 
-    ```
-    on your terminal/command prompt.
-    You can install it from this [link.](https://java.com/en/download/help/download_options.xml)
 
 ## Getting Started
 You need to install these :
@@ -63,13 +54,26 @@ Run this command to install the remaining dependencies :
 
     pip install --user -r requirements.txt --ignore-installed 
 
+
+### Note :
+1. This app works only for python 2.x versions because tabula-py is not available for python 3.x versions
+2. Please install Java as tabula requires it. 
+    To verify if Java is installed , type 
+    ```bash
+    $ java 
+    ```
+    on your terminal/command prompt.
+    You can install it from this [link.](https://java.com/en/download/help/download_options.xml)
+
+
+
 ## Deployment 
 Run this command after following all the steps above.
 
 ```python
 python2 main.py 
 ```
-Note :
+### Note :
 1. You need to run the above command everytime you want to use the app. 
 2. The app will take sometime when using it for the first time. If you close the window during the process. Run the python command again.
 3. If you face any difficulty related to tabula, please go through this [page.](https://github.com/chezou/tabula-py) If the problem persists, report it in the Issues Page.
