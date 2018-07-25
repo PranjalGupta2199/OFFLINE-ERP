@@ -1,12 +1,13 @@
-# Offline ERP for BPHC 
-Tired of making your timetable on paper ? Offline ERP is here to help you !!
+![readme-demo](https://github.com/PranjalGupta2199/OFFLINE-ERP/blob/Develop/media/readme-demo.gif)
+# OFFLINE ERP  
+Tired of making your timetable on paper ? OFFLINE ERP is here to help you !!
 This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable. 
 
 **_Note : This App has been tested for linux systems only._**
 
 **This app works only for python 2.x versions because tabula-py is not available for python 3.x versions**
 
-**Please go through the Note Section at the end. It contains the most common errors and tips which you should keep in mind while using it.**
+**Please go through the Note Section at the end. It contains some common errors and tips which you should keep in mind while using it.**
 
 ## Features
 It allows you to - 
@@ -35,6 +36,7 @@ This app will give you warnings/ dialog box :
   you can manually select the class type.
 3. You need to remove all the section(s) associated with a particular course to delete it from exam timetable.
 4. If you want to change a section of a course which you have already opted, search the course and directly select the section you want.
+5. You can open your last saved/unsaved work using the settings button on the top.
 
 
 
@@ -85,7 +87,8 @@ python2 main.py
 1. Use only pip (for python 2.x version).
 2. You need to run the above command everytime you want to use the app. 
 3. The app will take sometime (usually 2-3 minutes) when using it for the first time. If it takes more time than that expected, close the window and run the python command again.
-4. Please install Java as tabula requires it. 
+4. Please install Java as tabula requires it. (Confirmed working with Java 7 and 8)
+
     To verify if Java is installed , type 
     ```bash
     $ java 
@@ -128,9 +131,9 @@ python2 main.py
 
 9. You might come across something called as AbstractMethodError such as this :
 ```bash
-    ImportError: cannot import name AbstractMethodEror
+    ImportError: cannot import name AbstractMethodError
 ```
-This is due to pandas version. Roll back to any previous version of pandas and try running the app.
+  Roll back to any previous version of pandas and try running the app.
 
 
 ## Author
