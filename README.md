@@ -56,7 +56,7 @@ Run this command to install the remaining dependencies :
 
 
 ### Note :
-1. This app works only for python 2.x versions because tabula-py is not available for python 3.x versions
+1. **This app works only for python 2.x versions because tabula-py is not available for python 3.x versions**
 2. Please install Java as tabula requires it. 
     To verify if Java is installed , type 
     ```bash
@@ -91,7 +91,16 @@ python2 main.py
   ImportError : cannot import name 'main'
 
 ```
-
+7. If you come across this error, try installing Java. If the problem still persists, go to the link given in pt 3.
+```bash
+  File "/home/<username>/.local/lib/python2.7/site-packages/tabula/wrapper.py", line 87, in read_pdf
+    output = subprocess.check_output(args)
+  File "/usr/lib/python2.7/subprocess.py", line 394, in __init__
+    errread, errwrite)
+  File "/usr/lib/python2.7/subprocess.py", line 1047, in _execute_child
+    raise child_exception
+  OSError: [Errno 2] No such file or directory
+```
 
 
 ## Help :
