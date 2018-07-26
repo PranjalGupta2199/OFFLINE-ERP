@@ -86,6 +86,8 @@ Run this command to install the remaining dependencies :
 ```
 * Navigate to `http://localhost:6080`
 
+**Note: Save any files to `/root/time-table` folder. It gets synced to host machine's current directory.**
+
 ## Deployment 
 Run this command after following all the steps above.
 
