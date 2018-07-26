@@ -64,6 +64,7 @@ You are going to need the following libraries :
 - reportlab
 
 ## Installation
+### Build from Source
 **GI** - Click on this [link](http://pygobject.readthedocs.io/en/latest/getting_started.html) to install the package for your os.
 
  
@@ -75,7 +76,15 @@ Move to repo's directory using the following command.
 Run this command to install the remaining dependencies : 
 
     pip install --user -r requirements.txt --ignore-installed 
-
+### Using Docker
+* Make sure docker is installed on your system. If you are on Windows 10, you can use WSL.
+* Create a new folder (Lets say `offline-erp`)
+* Put the timetable pdf in that folder
+```
+  cd offline-erp
+  docker run -v `pwd`:/root/time-table -p 6080:80 --rm kbharadwaj/offline-erp
+```
+* Navigate to `http://localhost:6080`
 
 ## Deployment 
 Run this command after following all the steps above.
