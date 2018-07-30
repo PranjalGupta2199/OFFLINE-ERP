@@ -242,10 +242,10 @@ Then when you have verified the path, click on OKAY button. This process may tak
                     'header' : None, 
                     'skiprows' : [0,1,2,3,4,5], 
                     'keep_default_na' : False,
-                    'usecols' : [1,2,4,5,7,8,10]})
+                    'usecols' : [1,2,4,5,6,7,8,10]})
                
                 data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'SECTION', 
-                'INSTRUCTOR', 'DAY', 'HOURS', 'COMPRE_DATE']
+                'INSTRUCTOR', 'ROOM', 'DAY', 'HOURS', 'COMPRE_DATE']
                 
                 data.to_sql(name = 'courses', con = self.database, 
                     index = False, if_exists = 'append')

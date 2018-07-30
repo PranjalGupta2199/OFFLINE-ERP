@@ -229,9 +229,9 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.pane.pack1(page00_notebook, True, False)
         self.pane.pack2(page01, True, False)
         
-        self.lec_store = Gtk.ListStore(str, str, str, str)
-        self.prac_store = Gtk.ListStore(str, str, str, str)
-        self.tut_store = Gtk.ListStore(str, str, str, str)
+        self.lec_store = Gtk.ListStore(str, str, str, str, str)
+        self.prac_store = Gtk.ListStore(str, str, str, str, str)
+        self.tut_store = Gtk.ListStore(str, str, str, str, str)
 
         self.page01_notebook.append_page(
             self.page01_course_tab, Gtk.Label("COURSE"))
@@ -262,7 +262,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             width = 1, height = 1)
 
 
-        self.catalog_store = Gtk.ListStore(str, str, str, str, str, str, str)
+        self.catalog_store = Gtk.ListStore(str, str, str, str, str, str, str, str)
         self.catalog_info = []
         self.notebook.append_page(self.page02, Gtk.Label('MY COURSES'))
 
@@ -505,10 +505,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
             para = Paragraph("LEGENDS", normal)
             self.element.append(para)
-            user_data = [['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR']]
+            user_data = [['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'ROOM']]
             for row in self.catalog_info :
                 data = row.split(';')
-                user_data.append([data[0], data[1], data[2], data[3]])
+                user_data.append([data[0], data[1], data[2], data[3], data[4]])
             table = Table(data = user_data)
             table.setStyle(TableStyle([
                                     ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
@@ -752,17 +752,19 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.add_column_text(
             store, section_type, 
             tab, self.update_timetable, 
-            ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
+            ["SECTION", "INSTRUCTOR", "ROOM", "DAYS", "HOURS"])
         if dataframe.empty :
-            store.append(['NA', 'NA', 'NA', '0'])
+            store.append(['NA', 'NA', 'NA', 'NA', '0'])
 
         else :
             count = 0   
             while count <= len(dataframe) - 1:  
                 liststore_data_Section = dataframe.iloc[count][2] 
                 liststore_data_Instructor = dataframe.iloc[count][3]
-                liststore_data_days = dataframe.iloc[count][4]
-                liststore_data_hours = dataframe.iloc[count][5]
+                liststore_data_room = dataframe.iloc[count][4]
+                liststore_data_days = dataframe.iloc[count][5]
+                liststore_data_hours = dataframe.iloc[count][6]
+
 
                 count += 1
 
@@ -773,6 +775,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 store.append([
                     liststore_data_Section, 
                     liststore_data_Instructor, 
+                    liststore_data_room,
                     liststore_data_days, 
                     liststore_data_hours])
                 
@@ -860,9 +863,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             if not self.selected_section :
                 self.selected_section = '1' 
 
+            self.selected_room = store[path][2]
             self.selected_instructor = store[path][1]
-            self.selected_day = store[path][2].split()
-            self.selected_hour = store[path][3].split()
+            self.selected_day = store[path][3].split()
+            self.selected_hour = store[path][4].split()
 
             for i in range (len(self.selected_hour)) :
                 self.selected_hour[i] = int(self.selected_hour[i])
@@ -875,7 +879,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
              self.selected_course_title + ';' + \
              section_type + '-' + self.selected_section + ';' +\
              self.selected_instructor + ';' +\
-             store[path][2] + ';' + store[path][3] +\
+             self.selected_room + ';' +\
+             store[path][3] + ';' + store[path][4] +\
              ';' + self.selected_compre_date
 
         except :
@@ -1139,7 +1144,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.add_column_text(
             self.catalog_store, None,
             self.page02_window, self.remove_course,
-            ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'DAYS', 'HOURS', 'COMPRE DATE'])
+            ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'ROOM', 'DAYS', 'HOURS', 'COMPRE DATE'])
 
         self.catalog_info.sort()
         for row in self.catalog_info :
@@ -1220,7 +1225,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
                 self.text_to_display = course_code + '\n' + section
                 self.add_to_timetable(hours, days)
-                self.add_to_catalog()
                 self.update_compre_schedule(compre_date, 
                     label = course_code)
                 
@@ -1231,6 +1235,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 if course_code not in MyWindow.added_courses :
                     MyWindow.added_courses.append(course_code)
 
+            self.add_to_catalog()
         
         except IOError :
             pass
