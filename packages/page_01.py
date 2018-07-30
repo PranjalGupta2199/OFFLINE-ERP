@@ -814,7 +814,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         date = self.sobject.midsem_date.split('/')[0]
         time = self.sobject.midsem_time
 
-        print date, time
         if time == '9.00 -- 10.30 AM' : time = 1
         elif time == '11.00 -- 12.30 PM' : time = 2
         elif time == '1.30 -- 3.00 PM' : time = 3

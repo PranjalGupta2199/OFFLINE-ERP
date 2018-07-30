@@ -85,11 +85,11 @@ help you decide what courses (CDCs and Electives)\
 or even remove them if you want. If you are unhappy with \
 your timetable you can clear all the enteries at once and start afresh. \
 To save your work, you can generate the pdf version of your timetable." + "\n" + "\n" + 
-"You need to specify the path of your pdf file. \
+"<b>You need to specify the path of the timetable pdf file. </b> \
 Click on the folder icon, a window pops up. Select your file and click SELECT. \
 Then when you have verified the path, click on OKAY button. This process may take some time depending on your system,\
-so wait as long as the spinner shows on the window.Then click on NEXT to move onto the main page ... " + "\n" + "\n" +
-"<b> Hope you enjoy my application. </b>"
+ so wait as long as the spinner shows on the window. Then click on NEXT to move onto the main page ... " + "\n" + "\n" +
+"<b> Hope you like my application. </b>"
             )
         self.about_page.add(self.about_label)
 
