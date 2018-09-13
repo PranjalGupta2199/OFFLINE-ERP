@@ -1,3 +1,15 @@
+import gi
+import pickle
+import copy
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import landscape, letter, inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+
+
+class Save(object): 
     def save_pdf(self, widget) :
         '''
         Saves your desired schedule in pdf format.
@@ -25,17 +37,17 @@
         if response == Gtk.ResponseType.ACCEPT :
             self.write (
                 doc, "WEEKLY SCHEDULE", \
-                self.weekly_schedule, MyWindow.Label_list_weekly)
+                self.weekly_schedule, self.Label_list_weekly)
             
             self.write (
                 doc, "COMPREHENSIVE EXAMINATION", \
-                self.compre_schedule, MyWindow.Label_list_compre)
+                self.compre_schedule, self.Label_list_compre)
 
             self.element.append(PageBreak())
             
             self.write (
                 doc, "MID SEMESTER SCHEDULE", \
-                self.midsem_schedule, MyWindow.Label_list_midsem)
+                self.midsem_schedule, self.Label_list_midsem)
         
             style = getSampleStyleSheet()
             normal = style["Heading1"]
@@ -155,8 +167,8 @@
                     match_parameter = (course_code,),
                     label = course_code)
 
-                if course_code not in MyWindow.added_courses :
-                    MyWindow.added_courses.append(course_code)
+                if course_code not in self.added_courses :
+                    self.added_courses.append(course_code)
 
         
         except IOError :

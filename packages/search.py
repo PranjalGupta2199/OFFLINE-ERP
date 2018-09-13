@@ -2,7 +2,7 @@ import pandas
 import sqlite3
 import os
 
-class Searching:
+class Searching(object):
     '''
         Searches a match for the given query for the parameter
 

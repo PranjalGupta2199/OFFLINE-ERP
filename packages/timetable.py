@@ -1,3 +1,37 @@
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+
+class Timetable(object) :
+
+
+    weekly_schedule = [
+        ['HOURS/DAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
+        ['08 : 00 AM', '', '', '', '', '', ''],
+        ['09 : 00 AM', '', '', '', '', '', ''],
+        ['10 : 00 AM', '', '', '', '', '', ''],
+        ['11 : 00 AM', '', '', '', '', '', ''],
+        ['12 : 00 PM', '', '', '', '', '', ''],
+        ['01 : 00 PM', '', '', '', '', '', ''],
+        ['02 : 00 PM', '', '', '', '', '', ''],
+        ['03 : 00 PM', '', '', '', '', '', ''],
+        ['04 : 00 PM', '', '', '', '', '', ''],
+        ['05 : 00 PM', '', '', '', '', '', '']]
+
+    compre_schedule = [
+        ['Sessions','01/12', '02/12', '03/12','04/12', '05/12', '06/12', \
+        '07/12', '08/12' ,'09/12', '10/12', '11/12', '12/12', '13/12', '14/12'],
+        ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',],
+        ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]]
+
+    midsem_schedule = [
+        ['TIME/DATES', '08/10', '09/10', '10/10', '11/10', '12/10', '13/10'],
+        ['9:00 - 10:30 AM', '', '', '', '', '', ''],
+        ['11:00 - 12:30 AM', '', '', '', '', '', ''],
+        ['1:30 - 3:00 PM', '', '', '', '', '', ''],
+        ['3:30 - 5:00 PM', '', '', '', '', '', '']]
+
     def create_timetable(self) :
         '''
         Replaces your timetable to its initial state. 
@@ -15,27 +49,15 @@
                     Label in the midsem schedule
 
         '''
-        self.weekly_schedule = [
-        ['HOURS/DAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'],
-        ['08 : 00 AM', '', '', '', '', '', ''],
-        ['09 : 00 AM', '', '', '', '', '', ''],
-        ['10 : 00 AM', '', '', '', '', '', ''],
-        ['11 : 00 AM', '', '', '', '', '', ''],
-        ['12 : 00 PM', '', '', '', '', '', ''],
-        ['01 : 00 PM', '', '', '', '', '', ''],
-        ['02 : 00 PM', '', '', '', '', '', ''],
-        ['03 : 00 PM', '', '', '', '', '', ''],
-        ['04 : 00 PM', '', '', '', '', '', ''],
-        ['05 : 00 PM', '', '', '', '', '', '']]
 
         l = []
-        for row in range (len(self.weekly_schedule)) :
-            for col in range (len(self.weekly_schedule[row])) :
-                label = Gtk.Label(label = self.weekly_schedule[row][col])
+        for row in range (len(Timetable.weekly_schedule)) :
+            for col in range (len(Timetable.weekly_schedule[row])) :
+                label = Gtk.Label(label = Timetable.weekly_schedule[row][col])
                 self.page00_weekly.attach(child = label, left = col, top = row,\
                 width = 1, height = 1)
                 l.append(label)
-            MyWindow.Label_list_weekly.append(l)
+            self.Label_list_weekly.append(l)
             l = []        
 
 
@@ -45,19 +67,13 @@
         self.page00_compre.attach(child = compre_label,
             left = 0, top = 0, width = 3, height = 1)
 
-        self.compre_schedule = [
-        ['Sessions','01/12', '02/12', '03/12','04/12', '05/12', '06/12', \
-        '07/12', '08/12' ,'09/12', '10/12', '11/12', '12/12', '13/12', '14/12'],
-        ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',],
-        ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]]
-
-        for row in range(len(self.compre_schedule)) :
-            for col in range (len(self.compre_schedule[row])) :
-                label = Gtk.Label(label = self.compre_schedule[row][col])
+        for row in range(len(Timetable.compre_schedule)) :
+            for col in range (len(Timetable.compre_schedule[row])) :
+                label = Gtk.Label(label = Timetable.compre_schedule[row][col])
                 self.page00_compre.attach(child = label, left = row, top = col + 1,\
                     width = 1 , height = 1)
                 l.append(label)
-            MyWindow.Label_list_compre.append(l)
+            self.Label_list_compre.append(l)
             l = []
 
 
@@ -67,20 +83,15 @@
         self.page00_midsem.attach(child = midsem_label,
             left = 0, top = 0, width = 5, height = 1)
 
-        self.midsem_schedule = [
-        ['TIME/DATES', '08/10', '09/10', '10/10', '11/10', '12/10', '13/10'],
-        ['9:00 - 10:30 AM', '', '', '', '', '', ''],
-        ['11:00 - 12:30 AM', '', '', '', '', '', ''],
-        ['1:30 - 3:00 PM', '', '', '', '', '', ''],
-        ['3:30 - 5:00 PM', '', '', '', '', '', '']]
 
-        for row in range(len(self.midsem_schedule)) :
-            for col in range (len(self.midsem_schedule[row])) :
-                label = Gtk.Label(label = self.midsem_schedule[row][col])
+
+        for row in range(len(Timetable.midsem_schedule)) :
+            for col in range (len(Timetable.midsem_schedule[row])) :
+                label = Gtk.Label(label = Timetable.midsem_schedule[row][col])
                 self.page00_midsem.attach(child = label, left = row, top = col + 1,\
                     width = 1 , height = 1)
                 l.append(label)
-            MyWindow.Label_list_midsem.append(l)
+            self.Label_list_midsem.append(l)
             l = []
 
 
@@ -106,25 +117,25 @@
                 save_count : int
                     Determines whether to use self.save_list method.
         '''
-        for row in range (len(MyWindow.Label_list_weekly)) :
-            for col in range (len(MyWindow.Label_list_weekly[row])) :
-                MyWindow.Label_list_weekly[row] [col].set_label(
-                    self.weekly_schedule[row][col]) 
+        for row in range (len(self.Label_list_weekly)) :
+            for col in range (len(self.Label_list_weekly[row])) :
+                self.Label_list_weekly[row] [col].set_label(
+                    Timetable.weekly_schedule[row][col]) 
         
-        for row in range(len(MyWindow.Label_list_compre)) :
-            for col in range(len(MyWindow.Label_list_compre[row])) :
-                MyWindow.Label_list_compre[row][col].set_label(
-                    self.compre_schedule[row][col])
+        for row in range(len(self.Label_list_compre)) :
+            for col in range(len(self.Label_list_compre[row])) :
+                self.Label_list_compre[row][col].set_label(
+                    Timetable.compre_schedule[row][col])
 
-        for row in range(len(MyWindow.Label_list_midsem)) :
-            for col in range(len(MyWindow.Label_list_midsem[row])) :
-                MyWindow.Label_list_midsem[row][col].set_label(
-                    self.midsem_schedule[row][col])
+        for row in range(len(self.Label_list_midsem)) :
+            for col in range(len(self.Label_list_midsem[row])) :
+                self.Label_list_midsem[row][col].set_label(
+                    Timetable.midsem_schedule[row][col])
 
         self.catalog_info = []
         self.catalog_store.clear()  
         self.save_count = 0
-        MyWindow.added_courses = []
+        self.added_courses = []
 
 
     def update_compre_schedule(self, compre_date, label) :
@@ -144,7 +155,7 @@
         elif session == 'FN' : session = 1
 
         try :
-            MyWindow.Label_list_compre[session][int(date[0])].set_label(
+            self.Label_list_compre[session][int(date[0])].set_label(
             label)
             # these statements will catch an exception when, there is either
             # a null value or '*' in date or session variables. 
@@ -171,7 +182,7 @@
         elif time == '3.30 -- 5.00 PM' : time = 4
         
         try :
-            MyWindow.Label_list_midsem[time][int(date) - 7].set_label(
+            self.Label_list_midsem[time][int(date) - 7].set_label(
                 label)
             # these statements will catch an exception when, there is either
                 # a null value or '*' in date or session variables. 
@@ -203,7 +214,7 @@
                 self.selected_day : list
                     Contains a list of strings of days of the course section
 
-                MyWindow.added_course : list
+                self.added_course : list
                     Contains a list of all the course_code a user has opted for.  
         '''
         try :
@@ -255,7 +266,7 @@
             if flag == 1 :
                 break
 
-            if self.selected_course_code in MyWindow.added_courses :
+            if self.selected_course_code in self.added_courses :
 
                 if section_type == list_[2].split('-')[0]\
                     and self.selected_course_code == list_[0] :
@@ -268,14 +279,14 @@
             else :
                 self.add_to_timetable(self.selected_hour, self.selected_day)
                 self.catalog_info.insert(0, self.info)
-                MyWindow.added_courses.append(self.selected_course_code)
+                self.added_courses.append(self.selected_course_code)
                 break               
 
         else :
             if 0 not in self.selected_hour:
                 self.add_to_timetable(self.selected_hour, self.selected_day)
                 self.catalog_info.insert(0, self.info)
-                MyWindow.added_courses.append(self.selected_course_code)
+                self.added_courses.append(self.selected_course_code)
         
         self.add_to_catalog()       
         self.page01_notebook.next_page()
@@ -299,17 +310,17 @@
         for row in hours :
             for col in days : 
                 if col == 'M' : 
-                    MyWindow.Label_list_weekly[row][1].set_label(self.text_to_display)
+                    self.Label_list_weekly[row][1].set_label(self.text_to_display)
                 elif col == 'T' : 
-                    MyWindow.Label_list_weekly[row][2].set_label(self.text_to_display)
+                    self.Label_list_weekly[row][2].set_label(self.text_to_display)
                 elif col == 'W' : 
-                    MyWindow.Label_list_weekly[row][3].set_label(self.text_to_display)
+                    self.Label_list_weekly[row][3].set_label(self.text_to_display)
                 elif col == 'Th' : 
-                    MyWindow.Label_list_weekly[row][4].set_label(self.text_to_display)
+                    self.Label_list_weekly[row][4].set_label(self.text_to_display)
                 elif col == 'F' : 
-                    MyWindow.Label_list_weekly[row][5].set_label(self.text_to_display)
+                    self.Label_list_weekly[row][5].set_label(self.text_to_display)
                 elif col == 'S' : 
-                    MyWindow.Label_list_weekly[row][6].set_label(self.text_to_display)
+                    self.Label_list_weekly[row][6].set_label(self.text_to_display)
 
 
     def remove_course(self, widget, path, treeview, store, *data) :
@@ -341,17 +352,17 @@
             for col in remove_day.split() :
                 for row in remove_hour.split() :
                     if col == 'M' :
-                        MyWindow.Label_list_weekly[int(row)][1].set_label('')
+                        self.Label_list_weekly[int(row)][1].set_label('')
                     elif col == 'T' :
-                        MyWindow.Label_list_weekly[int(row)][2].set_label('')
+                        self.Label_list_weekly[int(row)][2].set_label('')
                     elif col == 'W' :
-                        MyWindow.Label_list_weekly[int(row)][3].set_label('')
+                        self.Label_list_weekly[int(row)][3].set_label('')
                     elif col == 'Th' :
-                        MyWindow.Label_list_weekly[int(row)][4].set_label('')
+                        self.Label_list_weekly[int(row)][4].set_label('')
                     elif col == 'F' :
-                        MyWindow.Label_list_weekly[int(row)][5].set_label('')
+                        self.Label_list_weekly[int(row)][5].set_label('')
                     elif col == 'S' :
-                        MyWindow.Label_list_weekly[int(row)][6].set_label('')
+                        self.Label_list_weekly[int(row)][6].set_label('')
 
 
             count = 0
@@ -366,7 +377,7 @@
 
 
             if count == 1:
-                MyWindow.added_courses.remove(remove_course_code)
+                self.added_courses.remove(remove_course_code)
             
             self.catalog_info.remove(remove_string)
 
@@ -376,13 +387,13 @@
         elif response == Gtk.ResponseType.CANCEL:
             dialog.destroy()
 
-        if remove_course_code not in MyWindow.added_courses :
+        if remove_course_code not in self.added_courses :
             session = remove_compre.split()[-1]
             date = remove_compre.split()[0].split('/')[0]
             if session == 'AN' : session = 2
             elif session == 'FN' : session = 1
 
-            MyWindow.Label_list_compre[session][int(date)].set_label('')
+            self.Label_list_compre[session][int(date)].set_label('')
 
             self.update_midsem_schedule(
                 match_parameter = (remove_course_code,),\

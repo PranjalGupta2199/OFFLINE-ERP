@@ -1,3 +1,8 @@
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+class Event(object) : 
     def handle_compre_date(self) : 
         '''
         This method is called when there are courses in your catalog 
@@ -47,17 +52,17 @@
             for row in section_list[-2].split() :
                 for col in section_list[-3].split() :
                     if col == 'M' : 
-                        MyWindow.Label_list_weekly[int(row)][1].set_label('')
+                        self.Label_list_weekly[int(row)][1].set_label('')
                     elif col == 'T' : 
-                        MyWindow.Label_list_weekly[int(row)][2].set_label('')
+                        self.Label_list_weekly[int(row)][2].set_label('')
                     elif col == 'W' : 
-                        MyWindow.Label_list_weekly[int(row)][3].set_label('')
+                        self.Label_list_weekly[int(row)][3].set_label('')
                     elif col == 'Th' : 
-                        MyWindow.Label_list_weekly[int(row)][4].set_label('')
+                        self.Label_list_weekly[int(row)][4].set_label('')
                     elif col == 'F' : 
-                        MyWindow.Label_list_weekly[int(row)][5].set_label('')
+                        self.Label_list_weekly[int(row)][5].set_label('')
                     elif col == 'S' : 
-                        MyWindow.Label_list_weekly[int(row)][6].set_label('')
+                        self.Label_list_weekly[int(row)][6].set_label('')
 
             self.update_timetable(None, None, None, None, section_type)
             
@@ -99,17 +104,17 @@
             for row in section_list[-2].split() :
                 for col in section_list[-3].split() :
                     if col == 'M' : 
-                        MyWindow.Label_list_weekly[int(row)][1].set_label('')
+                        self.Label_list_weekly[int(row)][1].set_label('')
                     elif col == 'T' : 
-                        MyWindow.Label_list_weekly[int(row)][2].set_label('')
+                        self.Label_list_weekly[int(row)][2].set_label('')
                     elif col == 'W' : 
-                        MyWindow.Label_list_weekly[int(row)][3].set_label('')
+                        self.Label_list_weekly[int(row)][3].set_label('')
                     elif col == 'Th' : 
-                        MyWindow.Label_list_weekly[int(row)][4].set_label('')
+                        self.Label_list_weekly[int(row)][4].set_label('')
                     elif col == 'F' : 
-                        MyWindow.Label_list_weekly[int(row)][5].set_label('')
+                        self.Label_list_weekly[int(row)][5].set_label('')
                     elif col == 'S' : 
-                        MyWindow.Label_list_weekly[int(row)][6].set_label('')
+                        self.Label_list_weekly[int(row)][6].set_label('')
             self.add_to_timetable(self.selected_hour, self.selected_day)
             self.catalog_info.insert(0, self.info)
 

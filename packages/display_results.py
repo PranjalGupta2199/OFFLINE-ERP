@@ -1,4 +1,11 @@
-    def search (self, widget, event = None) : 
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from .timetable import Timetable
+
+
+class Result(Timetable) :
+    def search (self, widget, event = None, *data) : 
         '''
         Usses self.sobject to search for courses matching your query.
         This is a callback method for a Gtk.Button widget (self.SearchButton). This method
@@ -12,9 +19,10 @@
         
         Returns self.match_list
         '''
+        tab = data[0]
         if self.SearchBar.get_text() != '':   
             self.match_list = self.sobject.get_result(query = self.SearchBar.get_text())
-            self.display_course_code(self.page01_course_tab)
+            self.display_course_code(tab)
 
     def add_column_text(
         self, store, 
@@ -44,13 +52,7 @@
             selection : Gtk.TreeSelection Object
                 Allows you to the change selection_mode and get selected row(s) of the 
                 treeview object
-            
-            renderer_toggle: Gtk.CellRendererToggle()
-                Object for adding radiobutton on rows of the treeview
-            
-            radio_column : Gtk.TreevViewColumn(label, renderer_toggle)
-                            label - text to be displayed on the columns
-            
+
             renderer : Gtk.CellRendererText()
                 Object for adding text object in the treeview.
             

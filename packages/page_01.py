@@ -2,19 +2,16 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, Gdk, GdkPixbuf
-from . import search
-import pandas
-import time
-import copy
-import pickle
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import landscape, letter, inch
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, PageBreak
+
+from .search import Searching
+from .display_results import Result
+from .saving import Save
+from .events import Event
 
 
 
-class MyWindow(Gtk.Window):
+
+class MyWindow(Gtk.Window, Result, Save, Event):
     '''
     This class is for creating UI for the second page of the application.
     The main window consists of 4 main pages 
@@ -56,11 +53,6 @@ class MyWindow(Gtk.Window):
 
     '''
 
-
-    Label_list_weekly = []
-    added_courses = []
-    Label_list_compre = []
-    Label_list_midsem = []
 
     def __init__(self):
         '''
@@ -112,7 +104,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
                 
                 Other variables : 
-                    self.sobject : search.Searching () instance
+                    self.sobject : Searching () instance
                     
                     self.save_count : int
                         Int value which acts a flag for using save_list method.
@@ -139,15 +131,18 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.add(self.notebook)
         self.maximize()
 
+        self.Label_list_weekly = []
+        self.added_courses = []
+        self.Label_list_compre = []
+        self.Label_list_midsem = []
         self.set_icon_from_file('media/BITs.jpg')
 
         header_bar = Gtk.HeaderBar()
         header_bar.set_show_close_button(True)
         header_bar.props.title = "OFFLINE ERP"
         self.set_titlebar(header_bar)
-        self.connect('key-press-event', self.search)
 
-        self.sobject = search.Searching()
+        self.sobject = Searching()
         self.save_count = 0
         self.element = []
 
@@ -274,13 +269,14 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         self.notebook.append_page(Gtk.Label(), self.menu_button)
 
+        self.connect('key-press-event', self.search, self.page01_course_tab)
 
     def main_quit(self, widget, event) :
         '''
         Adds custom quit method for the application. 
         Shows a dialog box if there is any unsaved work.
         '''
-        if len(MyWindow.added_courses) != 0 and \
+        if len(self.added_courses) != 0 and \
             self.save_count == 0:
             dialog = Gtk.MessageDialog(self, 0,
                 Gtk.MessageType.QUESTION,

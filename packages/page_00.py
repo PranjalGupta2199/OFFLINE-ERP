@@ -1,15 +1,12 @@
-import pandas
 import os
-import threading
-import sqlite3
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, GObject, Gdk, GdkPixbuf
-from PyPDF2 import PdfFileWriter, PdfFileReader
-from tabula import read_pdf, convert_into
 
-class FileChooser(Gtk.Window):
+from .pdf_parse import Pdf
+
+class FileChooser(Gtk.Window, Pdf):
     '''
     This class is for creating gui for the first page of the application.
     The main window consists of a single page which contains 4 buttons.

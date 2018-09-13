@@ -1,3 +1,12 @@
+import pandas
+import threading
+import sqlite3
+import os
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from tabula import read_pdf, convert_into
+
+
+class Pdf(object):
     def pdf_parse(self, widget, data = None) :
         '''
         Handles spinner events and multiprocessing when populating the database.
