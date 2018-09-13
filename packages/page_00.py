@@ -5,8 +5,9 @@ gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk, GObject, Gdk, GdkPixbuf
 
 from .pdf_parse import Pdf
+from .events import Event
 
-class FileChooser(Gtk.Window, Pdf):
+class FileChooser(Gtk.Window, Pdf, Event):
     '''
     This class is for creating gui for the first page of the application.
     The main window consists of a single page which contains 4 buttons.
@@ -72,7 +73,11 @@ class FileChooser(Gtk.Window, Pdf):
         self.about_label = Gtk.Label()
         self.about_label.set_justify(3)
         self.about_label.set_line_wrap(True)
-        #self.about_label.set_markup()
+
+        content_directory = os.path.join(os.getcwd(), 'packages')
+        with open(os.path.join(content_directory,"page_00_text.txt"), 'r') as f :
+            content = f.read()
+            self.about_label.set_markup(content)
         self.about_page.add(self.about_label)
 
 
@@ -129,54 +134,6 @@ class FileChooser(Gtk.Window, Pdf):
         self.grid.attach_next_to(
             child = next_button, sibling = file_button, 
             side = Gtk.PositionType(3), width = 1, height = 1)
-
-
-
-    def file_choose(self, widget, data = None) :
-        '''
-        Used for specifying the file location of the pdf 
-
-            @variables :
-                dialog : Gtk.FileChooserDialog 
-                    Creates a dialog box with action as OPEN.
-
-                self.file_path : str
-                    Contains the string value of the location of pdf file selected
-        '''
-        dialog = Gtk.FileChooserDialog("Please Choose Your File : ", self, 
-            Gtk.FileChooserAction.OPEN, 
-            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-            'SELECT', Gtk.ResponseType.OK))
-
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.OK :
-            self.file_path = dialog.get_filename()
-            self.entry.set_text(self.file_path)
-        elif response == Gtk.ResponseType.CANCEL :
-            pass
-
-        dialog.destroy()
-
-    def move_to_next_page(self, widget, data = None) :
-        '''
-        Destroys the current window returns the flow of execution to the main.py file.
-
-        '''
-        if self.okay_button.get_sensitive():
-            dialog = Gtk.MessageDialog(self, 0,
-                Gtk.MessageType.INFO, 
-                Gtk.ButtonsType.OK,
-                "You haven't created the database.")
-
-            dialog.format_secondary_text(
-                'Please select your file and then press Okay.')
-            dialog.run()
-            dialog.destroy()
-
-        else :            
-            self.destroy()
-            Gtk.main_quit()
 
     def main_quit (self, widget, data = None) : 
         '''

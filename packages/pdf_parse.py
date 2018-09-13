@@ -19,17 +19,7 @@ class Pdf(object):
             p3.start()
         
         else :
-            dialog = Gtk.MessageDialog(self, 0,
-                Gtk.MessageType.INFO,
-                Gtk.ButtonsType.OK, "You haven't selected any file ")
-
-            dialog.format_secondary_text(
-                'Please specify the path and then press Okay.')
-
-            dialog.run()
-            dialog.destroy()
-
-
+            self.handle_no_file()
 
     def split_pdf(self, file_path):
         ''' 

@@ -121,3 +121,62 @@ class Event(object) :
         else :
             pass
         dialog.destroy()
+
+    def file_choose(self, widget, data = None) :
+        '''
+        Used for specifying the file location of the pdf 
+
+            @variables :
+                dialog : Gtk.FileChooserDialog 
+                    Creates a dialog box with action as OPEN.
+
+                self.file_path : str
+                    Contains the string value of the location of pdf file selected
+        '''
+        dialog = Gtk.FileChooserDialog("Please Choose Your File : ", self, 
+            Gtk.FileChooserAction.OPEN, 
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+            'SELECT', Gtk.ResponseType.OK))
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.OK :
+            self.file_path = dialog.get_filename()
+            self.entry.set_text(self.file_path)
+        elif response == Gtk.ResponseType.CANCEL :
+            pass
+
+        dialog.destroy()
+
+    def move_to_next_page(self, widget, data = None) :
+        '''
+        Destroys the current window returns the flow of execution to the main.py file.
+
+        '''
+        if self.okay_button.get_sensitive():
+            dialog = Gtk.MessageDialog(self, 0,
+                Gtk.MessageType.INFO, 
+                Gtk.ButtonsType.OK,
+                "You haven't created the database.")
+
+            dialog.format_secondary_text(
+                'Please select your file and then press Okay.')
+            dialog.run()
+            dialog.destroy()
+
+        else :            
+            self.destroy()
+            Gtk.main_quit()
+
+    def handle_no_file(self) : 
+        dialog = Gtk.MessageDialog(self, 0,
+            Gtk.MessageType.INFO,
+            Gtk.ButtonsType.OK, "You haven't selected any file ")
+
+        dialog.format_secondary_text(
+            'Please specify the path and then press Okay.')
+    
+        dialog.run()
+        dialog.destroy()
+
+
