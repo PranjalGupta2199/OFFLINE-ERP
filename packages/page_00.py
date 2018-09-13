@@ -75,22 +75,7 @@ class FileChooser(Gtk.Window):
         self.about_label = Gtk.Label()
         self.about_label.set_justify(3)
         self.about_label.set_line_wrap(True)
-        self.about_label.set_markup(
-
-"<big>Say hello to your own <b> OFFLINE ERP  </b>!! </big>" + "\n" + 
-"\n" + "This Desktop Application is designed to \
-help you decide what courses (CDCs and Electives)\
- you wish to opt in the upcoming semester." + "\n" + "\n" +
-"You can search your desired course, add them to your catalog \
-or even remove them if you want. If you are unhappy with \
-your timetable you can clear all the enteries at once and start afresh. \
-To save your work, you can generate the pdf version of your timetable." + "\n" + "\n" + 
-"<b>You need to specify the path of the timetable pdf file. </b> \
-Click on the folder icon, a window pops up. Select your file and click SELECT. \
-Then when you have verified the path, click on OKAY button. This process may take some time depending on your system,\
- so wait as long as the spinner shows on the window. Then click on NEXT to move onto the main page ... " + "\n" + "\n" +
-"<b> Hope you like my application. </b>"
-            )
+        #self.about_label.set_markup()
         self.about_page.add(self.about_label)
 
 
@@ -175,105 +160,6 @@ Then when you have verified the path, click on OKAY button. This process may tak
             pass
 
         dialog.destroy()
-
-
-
-    def pdf_parse(self, widget, data = None) :
-        '''
-        Handles spinner events and multiprocessing when populating the database.
-        '''
-        if self.file_path :
-        
-            self.split_pdf(self.file_path)
-            self.spinner.start()
-            p3 = threading.Thread(target = self.to_database)
-            p3.start()
-        
-        else :
-            dialog = Gtk.MessageDialog(self, 0,
-                Gtk.MessageType.INFO,
-                Gtk.ButtonsType.OK, "You haven't selected any file ")
-
-            dialog.format_secondary_text(
-                'Please specify the path and then press Okay.')
-
-            dialog.run()
-            dialog.destroy()
-
-
-
-    def split_pdf(self, file_path):
-        ''' 
-        Splits the timetable pdf into individual pages 
-        '''
-        infile = PdfFileReader(open(file_path, 'rb'))
-        
-
-        for i in range(infile.getNumPages()):
-            p = infile.getPage(i)
-            
-            outfile = PdfFileWriter()
-            outfile.addPage(p)
-            
-            split_page_path = os.path.join(os.getcwd(), 'Pages/page-%02d.pdf' % i)
-
-            with open(split_page_path, 'wb') as f:
-                outfile.write(f)
-
-    def to_database(self):
-        ''' 
-            Extracts table from the pdf and stores them in a database (courses.db)
-        '''
-        path = os.path.join(os.getcwd(), "Pages")
-        self.database = sqlite3.connect(os.path.join(os.getcwd(), "packages/courses.db"))
-
-        directory_files = os.listdir(path)
-        directory_files.sort()
-
-        for file in directory_files:
-            page_no = int (file.split('.')[0].split('-')[1]) 
-            
-            
-            if ( page_no >= 6 and page_no <= 50 ):
-                
-                data = read_pdf(
-                    input_path = os.path.join(path, file), 
-                    pandas_options = {
-                    'header' : None, 
-                    'skiprows' : [0,1,2,3,4,5], 
-                    'keep_default_na' : False,
-                    'usecols' : [1,2,4,5,7,8,10]})
-               
-                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'SECTION', 
-                'INSTRUCTOR', 'DAY', 'HOURS', 'COMPRE_DATE']
-                
-                data.to_sql(name = 'courses', con = self.database, 
-                    index = False, if_exists = 'append')
-
-            if (page_no >= 51  and page_no <= 64 ) :
-                data = read_pdf(
-                    input_path = os.path.join(path, file),
-                    pandas_options = {
-                    'header' : None,
-                    'skiprows' : [0],
-                    'keep_default_na' : True,
-                    })
-
-
-                if len(data.columns) != 6 :
-                    data = data.loc[:, [1,2,3,4]]
-                else : 
-                    data = data.loc[:, [1,2,4,5]]
-                # This if statement is called only because of the 
-                # errors caused when converting the pdf in dataframe
-                # on same pages.
-                
-                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
-                data.to_sql(name = 'midsem', con = self.database,
-                    index = False, if_exists = 'append')
-              
-        self.spinner.stop()
-        self.okay_button.set_sensitive(False)
 
     def move_to_next_page(self, widget, data = None) :
         '''
