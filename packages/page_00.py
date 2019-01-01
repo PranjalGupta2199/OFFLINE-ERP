@@ -226,15 +226,19 @@ Then when you have verified the path, click on OKAY button. This process may tak
         '''
         path = os.path.join(os.getcwd(), "Pages")
         self.database = sqlite3.connect(os.path.join(os.getcwd(), "packages/courses.db"))
+       # dataframe = pandas.read_excel(self.file_path, usecols = [1,2,4,5,6,7,8,10])
+       # dataframe.to_sql(name = 'courses', con = self.database, 
+       #             index = False, if_exists = 'append')
+
 
         directory_files = os.listdir(path)
         directory_files.sort()
-
+        
         for file in directory_files:
             page_no = int (file.split('.')[0].split('-')[1]) 
             
             
-            if ( page_no >= 6 and page_no <= 50 ):
+            if ( page_no >= 6 and page_no <= 51 ):
                 
                 data = read_pdf(
                     input_path = os.path.join(path, file), 
@@ -250,7 +254,7 @@ Then when you have verified the path, click on OKAY button. This process may tak
                 data.to_sql(name = 'courses', con = self.database, 
                     index = False, if_exists = 'append')
 
-            if (page_no >= 51  and page_no <= 64 ) :
+            if (page_no >= 52  and page_no <= 65 ) :
                 data = read_pdf(
                     input_path = os.path.join(path, file),
                     pandas_options = {
@@ -271,9 +275,12 @@ Then when you have verified the path, click on OKAY button. This process may tak
                 data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
                 data.to_sql(name = 'midsem', con = self.database,
                     index = False, if_exists = 'append')
-              
+
+                print "Done : " + str(page_no)
+
         self.spinner.stop()
         self.okay_button.set_sensitive(False)
+
 
     def move_to_next_page(self, widget, data = None) :
         '''

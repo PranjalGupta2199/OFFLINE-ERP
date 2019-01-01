@@ -381,8 +381,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 3, height = 1)
 
         self.compre_schedule = [
-        ['Sessions','01/12', '02/12', '03/12','04/12', '05/12', '06/12', \
-        '07/12', '08/12' ,'09/12', '10/12', '11/12', '12/12', '13/12', '14/12'],
+        ['Sessions','01/05', '02/05', '03/05','04/05', '05/05', '06/05', \
+        '07/05', '08/05' ,'09/05', '10/05', '11/05', '12/05', '13/05', '14/05'],
         ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',],
         ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]]
 
@@ -403,7 +403,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 5, height = 1)
 
         self.midsem_schedule = [
-        ['TIME/DATES', '08/10', '09/10', '10/10', '11/10', '12/10', '13/10'],
+        ['TIME/DATES', '11/03', '12/03', '13/03', '14/03', '15/03', '16/03'],
         ['9:00 - 10:30 AM', '', '', '', '', '', ''],
         ['11:00 - 12:30 AM', '', '', '', '', '', ''],
         ['1:30 - 3:00 PM', '', '', '', '', '', ''],
@@ -773,7 +773,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     count += 1
 
                 store.append([
-                    liststore_data_Section, 
+                    str(liststore_data_Section), 
                     liststore_data_Instructor, 
                     liststore_data_room,
                     liststore_data_days, 
@@ -790,12 +790,13 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             
         '''
 
-        date = compre_date.split()[0].split('/')
-        session = compre_date.split()[-1]
-        if session == 'AN' : session = 2
-        elif session == 'FN' : session = 1
-
         try :
+            date = compre_date.split()[0].split('/')
+            session = compre_date.split()[-1]
+            
+            if session == 'AN' : session = 2
+            elif session == 'FN' : session = 1
+
             MyWindow.Label_list_compre[session][int(date[0])].set_label(
             label)
             # these statements will catch an exception when, there is either
@@ -817,13 +818,13 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         date = self.sobject.midsem_date.split('/')[0]
         time = self.sobject.midsem_time
 
-        if time == '9.00 -- 10.30 AM' : time = 1
-        elif time == '11.00 -- 12.30 PM' : time = 2
-        elif time == '1.30 -- 3.00 PM' : time = 3
-        elif time == '3.30 -- 5.00 PM' : time = 4
+        if time == '9.00 - 10.30AM' : time = 1
+        elif time == '11.00 -12.30 PM' : time = 2
+        elif time == '1.30 -3.00 PM' : time = 3
+        elif time == '3.30 - 5.00 PM' : time = 4
         
         try :
-            MyWindow.Label_list_midsem[time][int(date) - 7].set_label(
+            MyWindow.Label_list_midsem[time][int(date) - 10].set_label(
                 label)
             # these statements will catch an exception when, there is either
                 # a null value or '*' in date or session variables. 
@@ -948,7 +949,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     A string from self.catalog_info
                 section_type : string 
                     A string which tells the type of class 
-                    ('LEC', 'PRAC', 'TUT')
+                    ('LEC', 'PRAC', 'TUT')1
         '''
 
         section_list = row.split(';')
