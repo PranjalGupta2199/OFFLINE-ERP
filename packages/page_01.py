@@ -690,7 +690,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         for row in self.catalog_store :
             compre_date = row[-1]
             if compre_date == self.selected_compre_date\
-            and self.selected_course_code != row[0] :
+            and self.selected_course_code != row[0] and compre_date != '':
                 self.handle_compre_date()
                 break
 
@@ -768,7 +768,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
                 count += 1
 
-                while count <= len(dataframe) - 1 and not dataframe.iloc[count][4]:
+                while count <= len(dataframe) - 1 and not dataframe.iloc[count][2]:
                     liststore_data_Instructor += '\n' + dataframe.iloc[count][3]
                     count += 1
 

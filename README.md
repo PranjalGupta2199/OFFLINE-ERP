@@ -1,4 +1,4 @@
-![readme-demo](https://github.com/PranjalGupta2199/OFFLINE-ERP/blob/Develop/media/readme-demo.gif)
+![readme-demo](media/readme-demo.gif)
 # OFFLINE ERP  
 Tired of making your timetable on paper ? OFFLINE ERP is here to help you !!
 This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable. 
