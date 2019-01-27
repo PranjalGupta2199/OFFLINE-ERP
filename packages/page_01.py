@@ -165,7 +165,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         header_bar.set_show_close_button(True)
         header_bar.props.title = "OFFLINE ERP"
         self.set_titlebar(header_bar)
-        self.connect('key-press-event', self.search)
 
         self.sobject = search.Searching()
         self.save_count = 0
@@ -210,6 +209,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     top = 1, width = 4, height = 1)
      
         self.SearchButton = Gtk.Button("GO !")
+        self.SearchBar.connect('key-press-event', self.search)
         self.SearchButton.connect('clicked', self.search)
         page01.attach_next_to(
                     child = self.SearchButton, 
@@ -503,7 +503,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             style = getSampleStyleSheet()
             normal = style["Heading1"]
 
-            para = Paragraph("LEGENDS", normal)
+            para = Paragraph("LEGEND", normal)
             self.element.append(para)
             user_data = [['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'ROOM']]
             for row in self.catalog_info :
@@ -770,6 +770,9 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
                 while count <= len(dataframe) - 1 and not dataframe.iloc[count][2]:
                     liststore_data_Instructor += '\n' + dataframe.iloc[count][3]
+                    #liststore_data_hours += '\n' + dataframe.iloc[count][6]
+                    #liststore_data_days += '\n' + dataframe.iloc[count][5]
+                    #liststore_data_room += '\n' + dataframe.iloc[count][4]
                     count += 1
 
                 store.append([
@@ -874,7 +877,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
 
             self.text_to_display = self.selected_course_code + '\n' + \
-            section_type + '-' + self.selected_section
+            self.selected_room
+
+            #self.text_to_display = self.selected_course_code + '\n' + \
+            #section_type + '-' + self.selected_section
 
             self.info = self.selected_course_code + ';' + \
              self.selected_course_title + ';' + \
@@ -903,9 +909,9 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     and self.selected_course_code != list_[0]:
                         self.handle_clash_time(row)
                         flag = 1
-                        break 
-                if flag == 1 :
-                    break
+                        
+                #if flag == 1 :
+                    #break
             
             if flag == 1 :
                 break
@@ -1014,6 +1020,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
         if response == Gtk.ResponseType.YES :
             self.catalog_info.remove(row)
+            
             for row in section_list[-2].split() :
                 for col in section_list[-3].split() :
                     if col == 'M' : 
@@ -1028,8 +1035,21 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                         MyWindow.Label_list_weekly[int(row)][5].set_label('')
                     elif col == 'S' : 
                         MyWindow.Label_list_weekly[int(row)][6].set_label('')
-            self.add_to_timetable(self.selected_hour, self.selected_day)
-            self.catalog_info.insert(0, self.info)
+            
+            for rows in self.catalog_info : 
+
+                row_item = rows.split(';')
+                section = row_item[2].split('-')[0]
+                course = row_item[0]
+
+                if (self.selected_course_code == course \
+                    and self.info.split(';')[2].split('-')[0] == section) :
+                    self.handle_section_change(rows, section)
+                    
+
+            else :
+                self.add_to_timetable(self.selected_hour, self.selected_day)
+                self.catalog_info.insert(0, self.info)
 
         else :
             pass
