@@ -1,4 +1,4 @@
-![readme-demo](https://github.com/PranjalGupta2199/OFFLINE-ERP/blob/Develop/media/readme-demo.gif)
+![readme-demo](media/readme-demo.gif)
 # OFFLINE ERP  
 Tired of making your timetable on paper ? OFFLINE ERP is here to help you !!
 This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable. 
@@ -86,7 +86,7 @@ python2 main.py
 ### Note :
 1. Use only pip (for python 2.x version).
 2. You need to run the above command everytime you want to use the app. 
-3. The app will take sometime (usually 2-3 minutes) when using it for the first time. If it takes more time than that expected, close the window and run the python command again.
+3. The app will take sometime (usually 2-3 minutes) when using it for the first time. If it takes more time than expected, close the window and run the python command again.
 4. Please install Java as tabula requires it. (Confirmed working with Java 7 and 8)
 
     To verify if Java is installed , type 

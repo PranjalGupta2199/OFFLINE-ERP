@@ -229,9 +229,9 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.pane.pack1(page00_notebook, True, False)
         self.pane.pack2(page01, True, False)
         
-        self.lec_store = Gtk.ListStore(str, str, str, str)
-        self.prac_store = Gtk.ListStore(str, str, str, str)
-        self.tut_store = Gtk.ListStore(str, str, str, str)
+        self.lec_store = Gtk.ListStore(str, str, str, str, str)
+        self.prac_store = Gtk.ListStore(str, str, str, str, str)
+        self.tut_store = Gtk.ListStore(str, str, str, str, str)
 
         self.page01_notebook.append_page(
             self.page01_course_tab, Gtk.Label("COURSE"))
@@ -262,7 +262,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             width = 1, height = 1)
 
 
-        self.catalog_store = Gtk.ListStore(str, str, str, str, str, str, str)
+        self.catalog_store = Gtk.ListStore(str, str, str, str, str, str, str, str)
         self.catalog_info = []
         self.notebook.append_page(self.page02, Gtk.Label('MY COURSES'))
 
@@ -381,8 +381,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 3, height = 1)
 
         self.compre_schedule = [
-        ['Sessions','01/12', '02/12', '03/12','04/12', '05/12', '06/12', \
-        '07/12', '08/12' ,'09/12', '10/12', '11/12', '12/12', '13/12', '14/12'],
+        ['Sessions','01/05', '02/05', '03/05','04/05', '05/05', '06/05', \
+        '07/05', '08/05' ,'09/05', '10/05', '11/05', '12/05', '13/05', '14/05'],
         ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',],
         ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]]
 
@@ -403,7 +403,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 5, height = 1)
 
         self.midsem_schedule = [
-        ['TIME/DATES', '08/10', '09/10', '10/10', '11/10', '12/10', '13/10'],
+        ['TIME/DATES', '11/03', '12/03', '13/03', '14/03', '15/03', '16/03'],
         ['9:00 - 10:30 AM', '', '', '', '', '', ''],
         ['11:00 - 12:30 AM', '', '', '', '', '', ''],
         ['1:30 - 3:00 PM', '', '', '', '', '', ''],
@@ -505,10 +505,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
             para = Paragraph("LEGENDS", normal)
             self.element.append(para)
-            user_data = [['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR']]
+            user_data = [['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'ROOM']]
             for row in self.catalog_info :
                 data = row.split(';')
-                user_data.append([data[0], data[1], data[2], data[3]])
+                user_data.append([data[0], data[1], data[2], data[3], data[4]])
             table = Table(data = user_data)
             table.setStyle(TableStyle([
                                     ('INNERGRID', (0,0), (-1,-1), 0.5, colors.black),
@@ -690,7 +690,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         for row in self.catalog_store :
             compre_date = row[-1]
             if compre_date == self.selected_compre_date\
-            and self.selected_course_code != row[0] :
+            and self.selected_course_code != row[0] and compre_date != '':
                 self.handle_compre_date()
                 break
 
@@ -752,27 +752,30 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.add_column_text(
             store, section_type, 
             tab, self.update_timetable, 
-            ["SECTION", "INSTRUCTOR", "DAYS", "HOURS"])
+            ["SECTION", "INSTRUCTOR", "ROOM", "DAYS", "HOURS"])
         if dataframe.empty :
-            store.append(['NA', 'NA', 'NA', '0'])
+            store.append(['NA', 'NA', 'NA', 'NA', '0'])
 
         else :
             count = 0   
             while count <= len(dataframe) - 1:  
                 liststore_data_Section = dataframe.iloc[count][2] 
                 liststore_data_Instructor = dataframe.iloc[count][3]
-                liststore_data_days = dataframe.iloc[count][4]
-                liststore_data_hours = dataframe.iloc[count][5]
+                liststore_data_room = dataframe.iloc[count][4]
+                liststore_data_days = dataframe.iloc[count][5]
+                liststore_data_hours = dataframe.iloc[count][6]
+
 
                 count += 1
 
-                while count <= len(dataframe) - 1 and not dataframe.iloc[count][4]:
+                while count <= len(dataframe) - 1 and not dataframe.iloc[count][2]:
                     liststore_data_Instructor += '\n' + dataframe.iloc[count][3]
                     count += 1
 
                 store.append([
-                    liststore_data_Section, 
+                    str(liststore_data_Section), 
                     liststore_data_Instructor, 
+                    liststore_data_room,
                     liststore_data_days, 
                     liststore_data_hours])
                 
@@ -787,12 +790,13 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             
         '''
 
-        date = compre_date.split()[0].split('/')
-        session = compre_date.split()[-1]
-        if session == 'AN' : session = 2
-        elif session == 'FN' : session = 1
-
         try :
+            date = compre_date.split()[0].split('/')
+            session = compre_date.split()[-1]
+            
+            if session == 'AN' : session = 2
+            elif session == 'FN' : session = 1
+
             MyWindow.Label_list_compre[session][int(date[0])].set_label(
             label)
             # these statements will catch an exception when, there is either
@@ -814,14 +818,13 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         date = self.sobject.midsem_date.split('/')[0]
         time = self.sobject.midsem_time
 
-        print date, time
-        if time == '9.00 -- 10.30 AM' : time = 1
-        elif time == '11.00 -- 12.30 PM' : time = 2
-        elif time == '1.30 -- 3.00 PM' : time = 3
-        elif time == '3.30 -- 5.00 PM' : time = 4
+        if time == '9.00 - 10.30AM' : time = 1
+        elif time == '11.00 -12.30 PM' : time = 2
+        elif time == '1.30 -3.00 PM' : time = 3
+        elif time == '3.30 - 5.00 PM' : time = 4
         
         try :
-            MyWindow.Label_list_midsem[time][int(date) - 7].set_label(
+            MyWindow.Label_list_midsem[time][int(date) - 10].set_label(
                 label)
             # these statements will catch an exception when, there is either
                 # a null value or '*' in date or session variables. 
@@ -861,9 +864,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             if not self.selected_section :
                 self.selected_section = '1' 
 
+            self.selected_room = store[path][2]
             self.selected_instructor = store[path][1]
-            self.selected_day = store[path][2].split()
-            self.selected_hour = store[path][3].split()
+            self.selected_day = store[path][3].split()
+            self.selected_hour = store[path][4].split()
 
             for i in range (len(self.selected_hour)) :
                 self.selected_hour[i] = int(self.selected_hour[i])
@@ -876,7 +880,8 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
              self.selected_course_title + ';' + \
              section_type + '-' + self.selected_section + ';' +\
              self.selected_instructor + ';' +\
-             store[path][2] + ';' + store[path][3] +\
+             self.selected_room + ';' +\
+             store[path][3] + ';' + store[path][4] +\
              ';' + self.selected_compre_date
 
         except :
@@ -944,7 +949,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                     A string from self.catalog_info
                 section_type : string 
                     A string which tells the type of class 
-                    ('LEC', 'PRAC', 'TUT')
+                    ('LEC', 'PRAC', 'TUT')1
         '''
 
         section_list = row.split(';')
@@ -1140,7 +1145,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         self.add_column_text(
             self.catalog_store, None,
             self.page02_window, self.remove_course,
-            ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'DAYS', 'HOURS', 'COMPRE DATE'])
+            ['COURSE CODE', 'COURSE TITLE', 'SECTION', 'INSTRUCTOR', 'ROOM', 'DAYS', 'HOURS', 'COMPRE DATE'])
 
         self.catalog_info.sort()
         for row in self.catalog_info :
@@ -1221,7 +1226,6 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
 
                 self.text_to_display = course_code + '\n' + section
                 self.add_to_timetable(hours, days)
-                self.add_to_catalog()
                 self.update_compre_schedule(compre_date, 
                     label = course_code)
                 
@@ -1232,6 +1236,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
                 if course_code not in MyWindow.added_courses :
                     MyWindow.added_courses.append(course_code)
 
+            self.add_to_catalog()
         
         except IOError :
             pass
