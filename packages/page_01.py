@@ -1148,18 +1148,22 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         elif response == Gtk.ResponseType.CANCEL:
             dialog.destroy()
 
-        if remove_course_code not in MyWindow.added_courses :
-            session = remove_compre.split()[-1]
-            date = remove_compre.split()[0].split('/')[0]
-            if session == 'AN' : session = 2
-            elif session == 'FN' : session = 1
+        try:
+            if remove_course_code not in MyWindow.added_courses :
+                session = remove_compre.split()[-1]
+                date = remove_compre.split()[0].split('/')[0]
+                if session == 'AN' : session = 2
+                elif session == 'FN' : session = 1
 
-            MyWindow.Label_list_compre[session][int(date)].set_label('')
+                MyWindow.Label_list_compre[session][int(date)].set_label('')
 
-            self.update_midsem_schedule(
-                match_parameter = (remove_course_code,),\
-                label = '')
+                self.update_midsem_schedule(
+                    match_parameter = (remove_course_code,),\
+                    label = '')
 
+        except:
+            pass
+            
     def add_to_catalog(self) :
         '''
         This method updates content present in the catalog_info list to 
