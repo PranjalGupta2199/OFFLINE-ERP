@@ -381,10 +381,10 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 3, height = 1)
 
         self.compre_schedule = [
-        ['Sessions','01/05', '02/05', '03/05','04/05', '05/05', '06/05', \
-        '07/05', '08/05' ,'09/05', '10/05', '11/05', '12/05', '13/05', '14/05'],
-        ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',],
-        ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '',]]
+        ['Sessions','01/12', '02/12', '03/12','04/12', '05/12', '06/12', \
+        '07/12', '08/12' ,'09/12', '10/12', '11/12', '12/12', '13/12', '14/12'],
+        ['Forenoon', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ['Afternoon', '', '', '', '', '', '', '', '', '', '', '', '', '', '']]
 
         for row in range(len(self.compre_schedule)) :
             for col in range (len(self.compre_schedule[row])) :
@@ -403,11 +403,11 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 5, height = 1)
 
         self.midsem_schedule = [
-        ['TIME/DATES', '11/03', '12/03', '13/03', '14/03', '15/03', '16/03'],
-        ['9:00 - 10:30 AM', '', '', '', '', '', ''],
-        ['11:00 - 12:30 AM', '', '', '', '', '', ''],
-        ['1:30 - 3:00 PM', '', '', '', '', '', ''],
-        ['3:30 - 5:00 PM', '', '', '', '', '', '']]
+        ['TIME/DATES', '28/09','29/09','30/09', '01/10', '02/10', '03/10', '04/10', '05/10'],
+        ['9:00 - 10:30 AM', '', '', '', '', '', '', '',''],
+        ['11:00 - 12:30 AM', '', '', '', '', '', '', '',''],
+        ['1:30 - 3:00 PM', '', '', '', '', '', '', '',''],
+        ['3:30 - 5:00 PM', '', '', '', '', '', '', '','']]
 
         for row in range(len(self.midsem_schedule)) :
             for col in range (len(self.midsem_schedule[row])) :
@@ -821,13 +821,16 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         date = self.sobject.midsem_date.split('/')[0]
         time = self.sobject.midsem_time
 
-        if time == '9.00 - 10.30AM' : time = 1
-        elif time == '11.00 -12.30 PM' : time = 2
-        elif time == '1.30 -3.00 PM' : time = 3
-        elif time == '3.30 - 5.00 PM' : time = 4
+        if time == '9.00 -- 10.30 AM' : time = 1
+        elif time == '11.00 -- 12.30 PM' : time = 2
+        elif time == '1.30 -- 3.00 PM' : time = 3
+        elif time == '3.30 -- 5.00 PM' : time = 4
         
         try :
-            MyWindow.Label_list_midsem[time][int(date) - 10].set_label(
+            date = int(date)
+            if (date >= 28): date = date - 27
+            else: date = date + 3
+            MyWindow.Label_list_midsem[time][date].set_label(
                 label)
             # these statements will catch an exception when, there is either
                 # a null value or '*' in date or session variables. 

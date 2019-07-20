@@ -1,4 +1,4 @@
-tabula_py
-reportlab
-pandas
-PyPDF2
+tabula_py==1.2.0
+reportlab==3.4.0
+pandas==0.22.0
+PyPDF2==1.26.0
