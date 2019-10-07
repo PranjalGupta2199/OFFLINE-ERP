@@ -255,7 +255,7 @@ Then when you have verified the path, click on OKAY button. This process may tak
                 data.to_sql(name = 'courses', con = self.database, 
                     index = False, if_exists = 'append')
                 
-                print "Done : " + str(page_no)
+                print("Done : " + str(page_no))
 
             if (page_no >= 57  and page_no <= 70 ) :
                 data = read_pdf(
@@ -279,7 +279,7 @@ Then when you have verified the path, click on OKAY button. This process may tak
                 data.to_sql(name = 'midsem', con = self.database,
                     index = False, if_exists = 'append')
 
-                print "Done : " + str(page_no)
+                print("Done : " + str(page_no))
 
         self.spinner.stop()
         

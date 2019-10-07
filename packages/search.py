@@ -129,9 +129,9 @@ class Searching:
         Returns the string representation of the object.
         ''' 
 
-        print self.lecture
-        print self.practical
-        print self.tutorial
+        print(self.lecture)
+        print(self.practical)
+        print(self.tutorial)
         return ' '
 
 
@@ -139,8 +139,8 @@ if __name__ == '__main__':
     
     while True:
         search_object = Searching()
-        print
-        print 
-        query = raw_input("Enter your query : ")
+        print()
+        print() 
+        query = input("Enter your query : ")
         search_object.search(query)
-        print search_object
+        print(search_object)
