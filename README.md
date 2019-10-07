@@ -5,8 +5,6 @@ This is a basic desktop application made using python which allows you to select
 
 **_Note : This App has been tested for linux systems only._**
 
-**This app works only for python 2.x versions because tabula-py is not available for python 3.x versions**
-
 **Please go through the Note Section at the end. It contains some common errors and tips which you should keep in mind while using it.**
 
 ## Features
@@ -81,10 +79,10 @@ Run this command to install the remaining dependencies :
 Run this command after following all the steps above.
 
 ```python
-python2 main.py 
+python3 main.py 
 ```
 ### Note :
-1. Use only pip (for python 2.x version).
+1. Use only pip (for python 3.x version).
 2. You need to run the above command everytime you want to use the app. 
 3. The app will take sometime (usually 2-3 minutes) when using it for the first time. If it takes more time than expected, close the window and run the python command again.
 4. Please install Java as tabula requires it. (Confirmed working with Java 7 and 8)
@@ -104,7 +102,7 @@ python2 main.py
 ```bash
     $ rm -r Pages/
     $ rm packages/courses.db
-    $ python2 main.py
+    $ python3 main.py
 ```
   Please make sure you make appropriate changes to the files packages/search.py and packages/page_01.py so that te pdf can be parsed correctly or else some unexpected error might occur.
 
