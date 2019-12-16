@@ -1,0 +1,23 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+distro = "*"
+numpy = "*"
+pandas = "*"
+pillow = "*"
+pypdf2 = "*"
+python-dateutil = "*"
+pytz = "*"
+reportlab = "*"
+six = "*"
+tabula-py = "*"
+pycairo = "*"
+pygobject = "*"
+
+[requires]
+python_version = "3.7"
