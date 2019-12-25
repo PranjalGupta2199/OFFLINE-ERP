@@ -239,7 +239,7 @@ Then when you have verified the path, click on OKAY button. This process may tak
             page_no = int (file.split('.')[0].split('-')[1]) 
             
             
-            if ( page_no >= 6 and page_no <= 56 ):
+            if ( page_no >= 1 and page_no <= 55 ):
                 
                 data = read_pdf(
                     input_path = os.path.join(path, file), 
@@ -257,29 +257,29 @@ Then when you have verified the path, click on OKAY button. This process may tak
                 
                 print("Done : " + str(page_no))
 
-            if (page_no >= 57  and page_no <= 70 ) :
-                data = read_pdf(
-                    input_path = os.path.join(path, file),
-                    pandas_options = {
-                    'header' : None,
-                    'skiprows' : [0],
-                    'keep_default_na' : True,
-                    })
+            # if (page_no >= 57  and page_no <= 70 ) :
+            #     data = read_pdf(
+            #         input_path = os.path.join(path, file),
+            #         pandas_options = {
+            #         'header' : None,
+            #         'skiprows' : [0],
+            #         'keep_default_na' : True,
+            #         })
 
 
-                if len(data.columns) != 6 :
-                    data = data.loc[:, [1,2,3,4]]
-                else : 
-                    data = data.loc[:, [1,2,4,5]]
-                # This if statement is called only because of the 
-                # errors caused when converting the pdf in dataframe
-                # on same pages.
+            #     if len(data.columns) != 6 :
+            #         data = data.loc[:, [1,2,3,4]]
+            #     else : 
+            #         data = data.loc[:, [1,2,4,5]]
+            #     # This if statement is called only because of the 
+            #     # errors caused when converting the pdf in dataframe
+            #     # on same pages.
                 
-                data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
-                data.to_sql(name = 'midsem', con = self.database,
-                    index = False, if_exists = 'append')
+            #     data.columns = ['COURSE_CODE', 'COURSE_TITLE', 'DATES', 'TIME']
+            #     data.to_sql(name = 'midsem', con = self.database,
+            #         index = False, if_exists = 'append')
 
-                print("Done : " + str(page_no))
+            #     print("Done : " + str(page_no))
 
         self.spinner.stop()
         

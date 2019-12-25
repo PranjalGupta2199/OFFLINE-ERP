@@ -10,7 +10,7 @@ db = sqlite3.connect('courses.db')
 db.create_function("REGEXP", 2, regexp)
 cursor = db.cursor()
 
-cursor.execute("SELECT _rowid_,INSTRUCTOR FROM courses WHERE INSTRUCTOR LIKE '%B124'")
+cursor.execute("SELECT _rowid_,INSTRUCTOR FROM courses WHERE INSTRUCTOR LIKE '%G206'")
 result = cursor.fetchall()
 print(result)
 
