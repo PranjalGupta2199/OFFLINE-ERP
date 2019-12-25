@@ -1,4 +1,3 @@
-![readme-demo](media/readme-demo.gif)
 # OFFLINE ERP  
 Tired of making your timetable on paper ? OFFLINE ERP is here to help you !!
 This is a basic desktop application made using python which allows you to select courses (CDCs and Electives) for your timetable. 
@@ -28,6 +27,7 @@ This app will give you warnings/ dialog box :
   - When you choose a course which has same compre date and session
   - When you don't create a database or exit your work without saving it
 
+![readme-demo](media/readme-demo.gif)
 
 ## How to Use :
 1. Double click on the row to select any course, lecture, practical or tutorial.
@@ -43,7 +43,7 @@ Please follow the steps according to your OS:
   1. [Windows](docs/windows.md)
   2. [Unix based](docs/unix-based.md)
 
-If you face any problems, please read this [doc.]()
+If you face any problems, please read this [doc.](docs/error.md)
 
 ## Contributing
 Contributions are always welcome! Please read the [contribution guidelines](docs/CONTRIBUTING.md) first.
