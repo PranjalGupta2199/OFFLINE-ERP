@@ -21,6 +21,8 @@ You are going to need the following libraries :
 Virtual Environment - [pipenv](https://github.com/pypa/pipenv)
 
 ## Installation 
+Go to this [link](https://pygobject.readthedocs.io/en/latest/getting_started.html#ubuntu-getting-started), find your OS and install gi on your system.
+
 Move to repo's directory using the following command.
 ```bash
     cd OFFLINE-ERP/
