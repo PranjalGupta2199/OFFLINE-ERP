@@ -6,18 +6,12 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-distro = "*"
-numpy = "*"
-pandas = "*"
-pillow = "*"
-pypdf2 = "*"
-python-dateutil = "*"
-pytz = "*"
-reportlab = "*"
-six = "*"
-tabula-py = "*"
 pycairo = "*"
 pygobject = "*"
+pypdf2 = "*"
+tabula-py = "*"
+reportlab = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"
