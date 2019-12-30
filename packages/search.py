@@ -116,9 +116,8 @@ class Searching:
                     A string giving the time details.
 
         '''
-        print (match_parameter)
+
         match_parameter = (''.join(match_parameter[0].split(' ')),)
-        print (match_parameter)
         midsem_info = self.cursor.execute(
             "SELECT * FROM midsem WHERE COURSE_CODE == ?", \
             match_parameter).fetchone()

@@ -403,11 +403,11 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
             left = 0, top = 0, width = 5, height = 1)
 
         self.midsem_schedule = [
-        ['TIME/DATES', '02/03','03/03','04/03', '05/03', '06/03', '07/03'],
-        ['9:00 - 10:30 AM', '', '', '', '', '', ''],
-        ['11:00 - 12:30 AM', '', '', '', '', '', ''],
-        ['1:30 - 3:00 PM', '', '', '', '', '', ''],
-        ['3:30 - 5:00 PM', '', '', '', '', '', '']]
+        ['TIME/DATES', '01/03', '02/03','03/03','04/03', '05/03', '06/03', '07/03'],
+        ['9:00 - 10:30 AM', '', '', '', '', '', '', ''],
+        ['11:00 - 12:30 AM', '', '', '', '', '', '', ''],
+        ['1:30 - 3:00 PM', '', '', '', '', '', '', ''],
+        ['3:30 - 5:00 PM', '', '', '', '', '', '', '']]
 
         for row in range(len(self.midsem_schedule)) :
             for col in range (len(self.midsem_schedule[row])) :
@@ -829,7 +829,7 @@ OPTIONS             self.menu_button :                      Gtk.MenuButton
         try :
             date = int(date)
             if (date >= 28): date = date - 27
-            else: date = date - 1
+            else: date = date - 0
             MyWindow.Label_list_midsem[time][date].set_label(
                 label)
             # these statements will catch an exception when, there is either
